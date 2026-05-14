@@ -111,7 +111,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -184,7 +184,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -257,7 +257,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -337,7 +337,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -412,7 +412,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -497,7 +497,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -571,7 +571,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -644,7 +644,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -695,7 +695,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -768,7 +768,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -845,7 +845,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -920,7 +920,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1013,7 +1013,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1071,7 +1071,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1151,7 +1151,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1234,7 +1234,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1320,7 +1320,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1376,7 +1376,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1441,7 +1441,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1518,7 +1518,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1594,7 +1594,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1665,7 +1665,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1749,7 +1749,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1823,7 +1823,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1893,7 +1893,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -1998,7 +1998,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2100,7 +2100,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2205,7 +2205,7 @@ jobs:
         key: ${{ github.job }}
         variant: sccache
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2298,7 +2298,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2367,7 +2367,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2436,7 +2436,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2504,7 +2504,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
@@ -2576,7 +2576,7 @@ jobs:
       with:
         key: ${{ github.job }}
     - name: Fetch distribution
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
         mv artifact/* .
