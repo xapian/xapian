@@ -131,7 +131,7 @@ FeatureList::Internal::compute_collection_length() const
             whole_len = std::numeric_limits<Xapian::termcount>::max();
         }
         len["whole"] = Xapian::termcount(whole_len);
-        len["body"] = whole_len - title_len;
+        len["body"] = Xapian::termcount(whole_len - title_len);
     }
     return len;
 }
