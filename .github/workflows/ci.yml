@@ -114,8 +114,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -187,8 +185,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -260,8 +256,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -340,8 +334,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -415,8 +407,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -500,8 +490,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -574,8 +562,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -647,8 +633,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -698,8 +682,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -771,8 +753,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -848,8 +828,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -923,8 +901,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1016,8 +992,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1074,8 +1048,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1154,8 +1126,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1237,8 +1207,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1323,8 +1291,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1379,8 +1345,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1444,8 +1408,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1521,8 +1483,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1597,8 +1557,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1668,8 +1626,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1752,8 +1708,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1826,8 +1780,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -1896,8 +1848,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -2001,8 +1951,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -2103,8 +2051,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -2208,8 +2154,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
@@ -2301,8 +2245,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/freebsd-vm@v1
@@ -2370,8 +2312,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/dragonflybsd-vm@v1
@@ -2439,8 +2379,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/netbsd-vm@v1
@@ -2507,8 +2445,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/openbsd-vm@v1
@@ -2579,8 +2515,6 @@ jobs:
       uses: actions/download-artifact@v8
     - name: Unpack distribution
       run: |
-        mv artifact/* .
-        rmdir artifact
         # Do actual unpacking in the VM, mostly to help reduce the size of the
         # rsync output in the logs.
     - uses: vmactions/solaris-vm@v1
