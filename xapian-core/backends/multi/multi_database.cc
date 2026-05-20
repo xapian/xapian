@@ -1,7 +1,7 @@
 /** @file
  * @brief Sharded database backend
  */
-/* Copyright (C) 2017,2019,2020,2022,2024 Olly Betts
+/* Copyright (C) 2017,2019,2020,2022,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #include "backends/backends.h"
 #include "backends/multi.h"
+#include "clamp_cast.h"
 #include "expand/ortermlist.h"
 #include "expand/termlistmerger.h"
 #include "multi_alltermslist.h"
@@ -38,7 +39,7 @@ using namespace std;
 MultiDatabase::size_type
 MultiDatabase::size() const
 {
-    return shards.size();
+    return clamp_cast<MultiDatabase::size_type>(shards.size());
 }
 
 bool

@@ -2,7 +2,7 @@
  * @brief Iterate all terms in an inmemory db
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007,2008,2009,2017,2024 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2017,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include <config.h>
 #include "inmemory_alltermslist.h"
 
+#include "clamp_cast.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -32,7 +33,7 @@ InMemoryAllTermsList::get_approx_size() const
     // This may be an over-estimate due to deleted entries, and we may be
     // restricted to a prefix, but we only use this value to build a balanced
     // or-tree, and it'll do a decent job for that.
-    return tmap->size();
+    return clamp_cast<Xapian::termcount>(tmap->size());
 }
 
 Xapian::doccount
@@ -42,7 +43,7 @@ InMemoryAllTermsList::get_termfreq() const
     Assert(it != tmap->end());
     Assert(!it->first.empty());
     /* FIXME: this isn't quite right. */
-    return it->second.docs.size();
+    return clamp_cast<Xapian::doccount>(it->second.docs.size());
 }
 
 TermList*

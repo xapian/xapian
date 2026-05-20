@@ -1,7 +1,7 @@
 /** @file
  * @brief Set of documents judged as relevant
  */
-/* Copyright (C) 2017 Olly Betts
+/* Copyright (C) 2017,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <xapian/rset.h>
 
+#include "clamp_cast.h"
 #include "rsetinternal.h"
 #include "str.h"
 
@@ -48,7 +49,7 @@ RSet::~RSet() {}
 Xapian::doccount
 RSet::size() const
 {
-    return internal ? internal->docs.size() : 0;
+    return internal ? clamp_cast<Xapian::doccount>(internal->docs.size()) : 0;
 }
 
 void

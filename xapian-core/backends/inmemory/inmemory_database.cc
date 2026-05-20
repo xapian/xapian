@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2024 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 #include "debuglog.h"
 
 #include "backends/contiguousalldocspostlist.h"
+#include "clamp_cast.h"
 #include "expand/expandweight.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -557,7 +558,7 @@ InMemoryDatabase::get_doclength_upper_bound() const
 {
     // Not a very tight bound in general, but InMemory isn't really built for
     // performance.
-    return min(get_total_length(), Xapian::totallength(Xapian::termcount(-1)));
+    return clamp_cast<Xapian::termcount>(get_total_length());
 }
 
 Xapian::termcount
@@ -716,7 +717,7 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     auto t = lower_bound(doc.terms.begin(), doc.terms.end(),
                          temp, InMemoryTermEntryLessThan());
     if (t != doc.terms.end() && t->term == term) {
-        return t->positions.size();
+        return clamp_cast<Xapian::termcount>(t->positions.size());
     }
     return 0;
 }

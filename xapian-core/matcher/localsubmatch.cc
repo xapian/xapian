@@ -25,6 +25,7 @@
 
 #include "backends/databaseinternal.h"
 #include "backends/leafpostlist.h"
+#include "clamp_cast.h"
 #include "debuglog.h"
 #include "extraweightpostlist.h"
 #include "omassert.h"
@@ -304,9 +305,10 @@ LocalSubMatch::open_post_list(const string& term,
 
     if (termfreqs) {
         if (term.empty()) {
+            auto cf = clamp_cast<Xapian::termcount>(total_stats->total_length);
             *termfreqs = TermFreqs(total_stats->collection_size,
                                    total_stats->rset_size,
-                                   total_stats->total_length);
+                                   cf);
         } else if (!lazy_weight) {
             auto i = total_stats->termfreqs.find(term);
             Assert(i != total_stats->termfreqs.end());

@@ -1,7 +1,7 @@
 /** @file
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004-2024 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 #include <xapian/error.h>
 #include <xapian/types.h>
 
+#include "clamp_cast.h"
 #include "expand/expandweight.h"
 #include "expand/termlistmerger.h"
 #include "glass_spelling.h"
@@ -383,7 +384,7 @@ GlassSpellingTermList::get_approx_size() const
 {
     // This is only used to decide how to build a OR-tree of TermList objects
     // so we just need to return "sizes" which are ordered roughly correctly.
-    return data.size();
+    return clamp_cast<Xapian::termcount>(data.size());
 }
 
 Xapian::termcount

@@ -1,7 +1,7 @@
 /** @file
  * @brief PositionList from an InMemory DB or a Document object
  */
-/* Copyright 2017 Olly Betts
+/* Copyright 2017,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 
 #include "inmemory_positionlist.h"
 
+#include "clamp_cast.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -31,7 +32,7 @@ using namespace std;
 Xapian::termcount
 InMemoryPositionList::get_approx_size() const
 {
-    return positions.size();
+    return clamp_cast<Xapian::termcount>(positions.size());
 }
 
 Xapian::termpos

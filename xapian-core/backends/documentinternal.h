@@ -1,7 +1,7 @@
 /** @file
  * @brief Abstract base class for a document
  */
-/* Copyright 2017,2018,2019,2023,2024 Olly Betts
+/* Copyright 2017,2018,2019,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include "api/terminfo.h"
 #include "api/termlist.h"
 #include "backends/databaseinternal.h"
+#include "clamp_cast.h"
 #include "overflow.h"
 
 #include <functional>
@@ -454,7 +455,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
     /// Count the value slots used in this document.
     Xapian::valueno values_count() const {
         ensure_values_fetched();
-        return values->size();
+        return clamp_cast<Xapian::valueno>(values->size());
     }
 
     Xapian::ValueIterator values_begin() const;

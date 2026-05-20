@@ -1,7 +1,7 @@
 /** @file
  * @brief Iteration over terms in a document
  */
-/* Copyright 2017,2024 Olly Betts
+/* Copyright 2017,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 #include "documenttermlist.h"
 
 #include "backends/inmemory/inmemory_positionlist.h"
+#include "clamp_cast.h"
 #include "omassert.h"
 
 #include "xapian/error.h"
@@ -66,7 +67,7 @@ DocumentTermList::positionlist_begin() const
 Xapian::termcount
 DocumentTermList::positionlist_count() const
 {
-    return it->second.count_positions();
+    return clamp_cast<Xapian::termcount>(it->second.count_positions());
 }
 
 TermList*

@@ -30,6 +30,7 @@
 
 #include "api/editdistance.h"
 #include "backends/postlist.h"
+#include "clamp_cast.h"
 #include "heap.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
@@ -1561,9 +1562,10 @@ QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
     if (termfreqs) {
         // We scale these below.
         auto& stats = *qopt->get_stats();
+        auto cf = clamp_cast<Xapian::termcount>(stats.total_length);
         *termfreqs = TermFreqs(stats.collection_size,
                                stats.rset_size,
-                               stats.total_length);
+                               cf);
     }
 
     auto value_freq = db.get_value_freq(slot);
@@ -1665,9 +1667,10 @@ QueryValueLE::postlist(QueryOptimiser* qopt, double factor,
     if (termfreqs) {
         // We scale these below.
         auto& stats = *qopt->get_stats();
+        auto cf = clamp_cast<Xapian::termcount>(stats.total_length);
         *termfreqs = TermFreqs(stats.collection_size,
                                stats.rset_size,
-                               stats.total_length);
+                               cf);
     }
 
     auto value_freq = db.get_value_freq(slot);
@@ -1763,9 +1766,10 @@ QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
     if (termfreqs) {
         // We scale these below.
         auto& stats = *qopt->get_stats();
+        auto cf = clamp_cast<Xapian::termcount>(stats.total_length);
         *termfreqs = TermFreqs(stats.collection_size,
                                stats.rset_size,
-                               stats.total_length);
+                               cf);
     }
 
     auto value_freq = db.get_value_freq(slot);
@@ -2476,7 +2480,7 @@ QueryWindowed::done()
 {
     // If window size not specified, default it.
     if (window == 0)
-        window = subqueries.size();
+        window = Xapian::termcount(subqueries.size());
     return QueryAndLike::done();
 }
 

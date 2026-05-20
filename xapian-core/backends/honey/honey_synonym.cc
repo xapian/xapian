@@ -1,7 +1,7 @@
 /** @file
  * @brief Synonym data for a honey database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017,2024 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2011,2017,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include "honey_cursor.h"
 #include "honey_database.h"
+#include "clamp_cast.h"
 #include "debuglog.h"
 #include "stringutils.h"
 #include "api/vectortermlist.h"
@@ -179,7 +180,8 @@ HoneySynonymTermList::get_approx_size() const
 {
     // This is an over-estimate, but we only use this value to build a balanced
     // or-tree, and it'll do a decent enough job for that.
-    return database->synonym_table.get_approx_entry_count();
+    auto entry_count = database->synonym_table.get_approx_entry_count();
+    return clamp_cast<Xapian::termcount>(entry_count);
 }
 
 Xapian::doccount

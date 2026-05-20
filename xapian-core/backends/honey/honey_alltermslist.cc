@@ -1,7 +1,7 @@
 /** @file
  * @brief A termlist containing all terms in a honey database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2010,2017,2018,2024 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2010,2017,2018,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include "honey_postlist.h"
 #include "honey_postlist_encodings.h"
 
+#include "clamp_cast.h"
 #include "debuglog.h"
 #include "pack.h"
 #include "stringutils.h"
@@ -65,7 +66,8 @@ HoneyAllTermsList::get_approx_size() const
     // This is an over-estimate and not entirely proportional between shards,
     // but we only use this value to build a balanced or-tree, and it'll at
     // least tend to distinguish large databases from small ones.
-    return database->postlist_table.get_approx_entry_count();
+    auto entry_count = database->postlist_table.get_approx_entry_count();
+    return clamp_cast<Xapian::termcount>(entry_count);
 }
 
 Xapian::doccount

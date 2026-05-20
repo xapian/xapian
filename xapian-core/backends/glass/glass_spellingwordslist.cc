@@ -26,6 +26,7 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
+#include "clamp_cast.h"
 #include "debuglog.h"
 #include "glass_database.h"
 #include "pack.h"
@@ -44,7 +45,8 @@ GlassSpellingWordsList::get_approx_size() const
 {
     // This is an over-estimate, but we only use this value to build a balanced
     // or-tree, and it'll do a decent enough job for that.
-    return database->spelling_table.get_entry_count();
+    auto entry_count = database->spelling_table.get_entry_count();
+    return clamp_cast<Xapian::termcount>(entry_count);
 }
 
 Xapian::doccount

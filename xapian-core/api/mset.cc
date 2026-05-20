@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::MSet class
  */
-/* Copyright (C) 2017,2024,2025 Olly Betts
+/* Copyright (C) 2017,2024,2025,2026 Olly Betts
  * Copyright (C) 2018 Uppinder Chugh
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 // FIXME: Clustering API needs work: #include "xapian/cluster.h"
 
 #include "backends/documentinternal.h"
+#include "clamp_cast.h"
 #include "net/serialise.h"
 #include "matcher/msetcmp.h"
 #include "omassert.h"
@@ -373,7 +374,7 @@ MSet::get_max_possible() const
 Xapian::doccount
 MSet::size() const
 {
-    return internal->items.size();
+    return clamp_cast<Xapian::doccount>(internal->items.size());
 }
 
 std::string
@@ -417,7 +418,7 @@ MSet::Internal::fetch(Xapian::doccount first_, Xapian::doccount last) const
         return;
     }
     if (last > items.size() - 1) {
-        last = items.size() - 1;
+        last = Xapian::doccount(items.size() - 1);
     }
     if (first_ <= last) {
         Xapian::doccount n = last - first_;
