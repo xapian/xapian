@@ -4,7 +4,7 @@
 /* Copyright (C) 2010 Richard Boulton
  * Copyright (C) 2016 Richhiey Thomas
  * Copyright (C) 2018 Uppinder Chugh
- * Copyright (C) 2024 Olly Betts
+ * Copyright (C) 2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -287,7 +287,9 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
     double get_magnitude() const { return magnitude; }
 
     /// Return the size of the termlist
-    Xapian::termcount termlist_size() const { return weights.size(); }
+    Xapian::termcount termlist_size() const {
+        return Xapian::termcount(weights.size());
+    }
 
     /** Start reference counting this object.
      *
