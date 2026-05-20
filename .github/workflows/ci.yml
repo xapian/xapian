@@ -134,6 +134,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -243,6 +245,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -344,6 +348,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -452,6 +458,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -550,6 +558,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -647,6 +657,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -699,6 +711,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -796,6 +810,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -896,6 +912,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -993,6 +1011,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1091,6 +1111,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1175,6 +1197,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1239,6 +1263,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1338,6 +1364,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1440,6 +1468,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1544,6 +1574,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1610,6 +1642,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1686,6 +1720,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1769,6 +1805,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1843,6 +1881,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -1920,6 +1960,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2010,6 +2052,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2090,6 +2134,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2166,6 +2212,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2277,6 +2325,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2385,6 +2435,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2496,6 +2548,8 @@ jobs:
         variant: sccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         pushd xapian-core
@@ -2595,6 +2649,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         # Do actual unpacking in the VM, mostly to help reduce the size of the
@@ -2668,6 +2724,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         # Do actual unpacking in the VM, mostly to help reduce the size of the
@@ -2741,6 +2799,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         # Do actual unpacking in the VM, mostly to help reduce the size of the
@@ -2813,6 +2873,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         # Do actual unpacking in the VM, mostly to help reduce the size of the
@@ -2889,6 +2951,8 @@ jobs:
         key: ${{ github.job }}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
+      with:
+        name: artifact
     - name: Unpack distribution
       run: |
         # Do actual unpacking in the VM, mostly to help reduce the size of the
