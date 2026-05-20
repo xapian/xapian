@@ -221,7 +221,7 @@ Xapian::Internal::closefrom(int fd)
     }
 #elif 0
     // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
-    // platforms don't have either closefrom() or F_CLOSEM but do have
+    // platforms don't have closefrom(), close_range() or F_CLOSEM but do have
     // getdirentries() then this code can be used.  AIX is an example of
     // a platform of the former, but apparently has F_CLOSEM.
     char path[6 + sizeof(pid_t) * 3 + 4];
