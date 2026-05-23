@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006-2025 Olly Betts
+# Copyright (C) 2006-2026 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ set -e
 MIRROR=http://httpredir.debian.org/debian/
 
 DEBIAN_CODENAMES='trixie bookworm bullseye'
-UBUNTU_CODENAMES='questing plucky noble jammy focal bionic xenial'
+UBUNTU_CODENAMES='resolute questing noble jammy focal bionic'
 UBUNTU_LATEST=`echo "$UBUNTU_CODENAMES"|sed 's/ .*//'`
 
 V_OPT=
@@ -66,7 +66,7 @@ done
 if [ -n "$HELP_RC" -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last backported version>] [-b <backport #>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.4.11-1 xenial"
+  echo "e.g.: $0 xapian-core 1.4.11-1 resolute"
   echo
   echo 'If -b not specified, default is 1'
   echo
@@ -134,9 +134,6 @@ build_it() {
 
   overrides=
   case $PKG:$CODENAME:$VERSION in
-    xapian-bindings:xenial:*)
-      # Make sure we add python3-xapian to debian/control.
-      overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3' ;;
     xapian-bindings:*:*)
       # Make sure we add python3-xapian to debian/control.
       overrides='PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.5' ;;
@@ -150,68 +147,7 @@ build_it() {
             dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
         fi
         ;;
-      xenial)
-        if grep -q libwxgtk3.2-dev $CONTROL_SOURCE ; then
-            sed -i 's/libwxgtk3.2-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
-            dch -a "$CONTROL_SOURCE: Build with wxWidgets 3.0."
-        elif grep -q libwxgtk3.0-gtk3-dev $CONTROL_SOURCE ; then
-            sed -i 's/libwxgtk3.0-gtk3-dev/libwxgtk3.0-dev/g' $CONTROL_SOURCE
-            dch -a "$CONTROL_SOURCE: Build with GTK2 version of wxWidgets."
-        fi
-        ;;
   esac
-
-  case $CODENAME in
-      xenial)
-        if [ -f "debian/compat" ] && [ "`cat debian/compat`" -gt 9 ] ; then
-            echo 9 > debian/compat
-            sed -i 's/debhelper (>= [^)]*)/debhelper (>= 9)/' $CONTROL_SOURCE
-            dch -a "$CONTROL_SOURCE: Lower debhelper compat level to 9."
-            # Compat 9 doesn't default to parallel building.
-            if grep -q 'dh_auto_test --no-parallel' debian/rules ; then
-                sed -i 's/dh_auto_test --no-parallel/dh_auto_test/' debian/rules
-                dch -a 'debian/rules: Drop --no-parallel from dh_auto_test invocation (debhelper compat level 9 does not default to parallel building).'
-            fi
-        else
-            COMPAT=`sed '/@XS_RUBY_VERSIONS@/d' $CONTROL_SOURCE|grep-dctrl -n -sBuild-Depends . -`
-            case $COMPAT in
-                *debhelper-compat*)
-                    COMPAT=`echo "$COMPAT"|sed 's/.*debhelper-compat *(= *\([0-9]\+\)).*/\1/p;d'`
-                    # Switch to a versioned debhelper dependency and create debian/compat.
-                    if [ "$CONTROL_SOURCE" != debian/control ] ; then
-                        # Fix generated debian/control as well to avoid error from `debian/rules clean`
-                        # due to having debian/compat and a debhelper-compat dependency.
-                        sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" debian/control
-                    fi
-                    sed -i "s/debhelper-compat *(= *[0-9]\+)/debhelper (>= $COMPAT)/" $CONTROL_SOURCE
-                    echo "$COMPAT" > debian/compat
-                    dch -a "$CONTROL_SOURCE,debian/compat: Use older way to specify debhelper compat level."
-                    cat >> debian/rules <<END
-
-override_dh_dwz:
-
-override_dh_builddeb:
-        DH_COMPAT=10 dh_builddeb
-END
-                    dch -a "debian/rules: Disable use of dwz to workaround bug in old dwz version"
-                    dch -a "debian/rules: Force DH_COMPAT=10 for dh_builddeb"
-                    ;;
-            esac
-        fi
-        ;;
-  esac
-
-  if [ "$PKG" = debhelper ] ; then
-      case $CODENAME in
-          xenial)
-              sed -i \
-                  -e "s/\(dh-autoreconf (>=\) 17/\1 12/" \
-                  -e "s/\(dh-strip-nondeterminism (>=\) 0.028/\1 0.015/" \
-                  $CONTROL_SOURCE
-              dch -a "$CONTROL_SOURCE: Relax dependencies on dh-autoreconf and dh-strip-nondeterminism."
-              ;;
-      esac
-  fi
 
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
@@ -304,13 +240,7 @@ bullseye)
     echo "Debian codename '$CODENAME' not mapped to a ~bpoN suffix"
     exit 1
   fi
-  case $CODENAME in
-  xenial)
-    BACKPORT_SUFFIX=".99$CODENAME+$BUILD_INT" ;;
-  *)
-    BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
-  esac
-  ;;
+  BACKPORT_SUFFIX=".999$CODENAME+$BUILD_INT" ;;
 esac
 
 # Unpack distribution tarballs, and put the debian control files into place,

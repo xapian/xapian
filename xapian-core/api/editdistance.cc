@@ -10,7 +10,7 @@
  *  http://berghel.net/publications/asm/asm.php
  */
 /* Copyright (C) 2003 Richard Boulton
- * Copyright (C) 2007,2008,2009,2017,2019,2020 Olly Betts
+ * Copyright (C) 2007,2008,2009,2017,2019,2020,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "editdistance.h"
 
 #include "omassert.h"
+#include "overflow.h"
 #include "popcount.h"
 
 #include <algorithm>
@@ -220,17 +221,36 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
         return ed_lower_bound;
     }
 
+    if (rare(target.size() > size_t{INT_MAX})) {
+        return INT_MAX;
+    }
+    int target_size = int(target.size());
+    
     if (!array) {
         // Allocate space for the largest case we need to consider, which is
         // when the second sequence is len + max_distance long.  Any second
         // sequence which is longer must be more than max_distance edits
         // away.
-        int maxdist = target.size() + max_distance;
-        int max_cols = maxdist * 2;
-        int max_rows = maxdist * 2 + 1;
-        array = new int[max_rows * max_cols];
+        unsigned maxdist;
+        if (rare(add_overflows(unsigned(target_size), unsigned(max_distance),
+                               maxdist))) {
+            return INT_MAX;
+        }
+        unsigned max_cols;
+        if (rare(mul_overflows(maxdist, 2u, max_cols))) {
+            return INT_MAX;
+        }
+        unsigned max_rows;
+        if (rare(add_overflows(max_cols, 1u, max_rows))) {
+            return INT_MAX;
+        }
+        unsigned alloc_size;
+        if (rare(mul_overflows(max_rows, max_cols, alloc_size))) {
+            return INT_MAX;
+        }
+        array = new int[alloc_size];
     }
 
-    return seqcmp_editdist<unsigned>(ptr, len, &target[0], target.size(),
+    return seqcmp_editdist<unsigned>(ptr, len, &target[0], target_size,
                                      array, max_distance);
 }
