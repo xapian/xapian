@@ -1258,7 +1258,7 @@ if test yes = "$GXX"; then
       dnl like to know about.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       case $gxx_version in
       [[0123]].*|4.[[0-6]].*)
@@ -1297,7 +1297,7 @@ if test yes = "$GXX"; then
       dnl clang (since __INTEL_COMPILER not substituted):
 
       dnl These options all work at least as far back as clang++ 3.0:
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wmissing-declarations -Winit-self"
 
       WERROR=-Werror
       ;;
