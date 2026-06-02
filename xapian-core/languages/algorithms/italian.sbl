@@ -97,7 +97,7 @@ backwardmode (
             'cela' 'cele' 'celi' 'celo' 'cene'
             'vela' 'vele' 'veli' 'velo' 'vene'
         )
-        among( (RV)
+        substring RV among(
             'ando' 'endo'   (delete)
             'ar' 'er' 'ir'  (<- 'e')
         )
