@@ -133,7 +133,7 @@ backwardmode (
             'ikkude' (<-'iku') //plural genitive: õnnelikkude -> õnneliku
             'ikke' (<-'iku') //plural partitive: rahulikke -> rahuliku
             'ike' (<-'iku') //plural genitive: ohtlike -> ohtliku
-            'sid' (not LONGV delete) //plural partitive and sg2pst and pl3pst: auto-sid and laul-sid (exludes plural nominative with words like gaasid, roosid)
+            'sid' (not LONGV delete) //plural partitive and sg2pst and pl3pst: auto-sid and laul-sid (excludes plural nominative with words like gaasid, roosid)
             // plural genitive and pl2: ministri-te, oluliste -> olulise and saada-te, laula-te;
             // also torte -> tort (if not in compound word) and kokkuvõtte -> kokkuvõte and roheliste -> rohelise, tegemiste -> tegemise, teadlaste -> teadlase
             'te' (

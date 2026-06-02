@@ -208,7 +208,7 @@ backwardmode (
         <-'n' // -eň -> -n not -ň
       )
       // -eš can also lose the -e- but this seems very uncommon - the only
-      // example I've seen is Aleš (a male given name or diminuitive name)
+      // example I've seen is Aleš (a male given name or diminutive name)
       // but we require 3 characters before R1 so this won't be considered
       // for stemming.
       //
