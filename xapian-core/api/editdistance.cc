@@ -225,7 +225,7 @@ EditDistanceCalculator::calc(const unsigned* ptr, int len,
         return INT_MAX;
     }
     int target_size = int(target.size());
-    
+
     if (!array) {
         // Allocate space for the largest case we need to consider, which is
         // when the second sequence is len + max_distance long.  Any second
