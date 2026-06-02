@@ -71,12 +71,12 @@ for my $cc_source (@ARGV) {
 }
 
 foreach my $cond (sort keys %by_cond) {
-#   my $name = $cond;
-#   $name =~ s/\&\&/_and_/g;
-#   $name =~ s/\|\|/_or_/g;
-#   $name =~ s/\!/not_/g;
-#   $name =~ s/\(/bra_/g;
-#   $name =~ s/\)/_ket/g;
+#        my $name = $cond;
+#        $name =~ s/\&\&/_and_/g;
+#        $name =~ s/\|\|/_or_/g;
+#        $name =~ s/\!/not_/g;
+#        $name =~ s/\(/bra_/g;
+#        $name =~ s/\)/_ket/g;
     my $c_cond = $cond;
     $c_cond =~ s/\b([a-z]+)\b/(properties&\U$1\E)/g;
     print COLLATED_HDR <<END;

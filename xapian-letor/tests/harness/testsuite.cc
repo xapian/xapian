@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2024 Olly Betts
  * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -204,6 +204,9 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
 # ifdef SIGBUS
     if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
 # endif
+# ifdef SIGPIPE
+    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
+# endif
 # ifdef SIGSTKFLT
     if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, NULL);
 # endif
@@ -225,6 +228,9 @@ static void handle_sig(int signum_)
 #ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
 #endif
+#ifdef SIGPIPE
+    signal(SIGPIPE, SIG_DFL);
+#endif
 #ifdef SIGSTKFLT
     signal(SIGSTKFLT, SIG_DFL);
 #endif
@@ -244,7 +250,9 @@ class SignalRedirector {
         active = true;
         signum = 0;
         sigaddr = NULL;
-        // SA_SIGINFO not universal (e.g. not present on Linux < 2.2 and Hurd).
+        // SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
+        // older Hurd).  If we have it, we use it to report the address
+        // associated with the signal (for signals where that makes sense).
 #if defined HAVE_SIGACTION && defined SA_SIGINFO
         struct sigaction sa;
         sa.sa_sigaction = handle_sig;
@@ -256,6 +264,9 @@ class SignalRedirector {
 # ifdef SIGBUS
         sigaction(SIGBUS, &sa, NULL);
 # endif
+# ifdef SIGPIPE
+        sigaction(SIGPIPE, &sa, NULL);
+# endif
 # ifdef SIGSTKFLT
         sigaction(SIGSTKFLT, &sa, NULL);
 # endif
@@ -265,6 +276,9 @@ class SignalRedirector {
         signal(SIGILL, handle_sig);
 # ifdef SIGBUS
         signal(SIGBUS, handle_sig);
+# endif
+# ifdef SIGPIPE
+        signal(SIGPIPE, handle_sig);
 # endif
 # ifdef SIGSTKFLT
         signal(SIGSTKFLT, handle_sig);
@@ -284,6 +298,9 @@ class SignalRedirector {
 # ifdef SIGBUS
             sigaction(SIGBUS, &sa, NULL);
 # endif
+# ifdef SIGPIPE
+            sigaction(SIGPIPE, &sa, NULL);
+# endif
 # ifdef SIGSTKFLT
             sigaction(SIGSTKFLT, &sa, NULL);
 # endif
@@ -293,6 +310,9 @@ class SignalRedirector {
             signal(SIGILL, SIG_DFL);
 # ifdef SIGBUS
             signal(SIGBUS, SIG_DFL);
+# endif
+# ifdef SIGPIPE
+            signal(SIGPIPE, SIG_DFL);
 # endif
 # ifdef SIGSTKFLT
             signal(SIGSTKFLT, SIG_DFL);
@@ -468,7 +488,7 @@ test_driver::runtest(const test_desc *test)
                         // real...
                         if (runcount == 0) {
                             out << col_yellow << " PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
-                            ++runcount;
+                            runcount = runcount + 1;
                             // Ensure that any cached memory from fd tracking
                             // is allocated before we rerun the test.
                             (void)fdtracker.check();
@@ -492,7 +512,7 @@ test_driver::runtest(const test_desc *test)
                         // false positives.
                         if (runcount == 0) {
                             out << col_yellow << " POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
-                            ++runcount;
+                            runcount = runcount + 1;
                             // Ensure that any cached memory from fd tracking
                             // is allocated before we rerun the test.
                             (void)fdtracker.check();
@@ -506,7 +526,7 @@ test_driver::runtest(const test_desc *test)
                 if (!fdtracker.check()) {
                     if (runcount == 0) {
                         out << col_yellow << " POSSIBLE FDLEAK:" << fdtracker.get_message() << col_reset;
-                        ++runcount;
+                        runcount = runcount + 1;
                         continue;
                     }
                     out << col_red << " FDLEAK:" << fdtracker.get_message() << col_reset;
@@ -638,13 +658,23 @@ test_driver::runtest(const test_desc *test)
 
         // Caught a signal.
         const char *signame = "SIGNAL";
+#if defined HAVE_SIGACTION && defined SA_SIGINFO
         bool show_addr = true;
+#else
+        bool show_addr = false;
+#endif
         switch (signum) {
             case SIGSEGV: signame = "SIGSEGV"; break;
             case SIGFPE: signame = "SIGFPE"; break;
             case SIGILL: signame = "SIGILL"; break;
 #ifdef SIGBUS
             case SIGBUS: signame = "SIGBUS"; break;
+#endif
+#ifdef SIGPIPE
+            case SIGPIPE:
+                signame = "SIGPIPE";
+                show_addr = false;
+                break;
 #endif
 #ifdef SIGSTKFLT
             case SIGSTKFLT:
@@ -655,7 +685,7 @@ test_driver::runtest(const test_desc *test)
         }
         out << " " << col_red << signame;
         if (show_addr) {
-            out << " at " << str(sigaddr);
+            out << " at " << sigaddr;
         }
         out << col_reset;
         write_and_clear_tout();
