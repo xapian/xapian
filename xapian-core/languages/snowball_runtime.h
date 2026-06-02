@@ -3,7 +3,7 @@
 
 #include "api.h"
 
-#define HEAD 2*sizeof(int)
+#include <limits.h>
 
 #ifdef __cplusplus
 /* Use reinterpret_cast<> to avoid -Wcast-align warnings from clang++. */
@@ -24,17 +24,17 @@
 
 #ifdef SNOWBALL_DEBUG_COMMAND_USED
 # include <stdio.h>
-static void debug(struct SN_env * z, int number, int line_count) {
+static void debug(struct SN_env * z, int n, int line) {
     int i;
-    int limit = SIZE(z->p);
-    if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count, limit);
-    for (i = 0; i <= limit; i++) {
+    int len = SIZE(z->p);
+    printf("%3d (line %4d): [%d]'", n, line, len);
+    for (i = 0; i <= len; i++) {
         if (z->lb == i) printf("{");
         if (z->bra == i) printf("[");
         if (z->c == i) printf("|");
         if (z->ket == i) printf("]");
         if (z->l == i) printf("}");
-        if (i < limit) {
+        if (i < len) {
             int ch = z->p[i];
             if (ch == 0) ch = '#';
             printf("%c", ch);

@@ -5,22 +5,11 @@
 #include <ctype.h>   /* isalpha etc */
 #include "header.h"
 
-struct system_word {
-    int s_size;      /* size of system word */
-    const byte * s;  /* pointer to the system word */
-    int code;        /* its internal code */
-};
-
-
-/* ASCII collating assumed in syswords.h */
-
-#include "syswords.h"
+#include "tokens.h"
 
 #define INITIAL_INPUT_BUFFER_SIZE 8192
 
 static int hex_to_num(int ch);
-
-static int smaller(int a, int b) { return a < b ? a : b; }
 
 extern byte * get_input(const char * filename) {
     FILE * input = strcmp(filename, "-") == 0 ? stdin : fopen(filename, "rb");
@@ -81,11 +70,12 @@ static int compare_words(int m, const byte * p, int n, const byte * q) {
 }
 
 static int find_word(int n, const byte * p) {
-    int i = 0; int j = vocab->code;
+    int i = -1;
+    int j = NUM_ALPHA_TOKENS;
     do {
-        int k = i + (j - i)/2;
-        const struct system_word * w = vocab + k;
-        int diff = compare_words(n, p, w->s_size, w->s);
+        int k = i + (j - i) / 2;
+        const struct token * w = alpha_tokens + k;
+        int diff = compare_words(n, p, w->s_size, (const byte*)w->s);
         if (diff == 0) return w->code;
         if (diff < 0) j = k; else i = k;
     } while (j - i != 1);
@@ -127,8 +117,8 @@ static int read_literal_string(struct tokeniser * t, int c) {
         if (ch == t->m_start) {
             /* Inside insert characters. */
             int c0 = c;
-            int newlines = false; /* no newlines as yet */
-            int all_whitespace = true; /* no printing chars as yet */
+            bool newlines = false; /* no newlines as yet */
+            bool all_whitespace = true; /* no printing chars as yet */
             while (true) {
                 if (c >= SIZE(p) || (p[c] == '\n' && !all_whitespace)) {
                     error1(t, "string literal not terminated");
@@ -245,37 +235,100 @@ static int next_token(struct tokeniser * t) {
         if (c >= SIZE(p)) { t->c = c; return -1; }
         int ch = p[c];
         if (white_space(t, ch)) { c++; continue; }
+
         if (isalpha(ch)) {
             int c0 = c;
             while (c < SIZE(p) && (isalnum(p[c]) || p[c] == '_')) c++;
+            t->c = c;
             code = find_word(c - c0, p + c0);
-            if (code < 0 || t->token_disabled[code]) {
-                SET_SIZE(t->s, 0);
-                t->s = add_slen_to_s(t->s, (const char*)p + c0, c - c0);
-                code = c_name;
+            if (code >= 0 && !t->token_disabled[code]) {
+                return code;
             }
-        } else if (isdigit(ch)) {
+            SET_SIZE(t->s, 0);
+            t->s = add_slen_to_s(t->s, (const char*)p + c0, c - c0);
+            return c_name;
+        }
+
+        if (isdigit(ch)) {
             int value = ch - '0';
             while (++c < SIZE(p) && isdigit(p[c])) {
                 value = 10 * value + (p[c] - '0');
             }
-            t->number = value;
-            code = c_number;
-        } else if (ch == '\'') {
-            c = read_literal_string(t, c + 1);
-            code = c_literalstring;
-        } else {
-            int lim = smaller(2, SIZE(p) - c);
-            int i;
-            for (i = lim; i > 0; i--) {
-                code = find_word(i, p + c);
-                if (code >= 0) { c += i; break; }
-            }
-        }
-        if (code >= 0) {
             t->c = c;
-            return code;
+            t->number = value;
+            return c_number;
         }
+
+        byte ch1 = p[c];
+        byte ch2 = (SIZE(p) - c > 1) ? p[c + 1] : 0;
+        t->c = c + 2;
+        switch (ch1) {
+          case '\'':
+            t->c = read_literal_string(t, c + 1);
+            return c_literalstring;
+          case '!':
+            if (ch2 == '=') return c_ne;             // !=
+            break;
+          case '$':
+            --t->c;
+            return c_dollar;                         // $
+          case '(':
+            --t->c;
+            return c_bra;                            // (
+          case ')':
+            --t->c;
+            return c_ket;                            // )
+          case '*':
+            if (ch2 == '=') return c_multiplyassign; // *=
+            --t->c;
+            return c_multiply;                       // *
+          case '+':
+            if (ch2 == '=') return c_plusassign;     // +=
+            --t->c;
+            return c_plus;                           // +
+          case '-':
+            if (ch2 == '=') return c_minusassign;    // -=
+            if (ch2 == '>') return c_sliceto;        // ->
+            --t->c;
+            return c_minus;                          // -
+          case '/':
+            if (ch2 == '/') return c_comment1;       // //
+            if (ch2 == '*') return c_comment2;       // /*
+            if (ch2 == '=') return c_divideassign;   // /=
+            --t->c;
+            return c_divide;                         // /
+          case '<':
+            if (ch2 == '-') return c_slicefrom;      // <-
+            if (ch2 == '=') return c_le;             // <=
+            if (ch2 == '+') {                        // <+
+                fprintf(stderr,
+                        "%s:%d: warning: `<+` is a legacy feature - "
+                        "use `insert` instead\n",
+                        t->file, t->line_number);
+                return c_insert;
+            }
+            --t->c;
+            return c_lt;                             // <
+          case '=':
+            if (ch2 == '=') return c_eq;             // ==
+            if (ch2 == '>') return c_assignto;       // =>
+            --t->c;
+            return c_assign;                         // =
+          case '>':
+            if (ch2 == '=') return c_ge;             // >=
+            --t->c;
+            return c_gt;                             // >
+          case '?':
+            --t->c;
+            return c_debug;                          // ?
+          case '[':
+            --t->c;
+            return c_leftslice;                      // [
+          case ']':
+            --t->c;
+            return c_rightslice;                     // ]
+        }
+
         error(t, "'", p + c, 1, "' unknown");
         c++;
         continue;
@@ -417,8 +470,27 @@ extern int read_token(struct tokeniser * t) {
                 int base = 0;
                 read_chars(t);
                 code = read_token(t);
-                if (code == c_hex) { base = 16; code = read_token(t); } else
-                if (code == c_decimal) { base = 10; code = read_token(t); }
+                if (code == c_hex) {
+                    // We use `hex` to define U+xxxx stringdefs for single-byte
+                    // character sets so suppress the warning there, e.g.:
+                    //
+                    //   stringdef U+02D9  hex 'FF'
+                    if (!(t->s[0] == 'U' && t->s[1] == '+')) {
+                        fprintf(stderr,
+                                "%s:%d: warning: `hex` is a legacy feature - "
+                                "use {U+1234} notation instead\n",
+                                t->file, t->line_number);
+                    }
+                    base = 16;
+                    code = read_token(t);
+                } else if (code == c_decimal) {
+                    fprintf(stderr,
+                            "%s:%d: warning: `decimal` is a legacy feature - "
+                            "use {U+1234} notation instead\n",
+                            t->file, t->line_number);
+                    base = 10;
+                    code = read_token(t);
+                }
                 if (code != c_literalstring) {
                     error1(t, "string omitted after stringdef");
                     continue;
@@ -443,7 +515,8 @@ extern int read_token(struct tokeniser * t) {
             case c_get: {
                 code = read_token(t);
                 if (code != c_literalstring) {
-                    error1(t, "string omitted after get"); continue;
+                    error1(t, "string omitted after get");
+                    continue;
                 }
                 t->get_depth++;
                 if (t->get_depth > 10) {
@@ -492,7 +565,8 @@ extern int read_token(struct tokeniser * t) {
                     lose_s(p);
 
                     struct input * q = t->next;
-                    memmove(t, q, sizeof(struct input)); p = t->p;
+                    memmove(t, q, sizeof(struct input));
+                    p = t->p;
                     FREE(q);
 
                     t->get_depth--;
@@ -514,28 +588,55 @@ extern int peek_token(struct tokeniser * t) {
 }
 
 extern const char * name_of_token(int code) {
-    for (int i = 1; i < vocab->code; i++)
-        if ((vocab + i)->code == code) return (const char *)(vocab + i)->s;
+    for (int i = 0; i < NUM_ALPHA_TOKENS; i++) {
+        if (alpha_tokens[i].code == code)
+            return alpha_tokens[i].s;
+    }
     switch (code) {
-        case c_mathassign:   return "=";
-        case c_name:         return "name";
-        case c_number:       return "number";
-        case c_literalstring:return "literal";
-        case c_neg:          return "neg";
-        case c_grouping:     return "grouping";
-        case c_call:         return "call";
-        case c_booltest:     return "Boolean test";
-        case c_functionend:  return "Function end";
-        case c_goto_grouping:
-                             return "goto grouping";
-        case c_gopast_grouping:
-                             return "gopast grouping";
-        case c_goto_non:     return "goto non";
-        case c_gopast_non:   return "gopast non";
-        case c_not_booltest: return "Inverted boolean test";
-        case -2:             return "start of text";
-        case -1:             return "end of text";
-        default:             return "?";
+        case c_dollar:          return "$";
+        case c_bra:             return "(";
+        case c_ket:             return ")";
+        case c_multiply:        return "*";
+        case c_plus:            return "+";
+        case c_minus:           return "-";
+        case c_divide:          return "/";
+        case c_lt:              return "<";
+        case c_stringassign:
+        case c_assign:          return "=";
+        case c_gt:              return ">";
+        case c_debug:           return "?";
+        case c_leftslice:       return "[";
+        case c_rightslice:      return "]";
+        case c_ne:              return "!=";
+        case c_multiplyassign:  return "*=";
+        case c_plusassign:      return "+=";
+        case c_minusassign:     return "-=";
+        case c_sliceto:         return "->";
+        case c_comment2:        return "/*";
+        case c_comment1:        return "//";
+        case c_divideassign:    return "/=";
+        case c_insert:          return "<+";
+        case c_slicefrom:       return "<-";
+        case c_le:              return "<=";
+        case c_eq:              return "==";
+        case c_assignto:        return "=>";
+        case c_ge:              return ">=";
+        case c_name:            return "name";
+        case c_number:          return "number";
+        case c_literalstring:   return "literal";
+        case c_neg:             return "neg";
+        case c_grouping:        return "grouping";
+        case c_call:            return "call";
+        case c_booltest:        return "Boolean test";
+        case c_functionend:     return "Function end";
+        case c_goto_grouping:   return "goto grouping";
+        case c_gopast_grouping: return "gopast grouping";
+        case c_goto_non:        return "goto non";
+        case c_gopast_non:      return "gopast non";
+        case c_not_booltest:    return "Inverted boolean test";
+        case -2:                return "start of text";
+        case -1:                return "end of text";
+        default:                return "?";
     }
 }
 

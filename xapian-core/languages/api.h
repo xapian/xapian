@@ -6,16 +6,16 @@ typedef unsigned char symbol;
 /* Or replace 'char' above with 'short' for 16 bit characters.
 
    More precisely, replace 'char' with whatever type guarantees the
-   character width you need. Note however that sizeof(symbol) should divide
-   HEAD, defined in snowball_runtime.h as 2*sizeof(int), without remainder,
-   otherwise there is an alignment problem. In the unlikely event of a problem
-   here, consult Martin Porter.
+   character width you need.
 */
 
 struct SN_env {
     symbol * p;
     int c; int l; int lb; int bra; int ket;
     int af;
+#ifdef __cplusplus
+    SN_env() : p(), c(), l(), lb(), bra(), ket(), af() { }
+#endif
 };
 
 #ifdef __cplusplus

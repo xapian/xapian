@@ -53,11 +53,12 @@ snowball_sources =\
 	languages/compiler/tokeniser.c\
 	languages/compiler/analyser.c\
 	languages/compiler/generator.c\
+	languages/compiler/generator_c.c\
 	languages/compiler/driver.c
 
 snowball_headers =\
 	languages/compiler/header.h\
-	languages/compiler/syswords.h
+	languages/compiler/tokens.h
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
