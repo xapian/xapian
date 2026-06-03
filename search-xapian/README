@@ -1,21 +1,27 @@
-Search::Xapian version 1.2.25.6
+Search::Xapian version 1.2.25.7
 ===============================
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
 
-We're replacing these hand-coded XS wrappers with wrappers generated using
-SWIG, which will allow new C++ API features to be wrapped for Perl more
-quickly and easily than currently.  These new bindings are available in
-xapian-bindings 1.4.16 and later.  They are mostly compatible with these
-bindings, but there are some differences - see the documentation of the new
-bindings for a list of the known differences.
+This project is no longer being actively maintained, and there are not likely
+to be further releases.
 
-These bindings can't be compiled against xapian-core 2.0.0 and later - you need
-to migrate to newer Perl bindings in xapian-bindings for these versions.
+We've replaced these hand-coded XS wrappers with wrappers generated using SWIG,
+which are available in xapian-bindings 1.4.16 and later.
+
+Using SWIG allows new C++ API features to be wrapped for Perl more quickly and
+easily, and the new bindings provide wrappers for many classes and methods which
+are missing here.
+
+The new bindings are mostly upwardly compatible with these bindings, but there
+are some differences - see the documentation of the new bindings for a list of
+the known differences.
 
 To assist people with migration these XS bindings can also be compiled against
 xapian-core 1.4.x, and aim to present the same Perl API as when compiled
-against xapian-core 1.2.x.
+against xapian-core 1.2.x.  These bindings can't be compiled against
+xapian-core 2.0.0 and later - you need to migrate to newer Perl bindings in
+xapian-bindings for these versions.
 
 INSTALLATION
 
@@ -52,7 +58,8 @@ This module requires these other modules and libraries:
 
   The Xapian C++ search library, which can be downloaded by following
   the instructions on https://xapian.org/ - versions 1.2.x and 1.4.x
-  are supported by Search::Xapian 1.2.24.0 and later.
+  are supported by Search::Xapian 1.2.24.0 and later.  Xapian 2.0.x is
+  NOT supported.
 
 DOCUMENTATION
 

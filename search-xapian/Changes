@@ -1,7 +1,8 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.25.7  UNRELEASED
+1.2.25.7  Wed Jun  3 22:45:01 UTC 2026
 	[Changes contributed by Olly Betts]
+	- README: Update status - there are not likely to be further releases.
 	- If the C++ compiler isn't found and g++ isn't installed, look for
 	  c++ - this means the build should work out of the box on systems
 	  such as FreeBSD where the default compiler is clang.  Reported by
