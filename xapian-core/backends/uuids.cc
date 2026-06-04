@@ -82,7 +82,7 @@ Uuid::generate()
     //
     // `std::random_device::entropy()` should allow us to tell but can't be
     // trusted due to various bad real-world implementations:
-    // https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/libuuid
+    // https://en.cppreference.com/cpp/numeric/random/random_device/entropy#Notes
 
     bool filled_with_randomness = false;
 #if defined HAVE_ARC4RANDOM_BUF
