@@ -119,7 +119,7 @@ extern void check_free(void * p) {
 }
 
 extern int checked_snprintf(char *str, size_t size,
-                            const char *restrict format, ...) {
+                            const char * format, ...) {
     va_list ap;
     va_start(ap, format);
     int r = vsnprintf(str, size, format, ap);
