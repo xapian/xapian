@@ -211,7 +211,7 @@ extern void * check_malloc(size_t n);
 extern void check_free(void * p);
 
 extern int checked_snprintf(char *str, size_t size,
-                            const char *restrict format, ...)
+                            const char * format, ...)
 #ifdef __GNUC__
     __attribute__ ((__format__ (__printf__, 3, 4)))
 #endif
