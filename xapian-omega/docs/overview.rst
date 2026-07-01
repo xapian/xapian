@@ -338,7 +338,7 @@ other filters too - see below):
   "small-block" ``.doc`` files whereas antiword doesn't) and it may extract
   more metadata (e.g. with antiword you only get file extension, MIME type and
   last modified).  Enable use with ``--worker`` as documented below.  This
-  requires LibreOffice >= 4.3 in general, but >= 26.2.2 on macOS.
+  requires LibreOffice >= 5.2 in general, but >= 26.2.2 on macOS.
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For

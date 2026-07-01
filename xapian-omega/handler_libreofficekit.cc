@@ -37,9 +37,9 @@ using namespace std;
 using namespace std;
 using namespace lok;
 
-// We require at least LibreOffice 4.3.
-#define MIN_LIBREOFFICE_VERSIOM_MAJOR 4
-#define MIN_LIBREOFFICE_VERSIOM_MINOR 3
+// We require at least LibreOffice 5.2 (for freeError()).
+#define MIN_LIBREOFFICE_VERSIOM_MAJOR 5
+#define MIN_LIBREOFFICE_VERSIOM_MINOR 2
 
 // Install location for Debian packages (also Fedora on 32-bit architectures):
 #define LO_PATH_DEBIAN "/usr/lib/libreoffice/program"
@@ -175,14 +175,16 @@ try {
     url_encode_path(input_url, filename);
     unique_ptr<Document> lodoc(llo->documentLoad(input_url.c_str(), options));
     if (!lodoc.get()) {
-        const char* errmsg = llo->getError();
+        char* errmsg = llo->getError();
         send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load document");
+        if (errmsg) llo->freeError(errmsg);
         return;
     }
 
     if (!lodoc->saveAs(output_url.c_str(), format, options)) {
-        const char* errmsg = llo->getError();
+        char* errmsg = llo->getError();
         send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to export as HTML");
+        if (errmsg) llo->freeError(errmsg);
         return;
     }
 
