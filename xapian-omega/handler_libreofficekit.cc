@@ -182,7 +182,7 @@ try {
 
     if (!lodoc->saveAs(output_url.c_str(), format, options)) {
         const char* errmsg = llo->getError();
-        send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to load export");
+        send_field(FIELD_ERROR, errmsg ? errmsg : "Failed to export as HTML");
         return;
     }
 
