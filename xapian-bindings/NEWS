@@ -1,3 +1,38 @@
+up to: 74c16d147ad30129ccac745e6f67b151c44aaee1
+
+Xapian-bindings 1.4.32 (UNRELEASED):
+
+Documentation:
+
+* Eliminate old FSF address by updating GPL/LGPL licence files and boilerplate
+  to direct people who didn't receive the licence text to the FSF website
+  rather than giving a postal address (which is what the FSF licence texts now
+  do).
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+Python3:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.31 (2026-02-23):
 
 Documentation:

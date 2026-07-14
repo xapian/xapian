@@ -1,3 +1,57 @@
+up to: e71d1f7e3435de78b45cd70e6087bc113b791382
+
+Xapian-core 1.4.32 (UNRELEASED):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* Update Database::get_revision() doc comment.  This method has returned 0 for
+  a Database with no shards since 1.4.13.
+
+* Eliminate old FSF address by updating GPL/LGPL licence files and boilerplate
+  to direct people who didn't receive the licence text to the FSF website
+  rather than giving a postal address (which is what the FSF licence texts now
+  do).
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.31 (2026-02-23):
 
 API:

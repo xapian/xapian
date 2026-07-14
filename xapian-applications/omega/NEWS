@@ -1,3 +1,36 @@
+up to: eb658ba4cde47a48cc5380edafe986bb8ab63f92
+
+Omega 1.4.32 (UNRELEASED):
+
+general:
+
+documentation:
+
+* Eliminate old FSF address by updating GPL/LGPL licence files and boilerplate
+  to direct people who didn't receive the licence text to the FSF website
+  rather than giving a postal address (which is what the FSF licence texts now
+  do).
+
+* NEWS: Remove empty section from old NEWS entry.
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.31 (2026-02-23):
 
 documentation:
