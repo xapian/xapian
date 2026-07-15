@@ -1,0 +1,6 @@
+# Tell git to identify text files and normalise them to use LF line endings.
+* text=auto eol=lf
+
+# Exceptions:
+xapian-core/tests/testdata/** binary
+xapian-core/tests/testdata/*.txt text eol=lf
