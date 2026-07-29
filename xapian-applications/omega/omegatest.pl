@@ -580,6 +580,10 @@ if ($faketime ne '') {
     my $save_TZ = $ENV{TZ};
     $ENV{TZ} = 'UTC';
     qtestcase('VALUE_RANGE 0 20151127060709 20151128060708', 'DATEVALUE=0', 'SPAN=1');
+    qtestcase('VALUE_RANGE 1 20151125060709 20151128060708', 'SPAN.1=3');
+    # Date terms from SPAN without explicit START or END (regression test for #853):
+    qtestcase('(D20151125 OR D20151126 OR D20151127 OR D20151128 OR Dlatest)', 'SPAN=3');
+
     if (defined $save_TZ) {
       $ENV{TZ} = $save_TZ;
     } else {
