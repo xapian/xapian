@@ -273,7 +273,7 @@ other filters too - see below):
   encounter .doc files which are other actually other formats - e.g. RTF
   (AbiWord writes RTF when asked to save as .doc, and Microsoft Word quietly
   loads RTF files with a .doc extension), DOCX, plain text (e.g. `README.DOC`),
-  and even PDF or HTML.  Instead we let libmagic example the contents to
+  and even PDF or HTML.  Instead we let libmagic examine the contents to
   determine its mimetype and index based on that.
 * MS Excel documents (.xls, .xlb, .xlt, .xlr, .xla) if xls2csv is available
   (comes with catdoc)
