@@ -33,14 +33,6 @@ using namespace std;
 
 template<typename T>
 static void
-estimate_or_assuming_indep(double a, double b, double n, T& res)
-{
-    Assert(n != 0.0);
-    res = static_cast<T>(a + b - (a * b / n) + 0.5);
-}
-
-template<typename T>
-static void
 estimate_or_assuming_indep(double a, double af, double al,
                            double b, double bf, double bl,
                            T& res)
