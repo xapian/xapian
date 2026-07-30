@@ -178,8 +178,8 @@ if (defined $new_version) {
 print NEWSTMP $news if defined $news;
 while (<NEWS>) {
     if (!defined $new_version) {
-	# Handle placeholder date like ????-??-??.
-	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()(....-..-..)(\):)$/) {
+	# Handle placeholder date like ????-??-?? or UNRELEASED.
+	if (/^([A-Za-z][-\w]* (\d+(?:\.\d+)+) \()(....-..-..|UNRELEASED)(\):)$/) {
 	    my $pre = $1;
 	    $new_version = $2;
 	    my $old_date = $3;
