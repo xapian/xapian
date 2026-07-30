@@ -1949,7 +1949,7 @@ jobs:
         msystem: mingw32
         install: base-devel
         pacboy: >-
-          file:p
+          file
           gcc:p
           pcre2:p
           zlib:p
