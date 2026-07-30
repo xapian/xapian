@@ -831,7 +831,11 @@ if test no != "$with_java" ; then
       for count in 1 2 3 4 5 6 7 8 9 ; do
 	r=`readlink "$real_javac"`
 	test -n "$r" || break
-	real_javac=$r
+	case $r in
+	  /*) real_javac=$r ;;
+	  dnl resolve relative symlink
+	  *) real_javac=`echo "$real_javac"|$SED 's![^/]*!!'`$r ;;
+	esac
       done
       dnl Translate ".../bin/javac" to ".../include".
       [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
