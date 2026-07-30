@@ -1281,6 +1281,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             gmime \
@@ -1382,6 +1384,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             gmime \
@@ -1486,6 +1490,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             gmime \
