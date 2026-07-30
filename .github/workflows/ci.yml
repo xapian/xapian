@@ -1087,6 +1087,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
@@ -1167,6 +1169,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
@@ -1250,6 +1254,8 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Remove untrusted taps we don't use.
+        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
