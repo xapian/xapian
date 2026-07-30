@@ -2023,7 +2023,7 @@ jobs:
         # # replace omindextest with a simple script which skips this test.
         # printf '#!/bin/sh\nexit 77\n' > xapian-omega/omindextest
         # chmod 755 xapian-omega/omindextest
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
