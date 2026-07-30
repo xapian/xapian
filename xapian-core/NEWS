@@ -1,4 +1,8 @@
-up to: d4a3815cdac7bbbf32aa535a9e8c41c12a9d8ee0
+up to: 0d7b9853690c940de48d8d16ddd7407502600d41
+
+    Update Snowball compiler and runtime
+    We're now up to date with snowball commit
+    a04abeb4f95eed8757b5107694fa0424c7026a79.
 
 Xapian-core 2.0.1 (UNRELEASED):
 
@@ -10,6 +14,18 @@ Xapian-core 2.0.1 (UNRELEASED):
 
 API:
 
+* Stem:
+
+FIXME
+  + Merge algorithm changes from Snowball.  There are the following functional
+    changes:
+
+    - Stemmers added for Czech (Jim O’Regan),
+    , Persian (Saeid Darvish),
+
+    and Sesotho (Kamohelo Lebjane)
+
+
 * The Unicode table generation script has been rewritten.  We now generate
   overlapping page tables which allows them to be encoded more compactly (2028
   bytes smaller, which is a 4.3% size reduction) which should be more cache
@@ -20,7 +36,7 @@ API:
 * Xapian::Unicode::is_whitespace(): Optimise to use a bitmask and compare
   with a constant, which speeds up tokenising text by ~1%.
 
-* UnitRangeProcessor: Now supported `T` suffix for terrabytes.
+* UnitRangeProcessor: Now supports `T` suffix for terrabytes.
 
 testsuite:
 
@@ -88,6 +104,22 @@ examples:
 
 
 portability:
+
+* We now prefer to generate a UUID for a new database from cryptographically
+  secure random data on platforms which provide arc4random_buf(), arc4random()
+  or getentropy().  Where supported, this has fewer drawbacks than other
+  approaches: using libuuid requires an additional dependency; using
+  `/proc/sys/kernel/random/uuid` works on Linux and Android, but requires /proc
+  to be mounted, requires an unused fd to generate a UUID, and access to it
+  is blocked by SELinux policy in Android < 9.  Patch from Viktor Filinkov.
+
+* configure: `-Wstrict-overflow=1` is no longer added to the default compiler
+  options for GCC and clang.  This option has been a no-op since GCC 8 (and
+  has always been a no-op for clang, provided only for GCC compatibility).
+  Patch from Sergei Trofimovich.
+
+* Remove unused template function to fix -Wunused-template warning from
+  clang 23.
 
 * configure now enables `-W2` for MSVC by default, and existing warnings at
   this warning level have been fixed.

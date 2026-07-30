@@ -1,4 +1,4 @@
-up to: 28f11a3a6eaa998c7e858486b1195cdeae23b25f
+up to: 53b594418ee9d3b19f060033959efd0476885eea
 
 Omega 2.0.1 (UNRELEASED):
 
@@ -12,13 +12,43 @@ general:
 
 documentation:
 
+* Fix minor typo.
+
 indexers:
 
 * omindex:
 
+  + Fix incorrect protocol use in gepub and poppler workers.  These both
+    sent two FIELD_ERROR messages for certain cases related to loading a file.
+    Only one FIELD_ERROR is expected so this would result in the next file
+    processed by the same worker failing with an error, and then the protocol
+    would be one document out of step.
+
+  + Modern `.ai` files are now index.  Previously we assumed `.ai` files were
+    all PostScript, but newer `.ai` files are actually PDF files.  We now let
+    libmagic determine the type to index them as.
+
+  + New worker module for PostScript files which uses libspectre to convert
+    PostScript to a temporary PDF file, then libpoppler to extract text from
+    that PDF file.  The libspectre library uses ghostscript as a library, so
+    this should give equivalent results to using ps2pdf then pdftotext, but
+    with less overhead.  We require libspectre >= 0.2.12 (older versions had
+    a bug which broke saving as a PDF file).
+
+  + Fix memory leak on error in libreofficekit worker.  We need to free the
+    error message.  The method to do this was only added in LibreOffice 5.2,
+    but that was released 10 years ago so that's the new minimum requirement.
+
+  + Improve error message from libreofficekit worker if export to HTML fails.
+
 * scriptindex:
 
 omega:
+
+* Fix date term filter for SPAN without START/END.  In this case we're meant to
+  use now as the end of the range, but were actually using the start of 1970.
+  The value range filter case was unaffected by this bug.  Fixes #853, reported
+  by Darrin Smart.
 
 templates:
 
@@ -40,6 +70,11 @@ build system:
   on some platforms.
 
 portability:
+
+* configure: `-Wstrict-overflow=1` is no longer added to the default compiler
+  options for GCC and clang.  This option has been a no-op since GCC 8 (and
+  has always been a no-op for clang, provided only for GCC compatibility).
+  Patch from Sergei Trofimovich.
 
 * Remove some Python2 compatibility code.
 
