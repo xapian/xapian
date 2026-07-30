@@ -1,10 +1,12 @@
-up to: eb658ba4cde47a48cc5380edafe986bb8ab63f92
+up to: 0e2863e44af602f24b8d2f368203d29537bbf1db
 
 Omega 1.4.32 (UNRELEASED):
 
 general:
 
 documentation:
+
+* Clarify handling of .doc files.
 
 * Eliminate old FSF address by updating GPL/LGPL licence files and boilerplate
   to direct people who didn't receive the licence text to the FSF website
@@ -25,9 +27,41 @@ templates:
 
 testsuite:
 
+    Test date term filter for SPAN without START/END
+    This was buggy in 2.0.0 (#853).  1.4.x was unaffected but the improved
+    test coverage seems worth backporting.
+
 build system:
 
+    Change how we resolve RST includes
+    We have a Perl one-liner to effectively provide an include path.
+    This now rewrites the path on `.. include::` directives rather
+    than replacing them with the contents of the included file, which
+    seems a cleaner approach and less likely to introduce differences
+    when srcdir != builddir.
+
+    omega: Remove unused VPATH_BUILD AM_CONDITIONAL
+
 portability:
+
+Author: Sergei Trofimovich <slyich@gmail.com>
+    configure.ac: drop deprecated `-Wstrict-overflow=1`
+.
+    `gcc-17` formally deprecated `-Wstrict-overflow` options in
+    https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=b31a43560e88600d412318f75a43ac8e562ba8c5.
+    Informally the option was depracated since `gcc-8`.
+.
+    I only noticed it because `gcc-17` deprecated it slightly incorrectly and
+    started to fail `xapian-core` build: https://gcc.gnu.org/PR125558
+.
+    While it's a `gcc` bug `gcc` devs suggested removing use of the flag.
+    This change does the removal.
+.
+    Also drop the option for clang which recognises `-Wstrict-overflow` for
+    GCC compatibility but treats it as a no-op.
+    Fixes https://github.com/xapian/xapian/pull/341
+
+    configure.ac: Use $SED consistently
 
 packaging:
 

@@ -1,4 +1,16 @@
-up to: e71d1f7e3435de78b45cd70e6087bc113b791382
+up to: bc905c3046753b8bbfb898b9dad9f7a3d60f7f93
+
+    Remove unused #include
+    Drop unused <fstream> and <sstream>
+
+    Remove pointless check for __cplusplus
+    We only include this header from C++, and code elsewhere in this
+    header just assumes C++ on some platforms.
+
+    lemon: Fix bug in -D handling
+    We were allocating a buffer based on an unassigned variable.  The
+    Xapian build system doesn't currently use -D so this bug is latent
+    for us.
 
 Xapian-core 1.4.32 (UNRELEASED):
 
@@ -32,6 +44,9 @@ documentation:
 * Update Database::get_revision() doc comment.  This method has returned 0 for
   a Database with no shards since 1.4.13.
 
+* Improve MSet::convert_to_percent() and MSetIterator::get_percent() doc
+  comments.
+
 * Eliminate old FSF address by updating GPL/LGPL licence files and boilerplate
   to direct people who didn't receive the licence text to the FSF website
   rather than giving a postal address (which is what the FSF licence texts now
@@ -45,6 +60,25 @@ examples:
 
 portability:
 
+Author: Sergei Trofimovich <slyich@gmail.com>
+    configure.ac: drop deprecated `-Wstrict-overflow=1`
+
+    `gcc-17` formally deprecated `-Wstrict-overflow` options in
+    https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=b31a43560e88600d412318f75a43ac8e562ba8c5.
+    Informally the option was depracated since `gcc-8`.
+
+    I only noticed it because `gcc-17` deprecated it slightly incorrectly and
+    started to fail `xapian-core` build: https://gcc.gnu.org/PR125558
+
+    While it's a `gcc` bug `gcc` devs suggested removing use of the flag.
+    This change does the removal.
+
+    Also drop the option for clang which recognises `-Wstrict-overflow` for
+    GCC compatibility but treats it as a no-op.
+    Fixes https://github.com/xapian/xapian/pull/341
+
+
+    configure.ac: Use $SED consistently
 
 packaging:
 

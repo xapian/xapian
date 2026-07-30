@@ -1,4 +1,4 @@
-up to: 74c16d147ad30129ccac745e6f67b151c44aaee1
+up to: dd363f6177a483428f3a3d3efc6a635fc0bcf865
 
 Xapian-bindings 1.4.32 (UNRELEASED):
 
@@ -15,13 +15,29 @@ Packaging:
 
 Portability:
 
+    xapian-bindings/configure.ac: Use $SED consistently
+
 CSharp:
 
 Java:
 
+    Resolve relative symlinks in javac's path
+    Backport of change accidentally bundled into
+    7a202582b977197bcc39bd318d7c3eeca30fc158 on main.
+
 Lua:
 
+    Adjust indentation of Lua code
+    Use two space indent, which seems to be the common Lua convention -
+    http://lua-users.org/wiki/LuaStyleGuide says:
+    .
+      Indentation - Indenting often uses two spaces. This is followed in
+      Programming in Lua, the Lua Reference Manual, Beginning Lua
+      Programming, and the Lua users wiki.
+
 Perl:
+
+    perl/t/02pod.t: Fix when builddir != srcdir
 
 PHP:
 
@@ -32,6 +48,14 @@ Python3:
 Ruby:
 
 Tcl:
+
+    Tcl: Document `package require` use
+    In particular, document how to write a script which can use either
+    Xapian 1.x or 2.x.
+    Tcl: Also document unversioned `package require`
+    Tcl8: Adjust examples to work with Xapian 1 or 2
+
+    smoketest.tcl: Update package require to 1.4.0.
 
 Xapian-bindings 1.4.31 (2026-02-23):
 
