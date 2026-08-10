@@ -645,17 +645,17 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /** Get the revision of the database.
      *
      *  The revision is an unsigned integer which increases with each commit.
+     *  In practice it typically increments by one for each revision but you
+     *  should not rely on that.
      *
-     *  @exception Xapian::InvalidOperationError If the database consists of
-     *          more than one shard.
-     *  @exception Xapian::UnimplementedError Currently this is only
-     *          implemented for glass.
-     *  @exception In Xapian < 1.4.13, if the database consists of no shards;
-     *          In Xapian >= 1.4.13 this method returns 0 if there are no
+     *  @since Xapian 1.4.13 and later return 0 for a database consisting of no
      *          shards.
      *
-     *  Experimental - see
-     *  https://xapian.org/docs/deprecation#experimental-features
+     *  @exception Xapian::InvalidOperationError If the database consists of
+     *          more than one shard.  In Xapian < 1.4.13, this is also thrown
+     *          if the database consists of no shards.
+     *  @exception Xapian::UnimplementedError Currently this is only
+     *          implemented for glass (and for chert in Xapian 1.4.x).
      */
     Xapian::rev get_revision() const;
 

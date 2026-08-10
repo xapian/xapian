@@ -1600,7 +1600,7 @@ DEFINE_TESTCASE(getrevision1, glass) {
     TEST_EQUAL(db.get_revision(), 2);
 }
 
-/// Check get_revision() on an empty database reports 0.  (Since 2.0.0)
+/// Check get_revision() on an empty database reports 0.  (Since 1.4.13)
 DEFINE_TESTCASE(getrevision2, !backend) {
     Xapian::Database db;
     TEST_EQUAL(db.get_revision(), 0);
