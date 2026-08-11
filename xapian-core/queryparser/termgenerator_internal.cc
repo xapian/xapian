@@ -760,8 +760,11 @@ MSet::Internal::snippet(const string & text,
 			const string & omit) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
-	// Too easy!
-	return text;
+	// The text is already short enough so we just need to perform
+	// escaping.
+	string output;
+	append_escaping_xml(text.data(), text.data() + text.size(), output);
+	return output;
     }
 
     bool try_word_break = (flags & MSet::SNIPPET_CJK_NGRAM);
