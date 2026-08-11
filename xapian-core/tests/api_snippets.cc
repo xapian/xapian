@@ -359,6 +359,13 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     TEST_STRINGS_EQUAL(mset.snippet(input, 12, stem),
                        "...&lt;<b>foo</b>.h&gt; to...");
 
+    // Check escaping still happens without highlighting when the text is
+    // already short enough.  Regression test for bug fixed in 1.4.32 and
+    // 2.0.1.
+    input = "<foo> &amp;";
+    TEST_STRINGS_EQUAL(mset.snippet(input, 12, stem, 0, "", ""),
+                       "&lt;foo&gt; &amp;amp;");
+
     input = "¡foo!";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
                        "¡<b>foo</b>!");
@@ -465,6 +472,14 @@ DEFINE_TESTCASE(snippet_start_nonspace, backend) {
     input = "foo for 10¢";
     TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem),
                        "<b>foo</b> for <b>10</b>¢");
+
+    // Check escaping still happens without highlighting when the text is
+    // already short enough.  Regression test for bug fixed in 1.4.32 and
+    // 2.0.1.
+    input = "&foo takes the address of foo";
+    TEST_STRINGS_EQUAL(mset.snippet(input, strlen(input), stem, 0, "", ""),
+                       "&amp;foo takes the address of foo");
+
 }
 
 /// Test snippets with small and zero length.
