@@ -401,10 +401,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  However slightly more text may be selected.  Also the size of any
      *  escaping, highlighting or omission markers is not considered.
      *
-     *  The returned text is escaped to make it suitable for use in HTML
-     *  (though beware that in upstream releases 1.4.5 and earlier this
-     *  escaping was sometimes incomplete), and matches with the query will be
-     *  highlighted using @a hi_start and @a hi_end.
+     *  The returned text is escaped to make it suitable for use in HTML/XML,
+     *  and matches with the query will be highlighted using @a hi_start and @a
+     *  hi_end.
      *
      *  If the snippet seems to start or end mid-sentence, then @a omit is
      *  prepended or append (respectively) to indicate this.
@@ -413,6 +412,11 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  specified in @a stemmer.
      *
      *  And @a flags contains flags controlling behaviour.
+     *
+     *  Beware that in upstream releases 1.4.5 and earlier the escaping
+     *  was sometimes incomplete; 1.4.32 and 2.0.1 fixed another case of
+     *  missing escaping when hi_start and hi_end were both specified as empty
+     *  strings and text was already within the requested length.
      *
      *  @since Added in 1.3.5.
      */
