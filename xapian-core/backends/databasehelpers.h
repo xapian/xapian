@@ -1,7 +1,7 @@
 /** @file
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2019 Olly Betts
+/* Copyright 2002-2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -130,10 +130,9 @@ read_stub_file(const std::string& file,
 		std::string args;
 		if (space != std::string::npos) {
 		    args.assign(line, space + 1, std::string::npos);
-		    line.assign(line, 1, space - 1);
-		} else {
-		    line.erase(0, 1);
+		    line.erase(space);
 		}
+		line.erase(0, 1);
 		action_remote_prog(line, args);
 		continue;
 	    }
@@ -148,7 +147,7 @@ read_stub_file(const std::string& file,
 		    unsigned int port = std::atoi(line.c_str() + colon + 1);
 		    line.erase(colon);
 		    if (line[0] == '[' && line.back() == ']') {
-			line.erase(line.size() - 1, 1);
+			line.erase(line.size() - 1);
 			line.erase(0, 1);
 		    }
 		    action_remote_tcp(line, port);
