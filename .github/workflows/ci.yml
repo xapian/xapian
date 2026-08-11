@@ -1066,6 +1066,11 @@ jobs:
     runs-on: 'macos-26'
     needs: makedist
     steps:
+    - name: Remove unwanted taps
+      run: |
+        # Remove taps we don't use, which avoids warnings about untrusted taps
+        # and means we're testing a more standard homebrew setup.
+        brew untap aws/tap hashicorp/tap azure/bicep || true
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
@@ -1087,8 +1092,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Remove untrusted taps we don't use.
-        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
@@ -1148,6 +1151,11 @@ jobs:
     runs-on: 'macos-15'
     needs: makedist
     steps:
+    - name: Remove unwanted taps
+      run: |
+        # Remove taps we don't use, which avoids warnings about untrusted taps
+        # and means we're testing a more standard homebrew setup.
+        brew untap aws/tap hashicorp/tap azure/bicep || true
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
@@ -1169,8 +1177,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Remove untrusted taps we don't use.
-        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
@@ -1233,6 +1239,11 @@ jobs:
     runs-on: 'macos-14'
     needs: makedist
     steps:
+    - name: Remove unwanted taps
+      run: |
+        # Remove taps we don't use, which avoids warnings about untrusted taps
+        # and means we're testing a more standard homebrew setup.
+        brew untap aws/tap hashicorp/tap azure/bicep || true
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
@@ -1254,8 +1265,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        # Remove untrusted taps we don't use.
-        brew untap aws/tap || true
         brew update
         brew install -q \
             libiconv \
