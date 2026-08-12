@@ -1,8 +1,19 @@
-up to: 0d7b9853690c940de48d8d16ddd7407502600d41
+up to: 28bbeb78253dc2169b9827c40ec6719c6cd851d8
 
-    Update Snowball compiler and runtime
-    We're now up to date with snowball commit
-    a04abeb4f95eed8757b5107694fa0424c7026a79.
+
+    Update snowball compiler and runtime
+    Now using the code from Snowball commit
+    8ec50d98124ac1e21460ab88efa899ae115bb0d8 plus a patch to add a
+    use_proper_noun_heuristic() method to the generated stemmer
+    classes.
+
+
+    MSet::snippet()
+    Fix missing escaping when hi_start and hi_end are empty and the
+    input string is already within the requested length.
+    This is essentially a missed corner case from CVE-2018-0499.
+    Reported by Arpit Jain on the xapian-devel list.
+
 
 Xapian-core 2.0.1 (UNRELEASED):
 
@@ -26,6 +37,85 @@ FIXME
     and Sesotho (Kamohelo Lebjane)
 
 
+    Sync Snowball algorithms from upstream
+    Now using the algorithms from Snowball commit
+    8ec50d98124ac1e21460ab88efa899ae115bb0d8.
+
+    Changes this brings:
+
+    * Danish:
+
+      + Adjust to handle apostrophe (#187).
+
+      + Restrict undoubling to valid cases.  Coverage showed that a number of the
+        consonants we would undouble never occur in our Danish vocabulary.  Testing
+        a larger list didn't find any matches for Danish words either, so restrict
+        the undoubling which reduces the potential for damage to foreign words and
+        should be a little more efficient.
+
+    * Early Modern English:
+
+      + Add "earlymodernenglish" as an alias.
+
+      + A few additional rules have been added:
+
+        - Remove th'-, t'-
+        - Replace o'er- with over-
+        - Replace -e'er with -ever
+        - Remove -edst (suggested by E. Timothy Uy in 2012!)
+        - Remove -'d, -'dly, -'dst, -'st, -'t
+        - Replace -'n, -'nd with -en
+        - Replace -'r, -'rous with -er
+        - Replace -'ri with -eri
+        - Replace -'li with -ili
+        - Replace -lie with -ly
+        - Normalise æ and œ and long-s ligatures.
+
+    * Estonian:
+
+      + Handle apostrophe.
+
+    * Finnish:
+
+      + Handle apostrophe.
+
+      + Improve fallback from illative rules.  If a word ends -han, -hen, -hin,
+        -hon, -hän or -hön but the vowel before does not match we were not removing
+        a suffix in case_ending, we now fallback to handling as a genitive and
+        remove -n.  This changes how we handle about 90 words - almost all for the
+        better, most of the rest seem neutral changes.
+
+      + Allow "ø" to match with -hön as this is seen with Norwegian place names,
+        e.g. Bodøhön.
+
+      + Remove illative form -hun.  This improves the stemming of 14 words in
+        our test vocabulary.
+
+    * German:
+
+      + Handle apostrophe.
+
+    * Italian:
+
+      + Handle elisions.
+
+    * Lithuanian:
+
+      + Handle apostrophe.
+
+    * Norwegian:
+
+      + Handle apostrophe.
+
+    * Polish:
+
+      + Remove optional apostrophe after removing suffix.  Polish uses an
+        apostrophe to separate loanwords from native suffixes.  (The correct use is
+        to mark the elision of the final sound of a loanword before a Polish
+        inflectional endings, but it's also often used with any loanword.)
+
+
+
 * The Unicode table generation script has been rewritten.  We now generate
   overlapping page tables which allows them to be encoded more compactly (2028
   bytes smaller, which is a 4.3% size reduction) which should be more cache
@@ -37,6 +127,9 @@ FIXME
   with a constant, which speeds up tokenising text by ~1%.
 
 * UnitRangeProcessor: Now supports `T` suffix for terrabytes.
+
+* Database::get_revision(): Drop "experimental" status as the current API was
+  added in 2016 and seems reasonable.
 
 testsuite:
 
