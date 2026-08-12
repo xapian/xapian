@@ -26,7 +26,7 @@ environment:
     VCVARS_BAT: "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\""
 install:
   - ps: $env:PATH="c:\msys64\usr\bin;$env:PATH"
-  - pacman -S help2man
+  - pacman -Sy help2man
   - bash -c 'time ./bootstrap --fetch-url-command="curl --retry 5 --retry-connrefused -L" xapian-core'
   - if defined VCVARS_BAT call %VCVARS_BAT%
   - mkdir zlib
