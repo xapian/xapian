@@ -40,21 +40,22 @@ namespace Xapian {
 
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
-  protected:
-    /// Stats which FeatureList can use.
+  public:
+    /// @internal Stats which FeatureList can use.
     typedef enum {
-        /// Frequency of the Query Terms in the specified documents.
+        /// Number of documents in the collection.
         TERM_FREQUENCY = 1,
-        /// Inverse Document Frequency of Query terms in the database.
+        /// Number of documents in the RSet.
         INVERSE_DOCUMENT_FREQUENCY = 2,
-        /// Length of the document as number of "terms".
+        /// Average length of documents in the collection.
         DOCUMENT_LENGTH = 4,
-        /// Length of the collection in number of term
+        /// How many documents the current term is in.
         COLLECTION_LENGTH = 8,
-        /// Frequency of the Query Terms in the whole database.
+        /// How many documents in the RSet the current term is in.
         COLLECTION_TERM_FREQ = 16,
     } stat_flags;
 
+  protected:
     /** Tell Xapian that your subclass will want a particular statistic.
      *
      *  Some of the statistics can be costly to fetch or calculate, so

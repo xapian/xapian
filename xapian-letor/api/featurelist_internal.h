@@ -34,22 +34,8 @@ namespace Xapian {
 class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     friend class FeatureList;
 
-    /// Stats which FeatureList can use to determine the stats needed by a Feature.
-    typedef enum {
-        /// Number of documents in the collection.
-        TERM_FREQUENCY = 1,
-        /// Number of documents in the RSet.
-        INVERSE_DOCUMENT_FREQUENCY = 2,
-        /// Average length of documents in the collection.
-        DOCUMENT_LENGTH = 4,
-        /// How many documents the current term is in.
-        COLLECTION_LENGTH = 8,
-        /// How many documents in the RSet the current term is in.
-        COLLECTION_TERM_FREQ = 16,
-    } stat_flags;
-
     /// A bitmask of the statistics this FeatureList needs.
-    stat_flags stats_needed;
+    Xapian::Feature::stat_flags stats_needed;
 
     /// Xapian::Database using which features will be calculated.
     Database featurelist_db;

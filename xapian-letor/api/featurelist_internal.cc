@@ -154,19 +154,19 @@ void
 FeatureList::Internal::populate_feature_internal(Feature::Internal*
                                                  internal_feature)
 {
-    if (stats_needed & TERM_FREQUENCY) {
+    if (stats_needed & Feature::TERM_FREQUENCY) {
         internal_feature->set_termfreq(compute_termfreq());
     }
-    if (stats_needed & INVERSE_DOCUMENT_FREQUENCY) {
+    if (stats_needed & Feature::INVERSE_DOCUMENT_FREQUENCY) {
         internal_feature->set_inverse_doc_freq(compute_inverse_doc_freq());
     }
-    if (stats_needed & DOCUMENT_LENGTH) {
+    if (stats_needed & Feature::DOCUMENT_LENGTH) {
         internal_feature->set_doc_length(compute_doc_length());
     }
-    if (stats_needed & COLLECTION_LENGTH) {
+    if (stats_needed & Feature::COLLECTION_LENGTH) {
         internal_feature->set_collection_length(compute_collection_length());
     }
-    if (stats_needed & COLLECTION_TERM_FREQ) {
+    if (stats_needed & Feature::COLLECTION_TERM_FREQ) {
         internal_feature->set_collection_termfreq(
                           compute_collection_termfreq());
     }
