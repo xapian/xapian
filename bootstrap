@@ -337,6 +337,11 @@ END
       done
     fi
 
+    # Without this appveyor MSVC2019 jobs which try to run help2man and fail.
+    case $package in
+    libtool) touch doc/libtool.1 ;;
+    esac
+
     echo "Configuring $package"
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF" || exit $?
