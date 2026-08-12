@@ -128,8 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
  */
 class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
   public:
-    TfFeature()
-    {
+    TfFeature() {
         need_stat(TERM_FREQUENCY);
     }
     std::vector<double> get_values() const;
