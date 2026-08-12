@@ -51,7 +51,7 @@ static void write_comment_literalstring(struct generator * g, const symbol *s,
         // Check if the literal string contains the target language end comment
         // string.  Don't try to be clever here as real-world literal strings
         // are unlikely to contain even partial matches.
-        int end_len = strlen(end);
+        int end_len = (int)strlen(end);
         if (end_len <= SIZE(s)) {
             for (int i = 0; i <= SIZE(s) - end_len; ++i) {
                 for (int j = 0; j < end_len; ++j) {
@@ -553,6 +553,16 @@ extern int repeat_restore(struct node * p) {
     return repeat_score(p, 0) >= 2;
 }
 
+extern bool
+amongvar_needed(struct node * p)
+{
+    if (!p) return false;
+    if (p->among && p->among->amongvar_needed) return true;
+    return amongvar_needed(p->left) ||
+           amongvar_needed(p->right) ||
+           amongvar_needed(p->aux);
+}
+
 /* Language-independent write routines for simple entities */
 
 static void write_hexdigit(struct generator * g, unsigned i) {
@@ -566,6 +576,13 @@ extern void write_hex4(struct generator * g, unsigned ch) {
 extern void write_hex(struct generator * g, unsigned i) {
     if (i >> 4) write_hex(g, i >> 4);
     write_hexdigit(g, i); /* hex integer */
+}
+
+extern void write_octal3(struct generator * g, unsigned n) {
+    assert(n < 256);
+    write_char(g, '0' + ((n >> 6) & 0x03));
+    write_char(g, '0' + ((n >> 3) & 0x07));
+    write_char(g, '0' + (n & 0x07));
 }
 
 extern void write_char(struct generator * g, int ch) {

@@ -126,4 +126,4 @@ noinst_HEADERS +=\
 
 lib_src += $(snowball_built_sources)\
 	languages/stem.cc \
-	languages/utilities.cc
+	languages/snowball_runtime.cc

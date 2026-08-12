@@ -36,6 +36,12 @@ extern void print_program(struct analyser * a) {
     if (a->program) print_node_(a->program, 0, "");
 }
 
+static void free_among(struct among * q) {
+    FREE(q->v);
+    FREE(q->commands);
+    FREE(q);
+}
+
 static struct node * new_node_at_line(struct analyser * a, int type, int line) {
     NEW(node, p);
     *p = (struct node){0};
@@ -309,6 +315,12 @@ static int read_AE_test(struct analyser * a) {
         case c_lt:
         case c_le:
             return t->token;
+        case c_slicefrom:
+            // In an AE c_slicefrom (`<-`) is not a valid token, so convert
+            // it into c_lt (`<`) then c_minus (`-`) so that code such as
+            // `$x<-1` works rather than giving a syntax error.
+            push_token(t, c_minus);
+            return c_lt;
         default:
             unexpected_token_error(a, "integer test expression");
             hold_token(t);
@@ -750,9 +762,8 @@ static struct node * make_among(struct analyser * a, struct node * p, struct nod
 
     *x = (struct among){0};
     x->node = p;
-    x->b = v;
+    x->v = v;
     x->shortest_size = INT_MAX;
-    x->in_routine = a->current_routine;
 
     if (q->type == c_bra) {
         fprintf(stderr,
@@ -780,8 +791,9 @@ static struct node * make_among(struct analyser * a, struct node * p, struct nod
                 ++function->uses_in_among;
                 check_routine_mode(a, function, direction);
                 if (function->among_index == 0) {
-                    function->among_index = ++x->function_count;
+                    function->among_index = ++x->unique_function_count;
                 }
+                ++x->function_count;
                 w1->function_index = function->among_index;
             } else {
                 w1->function = NULL;
@@ -881,7 +893,7 @@ static struct node * make_among(struct analyser * a, struct node * p, struct nod
 
         for (w = w0 - 1; w >= v; w--) {
             if (w->size < size && memcmp(w->b, b, w->size * sizeof(symbol)) == 0) {
-                w0->i = w - v;  /* fill in index of longest substring */
+                w0->i = (int)(w - v);  /* fill in index of longest substring */
                 break;
             }
         }
@@ -1010,14 +1022,15 @@ static struct node * make_among(struct analyser * a, struct node * p, struct nod
             p = and_node;
             --v[0].function->uses_in_among;
         }
-        FREE(x->commands);
-        FREE(x);
-        FREE(v);
+        free_among(x);
         return p;
     }
 
-    if (x->function_count) {
-        if (a->current_routine) a->current_routine->among_with_function = true;
+    if (a->current_routine) {
+        a->current_routine->has_among = true;
+        if (x->function_count) {
+            a->current_routine->has_among_function = true;
+        }
     }
 
     x->substring = substring;
@@ -1123,6 +1136,41 @@ static int ae_uses_name(struct node * p, struct name * q) {
             return ae_uses_name(p->left, q) || ae_uses_name(p->right, q);
     }
     return 0;
+}
+
+// Put integer tests nodes into a normalised form, so that we can merge
+// among actions with equivalent integer tests - e.g. from arabic.sbl:
+//
+//   [substring] among (
+//      // [...]
+//      '{a}{n}' '{w}{n}' '{y}{n}' ($(len > 5) delete) // present
+//      '{t}{m}{a}' ($(len >= 6) delete)
+//   )
+static void normalise_comparison(struct node * n) {
+    if (!n->left || !n->AE) return;
+    if (n->left->type == c_number && n->AE->type != c_number) {
+        // Swap operands so a number goes on the RHS.
+        switch (n->type) {
+            case c_gt: n->type = c_lt; break;
+            case c_lt: n->type = c_gt; break;
+            case c_ge: n->type = c_le; break;
+            case c_le: n->type = c_ge; break;
+        }
+        struct node * p = n->left;
+        n->left = n->AE;
+        n->AE = p;
+    }
+    if (n->AE->type == c_number && abs(n->AE->number) < 32767) {
+        if (n->type == c_gt) {
+            // Normalise `$(n > 0)` to `$(n >= 1)`.
+            n->type = c_ge;
+            ++n->AE->number;
+        } else if (n->type == c_lt) {
+            // Normalise `$(n < 1)` to `$(n <= 0)`
+            n->type = c_le;
+            --n->AE->number;
+        }
+    }
 }
 
 static struct node * read_C(struct analyser * a) {
@@ -1501,6 +1549,14 @@ report_assumed_rel_op_error:
                         // Assume `==` was meant to try to avoid an error avalanche.
                         token = c_eq;
                         goto handle_rel_op;
+                    case c_slicefrom:
+                        // In an AE c_slicefrom (`<-`) is not a valid token, so
+                        // convert it into c_lt (`<`) then c_minus (`-`) so
+                        // that code such as `$(x<-1)` works rather than giving
+                        // a syntax error.
+                        push_token(t, c_minus);
+                        token = c_lt;
+                        // FALLTHRU
                     case c_eq:
                     case c_ne:
                     case c_gt:
@@ -1548,6 +1604,7 @@ handle_rel_op: ;
                             n = new_node(a, token);
                             n->left = lhs;
                             n->AE = rhs;
+                            normalise_comparison(n);
                         }
                         get_token(a, c_ket);
                         break;
@@ -1612,6 +1669,7 @@ handle_rel_op: ;
                     p->left = new_node(a, c_name);
                     p->left->name = q;
                     p->AE = read_AE(a, NULL, 0);
+                    normalise_comparison(p);
                     if (q) {
                         q->value_used = true;
                         mark_used_in(a, q, p);
@@ -1755,7 +1813,7 @@ handle_rel_op: ;
     }
 }
 
-static int next_symbol(symbol * p, symbol * W, int utf8) {
+static int next_symbol(const symbol * p, symbol * W, int utf8) {
     if (utf8) {
         int ch;
         int j = get_utf8(p, & ch);
@@ -1767,7 +1825,7 @@ static int next_symbol(symbol * p, symbol * W, int utf8) {
     }
 }
 
-static symbol * alter_grouping(symbol * p, symbol * q, int style, int utf8) {
+static symbol * alter_grouping(symbol * p, const symbol * q, int style, int utf8) {
     int j = 0;
     if (style == c_plus) {
         while (j < SIZE(q)) {
@@ -2045,14 +2103,20 @@ static void remove_dead_assignments(struct node * p, struct name * q) {
     if (p->right) remove_dead_assignments(p->right, q);
 }
 
+// Numeric values are picked so we can take the minimum to merge when joining
+// control flows.
 enum {
     // Not set on at least one code path leading to a use.
-    USE_BEFORE_SET,
+    USE_BEFORE_SET = 0,
     // Need to keep checking.
-    UNKNOWN,
+    UNKNOWN = 1,
     // Set on any code path leading to a use.
-    SET_BEFORE_ANY_USE
+    SET_BEFORE_ANY_USE = 2
 };
+
+static inline int merge_r(int r1, int r2) {
+    return r1 < r2 ? r1 : r2;
+}
 
 /* Find out if every codepath in the command with node p to a use of variable v
  * sets v first.
@@ -2061,31 +2125,28 @@ enum {
  * safely localised when it can, but they allow localising all variables which
  * can be trivially made local in existing stemmers.
  *
- * p:    the node of the command to check.
- * func: the c_define of the routine/external this code is in.
- * v:    the variable to check.
+ * p:       the node of the command to check.
+ * v:       the variable to check.
+ * catcher: pointer to USE_BEFORE_SET/UNKNOWN/SET_BEFORE_ANY_USE value to
+ *          update on signal `f`.
  */
-static int always_set_before_use_(struct node * p, struct node * func,
-                                  struct name * v) {
+static int always_set_before_use_(struct node * p,
+                                  struct name * v,
+                                  int * catcher) {
     assert(p);
     switch (p->type) {
         case c_call: {
-            if (p->name->definition == func) {
-                /* We've recursed into the function we're considering
-                 * localising this variable into, which means we can't
-                 * localise it because then changes to the variable in
-                 * the nested call won't be reflected after it returns.
-                 */
-                return USE_BEFORE_SET;
-            }
-            // We know v is only referenced in the function we are checking.
+            // We know v is only referenced in the function we are checking
+            // (and we don't try to localise variables into recursive
+            // functions, so we know this call can't re-enter the current
+            // function).
             return UNKNOWN;
         }
         case c_among: {
             bool all_pass = true;
             struct among * x = p->among;
             for (int i = 1; i <= x->command_count; i++) {
-                int r = always_set_before_use_(x->commands[i - 1], func, v);
+                int r = always_set_before_use_(x->commands[i - 1], v, catcher);
                 if (r == USE_BEFORE_SET) return r;
                 all_pass = all_pass && (r == SET_BEFORE_ANY_USE);
             }
@@ -2094,49 +2155,89 @@ static int always_set_before_use_(struct node * p, struct node * func,
         }
         case c_or: {
             struct node * q = p->left;
+            assert(q);
             bool all_pass = true;
-            while (q) {
-                int r = always_set_before_use_(q, func, v);
+            while (q->right) {
+                // `or` handles signal `f` from subcommands except the last.
+                int r_f = UNKNOWN;
+                int r = always_set_before_use_(q, v, &r_f);
                 if (r == USE_BEFORE_SET) return r;
-                all_pass = all_pass && (r == SET_BEFORE_ANY_USE);
+                if (r_f == USE_BEFORE_SET) return r;
+                all_pass = all_pass &&
+                    (r == SET_BEFORE_ANY_USE) &&
+                    (r_f == SET_BEFORE_ANY_USE);
                 q = q->right;
             }
+            // Signal `f` from the last subcommand propagates.
+            int r = always_set_before_use_(q, v, catcher);
+            if (r == USE_BEFORE_SET) return r;
+            all_pass = all_pass && (r == SET_BEFORE_ANY_USE);
             if (all_pass) return SET_BEFORE_ANY_USE;
             return UNKNOWN;
         }
         case c_and:
         case c_bra: {
             struct node * q = p->left;
+            // If we execute this command, we'll definitely execute
+            // sub-commands up to and including the first which could
+            // fail.
             while (q) {
-                int r = always_set_before_use_(q, func, v);
+                int r = always_set_before_use_(q, v, catcher);
+                if (r != UNKNOWN) {
+                    *catcher = r;
+                    return r;
+                }
+                bool last = (q->possible_signals <= 0);
+                q = q->right;
+                if (last) break;
+            }
+            // Any remaining subcommands may not get executed, so we don't
+            // update *catcher for them.
+            while (q) {
+                int r = always_set_before_use_(q, v, catcher);
                 if (r != UNKNOWN) return r;
                 q = q->right;
             }
             return UNKNOWN;
         }
         case c_backwards:
-        case c_not:
         case c_reverse:
         case c_test:
-            return always_set_before_use_(p->left, func, v);
-        case c_do:
+            return always_set_before_use_(p->left, v, catcher);
         case c_fail:
+            return always_set_before_use_(p->left, v, catcher);
+            // FIXME: Could be?
+            // *catcher = merge_r(r, *catcher);
+            // return UNKNOWN;
+        case c_repeat:
+        case c_do:
+        case c_not:
+        case c_try: {
+            int r_f = UNKNOWN;
+            int r = always_set_before_use_(p->left, v, &r_f);
+            return merge_r(r, r_f);
+        }
         case c_gopast:
         case c_goto:
-        case c_try:
-        case c_repeat: {
-            if (always_set_before_use_(p->left, func, v) == USE_BEFORE_SET)
+            // If the cursor is atlimit already the subcommand won't be
+            // executed, so a SET_BEFORE_ANY_USE from it doesn't guarantee
+            // that the variable will get set.
+            if (always_set_before_use_(p->left, v, catcher) == USE_BEFORE_SET)
                 return USE_BEFORE_SET;
             return UNKNOWN;
-        }
         case c_atleast:
         case c_loop:
-            if (always_set_before_use_(p->AE, func, v) == USE_BEFORE_SET)
+            if (always_set_before_use_(p->AE, v, catcher) == USE_BEFORE_SET)
                 return USE_BEFORE_SET;
-            return always_set_before_use_(p->left, func, v);
+            // If AE has value <= 0 the subcommand won't be executed, so a
+            // SET_BEFORE_ANY_USE from it doesn't guarantee that the variable
+            // will get set.
+            if (always_set_before_use_(p->left, v, catcher) == USE_BEFORE_SET)
+                return USE_BEFORE_SET;
+            return UNKNOWN;
         case c_assign:
             // Check AE first: `x = x + 1` uses `x` before it sets it.
-            if (always_set_before_use_(p->AE, func, v) == USE_BEFORE_SET)
+            if (always_set_before_use_(p->AE, v, catcher) == USE_BEFORE_SET)
                 return USE_BEFORE_SET;
             if (p->name == v)
                 return SET_BEFORE_ANY_USE;
@@ -2167,7 +2268,7 @@ static int always_set_before_use_(struct node * p, struct node * func,
             return UNKNOWN;
         case c_hop:
         case c_tomark:
-            if (always_set_before_use_(p->AE, func, v) == USE_BEFORE_SET)
+            if (always_set_before_use_(p->AE, v, catcher) == USE_BEFORE_SET)
                 return USE_BEFORE_SET;
             return UNKNOWN;
         case c_stringassign:
@@ -2187,9 +2288,9 @@ static int always_set_before_use_(struct node * p, struct node * func,
         case c_minus:
         case c_multiply:
         case c_plus: {
-            int r = always_set_before_use_(p->left, func, v);
+            int r = always_set_before_use_(p->left, v, catcher);
             if (r != UNKNOWN) return r;
-            return always_set_before_use_(p->right, func, v);
+            return always_set_before_use_(p->right, v, catcher);
         }
         case c_eq:
         case c_ne:
@@ -2197,12 +2298,12 @@ static int always_set_before_use_(struct node * p, struct node * func,
         case c_ge:
         case c_lt:
         case c_le: {
-            int r = always_set_before_use_(p->left, func, v);
+            int r = always_set_before_use_(p->left, v, catcher);
             if (r != UNKNOWN) return r;
-            return always_set_before_use_(p->AE, func, v);
+            return always_set_before_use_(p->AE, v, catcher);
         }
         case c_neg:
-            return always_set_before_use_(p->right, func, v);
+            return always_set_before_use_(p->right, v, catcher);
         case c_lenof:
         case c_sizeof:
             if (p->name == v) {
@@ -2217,9 +2318,15 @@ static int always_set_before_use_(struct node * p, struct node * func,
         case c_size:
             return UNKNOWN;
         case c_setlimit: {
-            int r = always_set_before_use_(p->aux, func, v);
+            int r = always_set_before_use_(p->aux, v, catcher);
             if (r != UNKNOWN) return r;
-            return always_set_before_use_(p->left, func, v);
+            r = always_set_before_use_(p->left, v, catcher);
+            if (p->aux->possible_signals <= 0) {
+                // aux can fail so left may not be executed.
+                if (r == USE_BEFORE_SET) return r;
+                return UNKNOWN;
+            }
+            return r;
         }
         case c_divideassign:
         case c_minusassign:
@@ -2228,7 +2335,7 @@ static int always_set_before_use_(struct node * p, struct node * func,
             if (p->name == v) {
                 return USE_BEFORE_SET;
             }
-            if (always_set_before_use_(p->AE, func, v) == USE_BEFORE_SET) {
+            if (always_set_before_use_(p->AE, v, catcher) == USE_BEFORE_SET) {
                 return USE_BEFORE_SET;
             }
             return UNKNOWN;
@@ -2289,9 +2396,10 @@ static int always_set_before_use_(struct node * p, struct node * func,
     return USE_BEFORE_SET;
 }
 
-static int always_set_before_use(struct node * p, struct node * func,
-                                 struct name * v) {
-    return always_set_before_use_(p, func, v) != USE_BEFORE_SET;
+static int always_set_before_use(struct node * p, struct name * v) {
+    int r_f = UNKNOWN;
+    int r = always_set_before_use_(p, v, &r_f);
+    return merge_r(r, r_f) != USE_BEFORE_SET;
 }
 
 static void remove_routine(struct analyser * a, struct name * q) {
@@ -2536,6 +2644,33 @@ static int check_possible_signals(struct analyser * a, struct node * p) {
     }
 }
 
+// Can control flow from node `p` reach routine `func`?
+static bool recursion_check(struct node * p, struct name * func) {
+    while (p) {
+        switch (p->type) {
+            case c_call:
+                if (p->name == func) return true;
+                if (p->name->definition && !p->name->visited) {
+                    p->name->visited = true;
+                    if (recursion_check(p->name->definition->left, func)) return true;
+                }
+                break;
+            case c_among: {
+                struct among * x = p->among;
+                if (x->unique_function_count == 0) break;
+                for (int i = 0; i < x->literalstring_count; ++i) {
+                    if (x->v[i].function == func) return true;
+                }
+                break;
+            }
+        }
+        if (p->left && recursion_check(p->left, func)) return true;
+        if (p->aux && recursion_check(p->aux, func)) return true;
+        p = p->right;
+    }
+    return false;
+}
+
 static void visit_routine(struct analyser * a, struct name * n);
 
 static void visit_node(struct analyser * a, struct node * p, struct name * func) {
@@ -2559,8 +2694,8 @@ static void visit_node(struct analyser * a, struct node * p, struct name * func)
             struct among * x = p->among;
             x->used = true;
             for (int i = 0; i < x->literalstring_count; ++i) {
-                if (x->b[i].function)
-                    visit_routine(a, x->b[i].function);
+                if (x->v[i].function)
+                    visit_routine(a, x->v[i].function);
             }
             for (int i = 0; i < x->command_count; ++i) {
                 visit_node(a, x->commands[i], func);
@@ -2636,6 +2771,68 @@ static void visit_routine(struct analyser * a, struct name * n) {
     p->possible_signals = p->left->possible_signals;
 }
 
+static struct node * clone_node(struct analyser * a, struct node * n) {
+    if (n == NULL) return n;
+
+    NEW(node, p);
+    p->among = n->among;
+    p->type = n->type;
+    p->mode = n->mode;
+    p->fixed_constant = n->fixed_constant;
+    p->possible_signals = n->possible_signals;
+    p->name = n->name;
+    p->literalstring = n->literalstring;
+    p->number = n->number;
+    p->line_number = n->line_number;
+
+    p->left = clone_node(a, n->left);
+    p->aux = clone_node(a, n->aux);
+    p->right = clone_node(a, n->right);
+    p->AE = clone_node(a, n->AE);
+
+    p->next = a->nodes;
+    a->nodes = p;
+    return p;
+}
+
+// Inline any calls to routine `n` in the code starting at `p`.
+//
+// Returns true if any calls were inlined.  If there are no remaining calls to
+// `n` anywhere in the program then n->definition will be set to NULL.
+static bool inline_calls(struct analyser * a,
+                         struct node * p,
+                         struct name * n) {
+    bool r = false;
+    while (p) {
+        if (p->name == n && p->type == c_call) {
+            p->type = c_bra;
+            p->name = NULL;
+            --n->references;
+            if (n->references < 2) {
+                // No more uses of n, so there is no need to clone the code.
+                // We can also stop looking for uses of n to inline.
+                p->left = n->definition->left;
+                n->definition = NULL;
+                return true;
+            }
+            p->left = clone_node(a, n->definition->left);
+            p = p->right;
+            r = true;
+            continue;
+        }
+        if (inline_calls(a, p->left, n)) {
+            if (!n->definition) return true;
+            r = true;
+        }
+        if (inline_calls(a, p->aux, n)) {
+            if (!n->definition) return true;
+            r = true;
+        }
+        p = p->right;
+    }
+    return r;
+}
+
 extern void read_program(struct analyser * a, unsigned localise_mask) {
     read_program_(a, -1);
     for (struct name * q = a->names; q; q = q->next) {
@@ -2667,62 +2864,66 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
 
     for (struct name ** n_ptr = &(a->names); *n_ptr; ) {
         struct name * n = *n_ptr;
-        // Inline some routines.
-        //
-        // Currently we inline routines which are "simple" and only used once.
-        // Probably we should inline "simple" *OR* only used once, but to do
-        // that we probably need to clone the nodes for routines used more
-        // than once, and we need to handle updating things like
-        // amongvar_needed (which hasn't been set at this point).
-        //
-        // Note: the definition of a routine is counted as a reference to its
-        // name, so a routine only called once has 2 references.
         if (n->type == t_routine &&
-            n->references == 2 &&
-            n->uses_in_among == 0 &&
+            n->references >= 2 &&
             !n->definition->left->right) {
             bool inline_routine = false;
-            switch (n->definition->left->type) {
-                case c_eq:
-                case c_ge:
-                case c_gt:
-                case c_le:
-                case c_lt:
-                case c_ne:
-                case c_booltest:
-                case c_not_booltest:
-                case c_grouping:
-                case c_non:
-                case c_goto_grouping:
-                case c_gopast_grouping:
-                case c_goto_non:
-                case c_gopast_non:
-                case c_literalstring:
-                case c_name:
-                case c_true:
-                case c_false:
-                case c_fail:
-                case c_set:
-                case c_unset:
-                case c_assign:
-                case c_plusassign:
-                case c_minusassign:
-                case c_multiplyassign:
-                case c_divideassign:
-                case c_tomark:
-                case c_tolimit:
-                case c_hop:
-                case c_next:
-                case c_insert:
-                case c_attach:
-                case c_leftslice:
-                case c_rightslice:
-                case c_sliceto:
-                case c_stringassign:
-                case c_slicefrom:
-                    // Inline "simple" single-command routines.
-                    inline_routine = true;
-                    break;
+            if (n->references == 2) {
+                // Inline any routine only called once (where that call is not
+                // as an among function).
+                //
+                // Note: the definition of a routine is counted as a reference
+                // to its name, so a routine only called once has 2 references.
+                inline_routine = (n->uses_in_among == 0);
+            } else {
+                // Inline any calls to routines which is simple enough that the
+                // generated code to call the routine is likely to be a similar
+                // size to the inlined code that replaces it.
+                //
+                // Currently we inline any non-compound command (including
+                // non-compound commands we synthesise, such as `goto` applied
+                // to a grouping).
+                switch (n->definition->left->type) {
+                    case c_eq:
+                    case c_ge:
+                    case c_gt:
+                    case c_le:
+                    case c_lt:
+                    case c_ne:
+                    case c_booltest:
+                    case c_not_booltest:
+                    case c_grouping:
+                    case c_non:
+                    case c_goto_grouping:
+                    case c_gopast_grouping:
+                    case c_goto_non:
+                    case c_gopast_non:
+                    case c_literalstring:
+                    case c_name:
+                    case c_true:
+                    case c_false:
+                    case c_fail:
+                    case c_set:
+                    case c_unset:
+                    case c_assign:
+                    case c_plusassign:
+                    case c_minusassign:
+                    case c_multiplyassign:
+                    case c_divideassign:
+                    case c_tomark:
+                    case c_tolimit:
+                    case c_hop:
+                    case c_next:
+                    case c_insert:
+                    case c_attach:
+                    case c_leftslice:
+                    case c_rightslice:
+                    case c_sliceto:
+                    case c_stringassign:
+                    case c_slicefrom:
+                        inline_routine = true;
+                        break;
+                }
             }
 
             if (inline_routine) {
@@ -2732,33 +2933,67 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
                         n->used->line_number,
                         SIZE(n->s), n->s);
 #endif
-                struct node * call_site = n->used;
-                call_site->type = c_bra;
-                call_site->name = NULL;
-                call_site->left = n->definition->left;
-                remove_routine(a, n);
-                *n_ptr = n->next;
-                lose_s(n->s);
-                FREE(n);
-                continue;
+                bool remove = false;
+                for (struct name * r = a->names; r; r = r->next) {
+                    // Only routines and externals.
+                    if (!r->definition) continue;
+                    // Don't try to inline a routine into itself!
+                    if (r == n) continue;
+                    if (inline_calls(a, r->definition->left, n)) {
+                        // If n contains an among, r now does.  Similarly
+                        // for an among with functions.
+                        r->has_among |= n->has_among;
+                        r->has_among_function |= n->has_among_function;
+                        if (n->definition == NULL) {
+                            // All calls to routine `n` have now been inlined
+                            // so remove it and move on to the next candidate
+                            // for inlining.
+                            remove = true;
+                            break;
+                        }
+                    }
+                }
+                if (remove) {
+                    remove_routine(a, n);
+                    *n_ptr = n->next;
+                    lose_s(n->s);
+                    FREE(n);
+                    continue;
+                }
             }
         }
 
         n_ptr = &(n->next);
     }
 
-    // Add "functionend" nodes there so optimisations such as dead code
-    // elimination and tail call optimisation can easily see where the function
-    // ends.
     for (struct name * name = a->names; name; name = name->next) {
-        if (name->type != t_routine && name->type != t_external) continue;
-
         struct node * p = name->definition;
         if (!p) {
-            // No definition - we'll report this later.
+            // Either this name is not a routine/external, or it is missing
+            // a definition (which gets reported later).
             continue;
         }
+
+        // Recursion is rare in real-world Snowball programs, and there are
+        // some optimisations that we don't attempt if this flag is set.
+        for (struct name * n = a->names; n; n = n->next) {
+            n->visited = false;
+        }
+        name->recursive = recursion_check(p->left, name);
+#if 0
+        if (name->recursive) {
+            fprintf(stderr,
+                    "%s:%d: info: `%.*s` is recursive\n",
+                    a->tokeniser->file, name->definition->line_number,
+                    SIZE(name->s), name->s);
+        }
+#endif
+
+        // Add "functionend" nodes so that optimisations such as dead code
+        // elimination and tail call optimisation can easily see where the
+        // function ends.
         assert(p->type == c_define);
+        assert(p->left);
         assert(p->left->right == NULL);
         if (p->left->type == c_bra) {
             /* Put the "functionend" node at the end of the command list. */
@@ -2854,12 +3089,12 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
             //
             // We only issue a warning about unreachability for routines here
             // to avoid excess diagnostics, since other types must be used in a
-            // routine which is not reachable (or will have been warned about as
+            // routine which is reachable (or will have been warned about as
             // unused by the check above).
             if (q->type == t_routine) {
                 fprintf(stderr, "%s:%d: warning: %s '%.*s' not reachable from any externals\n",
                         a->tokeniser->file,
-                        q->declaration_line_number,
+                        q->definition->line_number,
                         name_of_type(q->type),
                         SIZE(q->s), q->s);
                 remove_routine(a, q);
@@ -2919,6 +3154,7 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
             struct among * x = *a_ptr;
             if (!x->used) {
                 *a_ptr = x->next;
+                free_among(x);
                 continue;
             }
 
@@ -2949,15 +3185,15 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
                 // and subtract one from references to command indexes after
                 // this one.
                 for (int j = 0; j < x->literalstring_count; ++j) {
-                    int diff = (x->b[j].result - i);
+                    int diff = (x->v[j].result - i);
                     if (diff == 0) {
-                        x->b[j].result = merge_with;
+                        x->v[j].result = merge_with;
                         if (merge_with == 0) {
-                            assert(x->b[j].action->type == c_bra);
-                            x->b[j].action->left = NULL;
+                            assert(x->v[j].action->type == c_bra);
+                            x->v[j].action->left = NULL;
                         }
                     } else if (diff > 0) {
-                        --x->b[j].result;
+                        --x->v[j].result;
                     }
                 }
                 memmove(x->commands + (i - 1), x->commands + i,
@@ -2973,8 +3209,6 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
                  * find_among*() returns zero or not.
                  */
                 x->amongvar_needed = true;
-                if (x->in_routine)
-                    x->in_routine->amongvar_needed = true;
             }
 
             a_ptr = &(x->next);
@@ -2983,10 +3217,13 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
 
     /* Localise variables.
      *
-     * We localise variables which are only referenced in a single function
-     * (routine or external) and which are always set before being read within
-     * that function (since a function could rely on a variable's previous
-     * value surviving).
+     * We localise variables which are only referenced in a single non-recursive
+     * function (routine or external) and which are always set before being
+     * read within that function (since a function could rely on a variable's
+     * previous value surviving).
+     *
+     * This optimisation is done after inlining, since inlining can often move
+     * all references to a variable into the same function.
      *
      * We could potentially localise variables referenced in multiple functions
      * provided that they are always set before use in every function they are
@@ -2995,18 +3232,24 @@ extern void read_program(struct analyser * a, unsigned localise_mask) {
      */
     memset(a->name_count, 0, sizeof(a->name_count));
     for (struct name * name = a->names; name; name = name->next) {
-        if (name->local_to != NULL) {
+        if (name->local_to) {
             if (localise_mask & (1 << name->type)) {
                 struct node * func = name->local_to->definition;
-                if (!always_set_before_use(func->left, func, name)) {
+                if (name->local_to->recursive) {
+                    fprintf(stderr,
+                            "%s:%d: info: Could not localise %s `%.*s` into recursive routine `%.*s`\n",
+                            a->tokeniser->file, func->line_number,
+                            name_of_type(name->type),
+                            SIZE(name->s), name->s,
+                            SIZE(func->name->s), func->name->s);
+                    name->local_to = NULL;
+                } else if (!always_set_before_use(func->left, name)) {
                     fprintf(stderr,
                             "%s:%d: info: Could not localise %s `%.*s` to routine `%.*s`\n",
                             a->tokeniser->file, func->line_number,
                             name_of_type(name->type),
                             SIZE(name->s), name->s,
                             SIZE(func->name->s), func->name->s);
-                    report_s(stderr, name->s);
-                    fprintf(stderr, "\n");
                     name->local_to = NULL;
                 }
             } else {
@@ -3073,9 +3316,7 @@ extern void close_analyser(struct analyser * a) {
         struct among * q = a->amongs;
         while (q) {
             struct among * q_next = q->next;
-            FREE(q->b);
-            FREE(q->commands);
-            FREE(q);
+            free_among(q);
             q = q_next;
         }
     }

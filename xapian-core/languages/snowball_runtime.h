@@ -29,18 +29,19 @@ static void debug(struct SN_env * z, int n, int line) {
     int len = SIZE(z->p);
     printf("%3d (line %4d): [%d]'", n, line, len);
     for (i = 0; i <= len; i++) {
-        if (z->lb == i) printf("{");
-        if (z->bra == i) printf("[");
-        if (z->c == i) printf("|");
-        if (z->ket == i) printf("]");
-        if (z->l == i) printf("}");
+        if (z->lb == i) putc('{', stdout);
+        if (z->bra == i) putc('[', stdout);
+        if (z->c == i) putc('|', stdout);
+        if (z->ket == i) putc(']', stdout);
+        if (z->l == i) putc('}', stdout);
         if (i < len) {
             int ch = z->p[i];
             if (ch == 0) ch = '#';
-            printf("%c", ch);
+            putc(ch, stdout);
         }
     }
     printf("'\n");
+    fflush(stdout);
 }
 #endif
 

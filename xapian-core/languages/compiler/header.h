@@ -3,7 +3,7 @@
 # include <stdbool.h>
 #endif
 
-#define SNOWBALL_VERSION "3.1.0"
+#define SNOWBALL_VERSION "3.1.1"
 
 typedef unsigned char byte;
 typedef unsigned short symbol;
@@ -26,7 +26,17 @@ typedef unsigned short symbol;
 extern symbol * create_b(int n);
 extern void report_b(FILE * out, const symbol * p);
 extern void lose_b(symbol * p);
-extern symbol * increase_capacity_b(symbol * p, int n);
+extern symbol * reserve_b_(symbol * p, int n);
+static inline symbol * reserve_b(symbol * p, int n) {
+    if (n > CAPACITY(p)) p = reserve_b_(p, n);
+    return p;
+}
+extern symbol * resize_b(symbol * p, int n);
+static inline symbol * ensure_nul_b(symbol * p) {
+    p = reserve_b(p, SIZE(p) + 1);
+    p[SIZE(p)] = 0;
+    return p;
+}
 extern symbol * add_to_b(symbol * p, const symbol * q, int n);
 extern symbol * copy_b(const symbol * p);
 extern char * b_to_sz(const symbol * p);
@@ -40,8 +50,17 @@ extern byte * create_s_from_data(const char * s, int n);
 
 extern void report_s(FILE * out, const byte * p);
 extern void lose_s(byte * p);
-extern byte * increase_capacity_s(byte * p, int n);
-extern byte * ensure_capacity_s(byte * p, int n);
+extern byte * reserve_s_(byte * p, int n);
+static inline byte * reserve_s(byte * p, int n) {
+    if (n > CAPACITY(p)) p = reserve_s_(p, n);
+    return p;
+}
+extern byte * resize_s(byte * p, int n);
+static inline byte * ensure_nul_s(byte * p) {
+    p = reserve_s(p, SIZE(p) + 1);
+    p[SIZE(p)] = 0;
+    return p;
+}
 extern byte * copy_s(const byte * p);
 extern byte * add_s_to_s(byte * p, const byte * s);
 extern byte * add_slen_to_s(byte * p, const char * s, int n);
@@ -201,6 +220,7 @@ extern byte * get_input(const char * filename);
 extern struct tokeniser * create_tokeniser(byte * b, char * file);
 extern int read_token(struct tokeniser * t);
 extern int peek_token(struct tokeniser * t);
+extern void push_token(struct tokeniser * t, int token);
 #define hold_token(T) ((T)->token_held = true)
 extern const char * name_of_token(int code);
 extern void disable_token(struct tokeniser * t, int code);
@@ -210,7 +230,7 @@ extern int space_count;
 extern void * check_malloc(size_t n);
 extern void check_free(void * p);
 
-extern int checked_snprintf(char *str, size_t size,
+extern int checked_snprintf(char * str, size_t size,
                             const char * format, ...)
 #ifdef __GNUC__
     __attribute__ ((__format__ (__printf__, 3, 4)))
@@ -227,9 +247,15 @@ struct name {
     bool value_used;            /* (For variables) is its value ever used? */
     bool initialised;           /* (For variables) is it ever initialised? */
     bool used_in_definition;    /* (grouping) used in grouping definition? */
-    bool amongvar_needed;       /* for routines, externals */
-    bool among_with_function;   /* (routines/externals) contains among with func */
+    // (routines/externals) contains among
+    bool has_among;
+    // (routines/externals) contains among with function(s)
+    bool has_among_function;
     bool case_collision;        /* A name of the same type differs only by case */
+    // (routines/externals) Could this directly or indirectly call itself?
+    bool recursive;
+    // (routines/externals) Temporary flag used while determining `recursive`.
+    bool visited;
     struct node * definition;   /* (routines/externals) c_define node */
     int uses_in_among;          /* (routines/externals) Count of uses in amongs */
     // Initialised to -1; set to -2 if reachable from an external.
@@ -254,8 +280,10 @@ struct amongvec {
     symbol * b;      /* the string giving the case */
     int size;        /* - and its size */
     struct node * action; /* the corresponding action */
-    int i;           /* the amongvec index of the longest substring of b */
-    int result;      /* the numeric result for the case */
+    // The amongvec index of the longest substring of b, or -1 for none.
+    int i;
+    // among_var value for this case (starts from 1, or -1 for empty action).
+    int result;
     int line_number; /* for diagnostics */
     int function_index; /* 1-based */
     // 0-based index giving order of strings in source.  Used for stable
@@ -266,12 +294,13 @@ struct amongvec {
 
 struct among {
     struct among * next;
-    struct amongvec * b;      /* pointer to the amongvec */
+    struct amongvec * v;      /* pointer to the amongvec */
     int number;               /* amongs are numbered 0, 1, 2 ... */
     int literalstring_count;  /* in this among */
     int command_count;        /* in this among (excludes "no command" entries) */
     int nocommand_count;      /* number of "no command" entries in this among */
-    int function_count;       /* number of different functions in this among */
+    int function_count;       /* number of cases with a function in this among */
+    int unique_function_count;/* number of different functions in this among */
     bool amongvar_needed;     /* do we need to set among_var? */
     bool always_matches;      /* will this among always match? */
     bool used;                /* is this among in reachable code? */
@@ -281,7 +310,6 @@ struct among {
     struct node * substring;  /* i.e. substring ... among ( ... ) */
     struct node ** commands;  /* array with command_count entries */
     struct node * node;       /* pointer to the node for this among */
-    struct name * in_routine; /* pointer to name for routine this among is in */
 };
 
 struct grouping {
@@ -480,6 +508,7 @@ extern void write_int(struct generator * g, int i);
 extern void wi3(struct generator * g, int i);
 extern void write_hex4(struct generator * g, unsigned ch);
 extern void write_hex(struct generator * g, unsigned i);
+extern void write_octal3(struct generator * g, unsigned n);
 extern void write_symbol(struct generator * g, symbol s);
 extern void write_s(struct generator * g, const byte * b);
 extern void write_str(struct generator * g, struct str * str);
@@ -497,6 +526,7 @@ extern int K_needed_node_on_f(struct node * p);
 extern int K_needed_for_and(struct node * p);
 extern int K_needed_for_or(struct node * p);
 extern int repeat_restore(struct node * p);
+extern bool amongvar_needed(struct node * p);
 
 extern int just_return_on_fail(struct generator * g);
 extern int tailcallable(struct generator * g, struct node * p);

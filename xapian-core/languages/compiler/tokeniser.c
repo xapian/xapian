@@ -22,24 +22,27 @@ extern byte * get_input(const char * filename) {
             fprintf(stderr, "%s: Read error\n", filename);
             exit(1);
         }
+        SET_SIZE(u, size);
     } else {
         // Unseekable stream, e.g. piped stdin.
         size = 0;
         u = create_s(INITIAL_INPUT_BUFFER_SIZE);
         while (true) {
-            int s = CAPACITY(u) - size;
-            int r = fread(u + size, 1, s, input);
-            if (r < 0) {
-                fprintf(stderr, "%s: Read error\n", filename);
-                exit(1);
+            size_t s = CAPACITY(u) - size;
+            size_t r = fread(u + size, 1, s, input);
+            size += (int)r;
+            SET_SIZE(u, size);
+            if (r < s) {
+                if (ferror(input)) {
+                    fprintf(stderr, "%s: Read error\n", filename);
+                    exit(1);
+                }
+                break;
             }
-            size += r;
-            if (r < s) break;
-            u = increase_capacity_s(u, size);
+            u = reserve_s(u, size * 2);
         }
     }
     if (input != stdin) fclose(input);
-    SET_SIZE(u, size);
     return u;
 }
 
@@ -171,12 +174,12 @@ static int read_literal_string(struct tokeniser * t, int c) {
                                 error1(t, "character values exceed 0x01ffff");
                             }
                             /* Ensure there's enough space for a max length
-                             * UTF-8 sequence. */
+                             * UTF-8 sequence and then encode the character
+                             * directly into that space. */
                             int b_size = SIZE(t->b);
-                            if (CAPACITY(t->b) < b_size + 3) {
-                                t->b = increase_capacity_b(t->b, 3);
-                            }
-                            SET_SIZE(t->b, b_size + put_utf8(codepoint, t->b + b_size));
+                            t->b = reserve_b(t->b, b_size + 4);
+                            SET_SIZE(t->b, b_size + put_utf8(codepoint,
+                                                             t->b + b_size));
                         } else {
                             if (t->encoding == ENC_SINGLEBYTE) {
                                 /* Only ISO-8859-1 is handled this way - for
@@ -533,7 +536,7 @@ extern int read_token(struct tokeniser * t) {
                     for (r = t->includes; r; r = r->next) {
                         byte * s = copy_s(r->s);
                         s = add_sz_to_s(s, file);
-                        s[SIZE(s)] = 0;
+                        s = ensure_nul_s(s);
                         if (file_owned > 0) {
                             free(file);
                         } else {
@@ -546,7 +549,7 @@ extern int read_token(struct tokeniser * t) {
                     }
                 }
                 if (u == NULL) {
-                    error(t, "Can't get '", (byte *)file, strlen(file), "'");
+                    error(t, "Can't get '", (byte *)file, (int)strlen(file), "'");
                     exit(1);
                 }
                 memmove(q, t, sizeof(struct input));
@@ -585,6 +588,15 @@ extern int peek_token(struct tokeniser * t) {
     int token = read_token(t);
     t->token_held = true;
     return token;
+}
+
+extern void push_token(struct tokeniser * t, int token) {
+    if (t->token_held) {
+        error1(t, "push_token() called but token already held");
+        exit(1);
+    }
+    t->token = token;
+    t->token_held = true;
 }
 
 extern const char * name_of_token(int code) {

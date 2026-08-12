@@ -4,6 +4,9 @@
 #include <string.h> /* for strlen */
 #include "header.h"
 
+// C90 guarantees 31 significant initial characters in an internal identifier.
+#define C_MAX_ID_LEN 31
+
 /* Define this to get warning messages when optimisations can't be used. */
 /* #define OPTIMISATION_WARNINGS */
 
@@ -12,6 +15,48 @@
 static void generate(struct generator * g, struct node * p);
 static void w(struct generator * g, const char * s);
 static void writef(struct generator * g, const char * s, struct node * p);
+
+static bool can_error_(struct node * p);
+
+// `can_error(routine_name)` returns true if the C implementation of
+// `routine_name` can return -1.  -1 indicates an internal or system type error
+// (e.g. memory allocation failed or the slice wasn't valid) for C (for C++
+// we instead throw exceptions for such cases).
+static bool can_error(struct name * n) {
+    return can_error_(n->definition->left);
+}
+
+static bool can_error_(struct node * p) {
+    while (p) {
+        switch (p->type) {
+            case c_sliceto:
+            case c_assignto:
+            case c_slicefrom:
+            case c_attach:
+            case c_insert:
+            case c_stringassign:
+                return true;
+            case c_call:
+                // Recursive functions are rare so just assume the worst.
+                if (p->name->recursive) return true;
+                if (can_error(p->name)) return true;
+                break;
+            case c_among: {
+                struct among * x = p->among;
+                if (x->unique_function_count == 0) break;
+                for (int i = 0; i < x->literalstring_count; ++i) {
+                    struct name * function = x->v[i].function;
+                    if (function && can_error(function)) return true;
+                }
+                break;
+            }
+        }
+        if (p->left && can_error_(p->left)) return true;
+        if (p->aux && can_error_(p->aux)) return true;
+        p = p->right;
+    }
+    return false;
+}
 
 /* Write routines for items from the syntax tree */
 
@@ -38,6 +83,31 @@ static void write_varname(struct generator * g, struct name * p) {
          */
         write_char(g, "sbirxg"[p->type]);
         write_char(g, '_');
+        if (g->options->target_lang == LANG_C) {
+            if (SIZE(p->s) > C_MAX_ID_LEN - 2) {
+                // We aim to generate C90 code, and C90 only guarantees 31
+                // significant initial characters in internal identifiers.
+                // C99 raised this to 63, and modern implementations are
+                // likely to have a high limit or not impose one, but it
+                // is easy to generate an identifier based on the number
+                // instead.  A Snowball name must start with a letter so
+                // this can't collide.
+                write_int(g, p->count);
+                return;
+            }
+        } else {
+            assert(g->options->target_lang == LANG_CPLUSPLUS);
+            for (int i = SIZE(p->s) - 1; i > 0; --i) {
+                if (p->s[i] == '_' && p->s[i - 1] == '_') {
+                    // C++ reserves identifiers containing a double underscore
+                    // so generate an identifier based on the number instead.
+                    // A Snowball name must start with a letter so this can't
+                    // collide.
+                    write_int(g, p->count);
+                    return;
+                }
+            }
+        }
     }
     write_s(g, p->s);
 }
@@ -65,7 +135,7 @@ static void wlitch(struct generator * g, int ch) {
     }
 }
 
-static void wlitarray(struct generator * g, symbol * p) {  /* write literal array */
+static void wlitarray(struct generator * g, const symbol * p) {  /* write literal array */
     write_string(g, "{ ");
     for (int i = 0; i < SIZE(p); i++) {
         if (i) write_string(g, ", ");
@@ -74,7 +144,7 @@ static void wlitarray(struct generator * g, symbol * p) {  /* write literal arra
     write_string(g, " }");
 }
 
-static void wlitref(struct generator * g, symbol * p) {  /* write ref to literal array */
+static void wlitref(struct generator * g, const symbol * p) {  /* write ref to literal array */
     if (SIZE(p) == 0) {
         write_char(g, '0');
     } else {
@@ -223,21 +293,21 @@ static void writef(struct generator * g, const char * input, struct node * p) {
             }
             case 'F': { // Among function dispatcher.
                 struct among * x = p->among;
-                if (x->function_count == 0) {
+                if (x->unique_function_count == 0) {
                     write_char(g, '0');
                     continue;
                 }
 
-                if (x->function_count == 1) {
+                if (x->unique_function_count == 1) {
                     // Only one different function used in this among.
-                    struct amongvec * v = x->b;
+                    struct amongvec * v = x->v;
                     for (int j = 0; j < x->literalstring_count; j++) {
                         if (v[j].function) {
                             write_varref(g, v[j].function);
                             goto continue_outer_loop;
                         }
                     }
-                    fprintf(stderr, "function_count == 1 but no among functions\n");
+                    fprintf(stderr, "unique_function_count == 1 but no among functions\n");
                     exit(1);
 continue_outer_loop:
                     continue;
@@ -309,7 +379,13 @@ static void w(struct generator * g, const char * s) {
 static void write_propagating_error(struct generator * g, const char * s,
                                     int keep_c,
                                     struct node *p) {
+    bool error_possible = true;
     if (g->options->target_lang == LANG_CPLUSPLUS) {
+        error_possible = false;
+    } else if (p->type == c_call && !can_error(p->name)) {
+        error_possible = false;
+    }
+    if (!error_possible) {
         if (keep_c) {
             write_block_start(g);
             w(g, "~Mint saved_c = z->c;~N");
@@ -1129,7 +1205,8 @@ static void generate_call(struct generator * g, struct node * p) {
     if (just_return_on_fail(g)) {
         write_block_start(g);
         writef(g, "~Mint ret = ~V(z);~N", p);
-        if (g->options->target_lang == LANG_CPLUSPLUS) {
+        if (g->options->target_lang == LANG_CPLUSPLUS ||
+            !can_error(p->name)) {
             writef(g, "~Mif (ret == 0) return ret;~N", p);
         } else {
             /* For C, we need to propagate both failures and runtime errors so
@@ -1147,7 +1224,8 @@ static void generate_call(struct generator * g, struct node * p) {
             write_propagating_error(g, "~V(z)", false, p);
             writef(g, "~M~f~N", p);
         } else {
-            if (g->options->target_lang == LANG_CPLUSPLUS) {
+            if (g->options->target_lang == LANG_CPLUSPLUS ||
+                !can_error(p->name)) {
                 writef(g, "~Mif (!~V(z)) ~f~N", p);
             } else {
                 write_block_start(g);
@@ -1234,7 +1312,7 @@ static void generate_define(struct generator * g, struct node * p) {
     }
     writef(g, "int ~V(struct SN_env * z) {~N~+", p);
 
-    if (q->amongvar_needed) {
+    if (amongvar_needed(p->left)) {
         w(g, "~Mint among_var;~N");
     }
 
@@ -1292,7 +1370,7 @@ static void generate_substring(struct generator * g, struct node * p) {
     struct among * x = p->among;
     int block = -1;
     unsigned int bitmap = 0;
-    struct amongvec * among_cases = x->b;
+    struct amongvec * among_cases = x->v;
     int empty_case = -1;
     int n_cases = 0;
     symbol cases[2];
@@ -1627,7 +1705,7 @@ static void generate_head(struct generator * g) {
 
         for (struct name * name = g->analyser->names; name; name = name->next) {
             if (!name->local_to && name->type == t_boolean) {
-                if (g->options->target_lang == LANG_CPLUSPLUS) {
+                if (o->target_lang == LANG_CPLUSPLUS) {
                     w(g, "~Mbool ");
                 } else {
                     w(g, "~Munsigned char ");
@@ -1647,12 +1725,12 @@ static void generate_head(struct generator * g) {
 
         w(g, "~-~M};~N~N");
 
-        if (g->options->target_lang == LANG_C) {
+        if (o->target_lang == LANG_C) {
             w(g, "typedef struct SN_local SN_local;~N~N");
         }
     }
 
-    const char * vp = g->options->variables_prefix;
+    const char * vp = o->variables_prefix;
     if (vp) {
         for (struct name * q = g->analyser->names; q; q = q->next) {
             if (q->local_to) continue;
@@ -1680,7 +1758,7 @@ static void generate_head(struct generator * g) {
                          "}~N~N");
                     break;
                 case t_boolean:
-                    if (g->options->target_lang == LANG_CPLUSPLUS) {
+                    if (o->target_lang == LANG_CPLUSPLUS) {
                         w(g, "extern bool ");
                     } else {
                         w(g, "extern int ");
@@ -1731,7 +1809,7 @@ static void generate_among_table(struct generator * g, struct among * x) {
     write_newline(g);
     write_comment(g, x->node);
 
-    struct amongvec * v = x->b;
+    struct amongvec * v = x->v;
 
     g->I[0] = x->number;
     for (int i = 0; i < x->literalstring_count; i++) {
@@ -1776,8 +1854,8 @@ static void generate_among_table(struct generator * g, struct among * x) {
             if (g->options->comments) {
                 w(g, "/* coverage */ ");
             }
-            g->I[1] = x->b[i].line_number;
-            g->I[2] = x->b[i].string_index;
+            g->I[1] = x->v[i].line_number;
+            g->I[2] = x->v[i].string_index;
             w(g, "{ ~I0, (const symbol*)\"~S1:~I1\", 0, ~I2, 0 },~N");
         }
         if (x->always_matches) {
@@ -1791,11 +1869,11 @@ static void generate_among_table(struct generator * g, struct among * x) {
     }
     w(g, "~N};~N");
 
-    if (x->function_count <= 1) return;
+    if (x->unique_function_count <= 1) return;
 
     w(g, "~N~Mstatic int af_~I0(struct SN_env * z) {~N~+");
     w(g, "~Mswitch (z->af) {~N~+");
-    for (int n = 1; n <= x->function_count; n++) {
+    for (int n = 1; n <= x->unique_function_count; n++) {
         w(g, "~Mcase ");
         write_int(g, n);
         w(g, ": return ");
@@ -1877,53 +1955,46 @@ static void generate_create(struct generator * g) {
 
     if (g->analyser->variable_count == 0) {
         w(g, "~Mreturn SN_new_env(sizeof(struct SN_env));~N");
+    } else if (g->analyser->name_count[t_string] == 0) {
+        w(g, "~Mreturn SN_new_env(sizeof(SN_local));~N");
     } else {
         w(g, "~Mstruct SN_env * z = SN_new_env(sizeof(SN_local));~N"
              "~Mif (z) {~N~+");
+
+        // SN_new_env() initialises the allocated size to all-zero-bits, so
+        // assigning NULL here is only needed on platforms where NULL doesn't
+        // have an all-zero-bits representation in memory.  The C standard
+        // allows that, but there don't seem to be any current such platforms.
+        // There doesn't seem an easy way to only enable this code when it is
+        // useful though.
+        //
+        // To simplify handling a failure to allocate a string variable, if
+        // there are multiple non-localised string variables we initialise them
+        // all to NULL first, then try to allocate them in a second pass.  We
+        // don't need to do this when there's only one because in that case we
+        // can't have a partially successful allocation.
+        if (g->analyser->name_count[t_string] > 1) {
+            for (struct name * name = g->analyser->names; name; name = name->next) {
+                if (!name->local_to && name->type == t_string) {
+                    w(g, "~M");
+                    write_varref(g, name);
+                    w(g, " = NULL;~N");
+                }
+            }
+            write_newline(g);
+        }
 
         for (struct name * name = g->analyser->names; name; name = name->next) {
             if (!name->local_to) {
                 switch (name->type) {
                     case t_string:
-                        w(g, "~M");
+                        w(g, "~Mif ((");
                         write_varref(g, name);
-                        w(g, " = NULL;~N");
+                        w(g, " = create_s()) == NULL) {~N~+"
+                             "~M~pclose_env(z);~N"
+                             "~Mreturn NULL;~N~-"
+                             "~M}~N");
                         break;
-                    case t_integer:
-                        w(g, "~M");
-                        write_varref(g, name);
-                        w(g, " = 0;~N");
-                        break;
-                    case t_boolean:
-                        w(g, "~M");
-                        write_varref(g, name);
-                        if (g->options->target_lang == LANG_CPLUSPLUS) {
-                            w(g, " = false;~N");
-                        } else {
-                            w(g, " = 0;~N");
-                        }
-                        break;
-                }
-            }
-        }
-
-        if (g->analyser->name_count[t_string] > 0) {
-            write_newline(g);
-
-            // To simplify error handling, we initialise all strings to NULL
-            // above, then try to allocate them in a second pass.
-            for (struct name * name = g->analyser->names; name; name = name->next) {
-                if (!name->local_to) {
-                    switch (name->type) {
-                        case t_string:
-                            w(g, "~Mif ((");
-                            write_varref(g, name);
-                            w(g, " = create_s()) == NULL) {~N~+"
-                                 "~M~pclose_env(z);~N"
-                                 "~Mreturn NULL;~N~-"
-                                 "~M}~N");
-                            break;
-                    }
                 }
             }
         }
@@ -1936,21 +2007,20 @@ static void generate_create(struct generator * g) {
 }
 
 static void generate_close(struct generator * g) {
+    // If there are no string variables then our close_env is just
+    // SN_delete_env so we #define it to that in the header.
+    if (g->analyser->name_count[t_string] == 0) return;
+
     w(g, "~Nextern void ~pclose_env(struct SN_env * z) {~N~+");
+    w(g, "~Mif (!z) return;~N");
 
-    if (g->analyser->name_count[t_string] > 0) {
-        w(g, "~Mif (!z) return;~N");
-
-        for (struct name * name = g->analyser->names; name; name = name->next) {
-            if (!name->local_to && name->type == t_string) {
-                w(g, "~Mlose_s(");
-                write_varref(g, name);
-                w(g, ");~N");
-            }
+    for (struct name * name = g->analyser->names; name; name = name->next) {
+        if (!name->local_to && name->type == t_string) {
+            w(g, "~Mlose_s(");
+            write_varref(g, name);
+            w(g, ");~N");
         }
     }
-
-    // Note: SN_delete_env() no-ops if z is NULL so we don't to gate this call.
     w(g, "~MSN_delete_env(z);~N"
          "~-}~N~N");
 }
@@ -1993,9 +2063,14 @@ static void generate_header_file(struct generator * g) {
              "#endif~N");            /* for C++ */
 
         w(g, "~N"
-             "extern struct SN_env * ~pcreate_env(void);~N"
-             "extern void ~pclose_env(struct SN_env * z);~N"
-             "~N");
+             "extern struct SN_env * ~pcreate_env(void);~N");
+
+        if (g->analyser->name_count[t_string] == 0) {
+            w(g, "#define ~pclose_env SN_delete_env~N");
+        } else {
+            w(g, "extern void ~pclose_env(struct SN_env * z);~N");
+        }
+        write_newline(g);
     }
 
     const char * vp = o->variables_prefix;
@@ -2098,7 +2173,7 @@ static void generate_header_file(struct generator * g) {
 
         for (struct name * name = g->analyser->names; name; name = name->next) {
             if (!name->local_to && name->type == t_boolean) {
-                if (g->options->target_lang == LANG_CPLUSPLUS) {
+                if (o->target_lang == LANG_CPLUSPLUS) {
                     w(g, "~Mbool ");
                 } else {
                     w(g, "~Munsigned char ");
@@ -2139,8 +2214,8 @@ static void generate_header_file(struct generator * g) {
         for (struct name * q = g->analyser->names; q; q = q->next) {
             if (!q->local_to && q->type == t_external) {
                 w(g, "~Mstatic int ");
-                if (g->options->externals_prefix) {
-                    write_string(g, g->options->externals_prefix);
+                if (o->externals_prefix) {
+                    write_string(g, o->externals_prefix);
                 }
                 write_s(g, q->s);
                 w(g, "(struct SN_env * z);~N~N");
@@ -2165,11 +2240,18 @@ static void generate_header_file(struct generator * g) {
                  "~Mthrow;~N"
                  "~-~M}~N");
         }
+        if (o->encoding == ENC_WIDECHARS) {
+            g->S[0] = "std::wstring";
+            g->S[1] = "wchar_t";
+        } else {
+            g->S[0] = "std::string";
+            g->S[1] = "char";
+        }
         w(g, "~-~M}~N~N"
              "~M~~~n() {~N~+"
              "~Mclose_env();~N"
              "~-~M}~N~N"
-             "~Mstd::string operator()(const std::string& word) override {~N~+"
+             "~M~S0 operator()(const ~S0& word) override {~N~+"
              "~Mstruct SN_env* z = &(zlocal.z);~N"
              "~Mconst symbol* s = reinterpret_cast<const symbol*>(word.data());~N"
              "~Mint s_size = word.size() > INT_MAX ? INT_MAX : word.size();~N"
@@ -2180,11 +2262,11 @@ static void generate_header_file(struct generator * g) {
         write_string(g, "::");
         write_s(g, o->name);
         write_string(g, "::");
-        if (g->options->externals_prefix) {
-            write_string(g, g->options->externals_prefix);
+        if (o->externals_prefix) {
+            write_string(g, o->externals_prefix);
         }
         w(g, "stem(z);~N"
-             "~Mreturn std::string(reinterpret_cast<const char*>(z->p), SIZE(z->p));~N"
+             "~Mreturn ~S0(reinterpret_cast<const ~S1*>(z->p), SIZE(z->p));~N"
              "~-~M}~N"
              "~N");
 
