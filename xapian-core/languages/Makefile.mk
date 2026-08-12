@@ -13,7 +13,7 @@ snowball_algorithms =\
 	languages/algorithms/danish.sbl\
 	languages/algorithms/dutch_porter.sbl\
 	languages/algorithms/dutch.sbl\
-	languages/algorithms/earlyenglish.sbl\
+	languages/algorithms/earlymodernenglish.sbl\
 	languages/algorithms/english.sbl\
 	languages/algorithms/esperanto.sbl\
 	languages/algorithms/estonian.sbl\

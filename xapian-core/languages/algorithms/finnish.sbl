@@ -12,7 +12,7 @@ routines (
            mark_regions
            R2
            particle_etc possessive
-           LONG VI
+           LV VI A E I O U A_ O_
            case_ending
            i_plural
            t_plural
@@ -25,7 +25,7 @@ externals ( stem )
 integers ( p1 p2 )
 strings ( x )
 booleans ( ending_removed )
-groupings ( AEI C V1 V2 particle_end )
+groupings ( AEI C v particle_end )
 
 stringescapes {}
 
@@ -33,20 +33,20 @@ stringescapes {}
 
 stringdef a"   '{U+00E4}'
 stringdef o"   '{U+00F6}'
+stringdef o/   '{U+00F8}'
 
 define AEI 'a{a"}ei'
 define C 'bcdfghjklmnpqrstvwxz'
-define V1 'aeiouy{a"}{o"}'
-define V2 'aeiou{a"}{o"}'
-define particle_end V1 + 'nt'
+define v 'aeiouy{a"}{o"}'
+define particle_end v + 'nt'
 
 define mark_regions as (
 
     $p1 = limit
     $p2 = limit
 
-    gopast V1  gopast non-V1  setmark p1
-    gopast V1  gopast non-V1  setmark p2
+    gopast v  gopast non-v  setmark p1
+    gopast v  gopast non-v  setmark p2
 )
 
 backwardmode (
@@ -89,28 +89,39 @@ backwardmode (
         )
     )
 
-    define LONG as
+    define LV as
         among('aa' 'ee' 'ii' 'oo' 'uu' '{a"}{a"}' '{o"}{o"}')
 
-    define VI as ('i' V2)
+    define VI as
+        among('ai' 'ei' 'ii' 'oi' 'ui' '{a"}i' '{o"}i' '{'}')
+
+    define A as ('a' or '{'}')
+    define E as ('e' or '{'}')
+    define I as ('i' or '{'}')
+    define O as ('o' or '{'}')
+    define U as ('u' or '{'}')
+    define A_ as ('{a"}' or '{'}')
+    // -ø-hön seen with Norwegian place names, e.g. Bodøhön
+    define O_ as ('{o"}' or '{o/}' or '{'}')
 
     define case_ending as (
         setlimit tomark p1 for ([substring])
         among(
-            'han'    ('a')          //-.
-            'hen'    ('e')          // |
-            'hin'    ('i')          // |
-            'hon'    ('o')          // |
-            'h{a"}n' ('{a"}')       // Illative   [43]
-            'h{o"}n' ('{o"}')       // |
+            'h{a"}n' A_             //-.
+            'h{o"}n' O_             // |
+            'han'    A              // |
+            'hen'    E              // |
+            'hin'    I              // Illative   [43]
+            'hon'    O              // |
+            'hun'    U              // |
             'siin'   VI             // |
-            'seen'   LONG           //-'
+            'seen'   LV             //-'
 
             'den'    VI
             'tten'   VI             // Genitive plurals [34]
                      ()
             'n'                     // Genitive or Illative
-                ( try ( LONG // Illative
+                ( try ( LV // Illative
                         or 'ie' // Genitive
                           and next ]
                       )
@@ -118,7 +129,7 @@ backwardmode (
                 )
 
             'a' '{a"}'              //-.
-                     (V1 C)         // |
+                     (v C)          // |
             'tta' 'tt{a"}'          // Partitive  [32]
                      ('e')          // |
             'ta' 't{a"}'            //-'
@@ -161,7 +172,7 @@ backwardmode (
     )
     define t_plural as (            // [26]
         setlimit tomark p1 for (
-            ['t'] test V1
+            ['t'] test v
             delete
         )
         setlimit tomark p2 for ([substring])
@@ -173,12 +184,13 @@ backwardmode (
     )
     define tidy as (
         setlimit tomark p1 for (
-            do ( LONG and ([next] delete ) ) // undouble vowel
+            do ( LV and ([next] delete ) ) // undouble vowel
             do ( [AEI] C delete ) // remove trailing a, a", e, i
             do ( ['j'] 'o' or 'u' delete )
             do ( ['o'] 'j' delete )
         )
-        goto non-V1 [C] -> x  x delete // undouble consonant
+        do (goto non-v [C] -> x  x delete) // undouble consonant
+        ['{'}'] delete
     )
 )
 

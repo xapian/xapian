@@ -368,6 +368,7 @@ define stem as (
     do step2
     do fix_chdz
     do fix_gd
+    ['{'}'] delete
   )
 
 )

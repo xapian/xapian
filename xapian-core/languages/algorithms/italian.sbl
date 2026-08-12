@@ -1,6 +1,7 @@
 // Alias: it
 
 routines (
+           elisions
            prelude postlude mark_regions
            RV R1 R2
            attached_pronoun
@@ -31,6 +32,29 @@ stringdef u'   '{U+00FA}'
 stringdef u`   '{U+00F9}'
 
 define v 'aeiou{a`}{e`}{i`}{o`}{u`}'
+
+define elisions as (
+    [ substring ] not atlimit among (
+      // 'c{'}' doesn't seem useful to remove here.
+      'd{'}'      // e.g. d'Italia ("of Italy")
+      'l{'}'      // e.g. l'anno ("the year")
+      'm{'}'      // e.g. m'ama ("he loves me")
+      's{'}'      // e.g. s'innamora ("he falls in love")
+      't{'}'      // e.g. t'amo ("I love you")
+      'v{'}'      // e.g. v'adoro ("I adore you")
+      'all{'}'    // e.g. all'università ("at university")
+      'dall{'}'   // e.g. dall'album ("from the album")
+      'dell{'}'   // e.g. dell'anno ("of the year")
+      'gl{'}'     // e.g. gl'inglesi ("the English")
+      'nell{'}'   // e.g. nell'estate ("in the summer")
+      'quell{'}'  // e.g. quell'anno ("that year")
+      'quest{'}'  // e.g. quest'anno ("this year")
+      'sull{'}'   // e.g. sull'isola ("on the island")
+      'tutt{'}'   // e.g. tutt'Europa ("all of Europe")
+      'un{'}'     // e.g. un'eccentricità ("an eccentricity")
+    )
+    delete
+)
 
 define prelude as (
     test repeat (
@@ -182,6 +206,7 @@ backwardmode (
 )
 
 define stem as (
+      do elisions
       do prelude
       do mark_regions
       backwards (

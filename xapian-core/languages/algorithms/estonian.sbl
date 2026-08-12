@@ -36,7 +36,7 @@ integers ( p1 )
 groupings ( V1 RV KI GI)
 
 define V1 'aeiou{o~}{a"}{o"}{u"}'
-define RV 'aeiuo'
+define RV 'aeiuo{'}'
 define KI 'kptgbdshf{sv}z{zv}'
 define GI 'cjlmnqrvwxaeiou{o~}{a"}{o"}{u"}'
 
@@ -44,7 +44,12 @@ define mark_regions as (
 
     $p1 = limit
 
-    gopast V1  gopast non-V1  setmark p1
+    (
+      hop 2  gopast '{'}'
+    ) or (
+      gopast V1  gopast non-V1
+    )
+    setmark p1
 )
 
 
@@ -266,6 +271,6 @@ define stem as (
         do emphasis
         do ( verb or substantive )
         do undouble_kpt
-
+        ['{'}'] delete
     )
 )

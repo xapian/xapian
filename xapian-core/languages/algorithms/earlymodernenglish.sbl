@@ -1,4 +1,4 @@
-// Alias:
+// Alias: earlyenglish
 
 integers ( p1 p2 )
 booleans ( Y_found )
@@ -8,6 +8,7 @@ routines (
     mark_regions
     shortv
     R1 R2
+    prefixes
     Step_1a Step_1b Step_1c Step_2 Step_3 Step_4 Step_5
     exception1
 )
@@ -18,6 +19,10 @@ groupings ( aeo v v_WXY valid_LI )
 
 stringescapes {}
 
+stringdef ae     '{U+00E6}'
+stringdef oe     '{U+0153}'
+stringdef long_s '{U+017F}'
+
 define aeo      'aeo'
 define v        'aeiouy'
 define v_WXY    v + 'wxY'
@@ -25,10 +30,31 @@ define v_WXY    v + 'wxY'
 define valid_LI 'cdeghkmnrt'
 
 define prelude as (
+    // Additional step for Early Modern English.
+    do repeat (
+        [substring] among(
+            '{ae}'     (<- 'ae')
+            '{oe}'     (<- 'oe')
+            '{long_s}' (<- 's')
+            ''         (next)
+        )
+    )
+
     unset Y_found
     do ( ['{'}'] delete)
     do ( ['y'] <-'Y' set Y_found)
     do repeat(goto (v ['y']) <-'Y' set Y_found)
+)
+
+// Additional step for Early Modern English.
+define prefixes as (
+    [substring] among (
+        'o{'}er' // e.g. o'erwhelm -> overwhelm
+            (<- 'over')
+        'th{'}'  // e.g. th'earth -> earth
+        't{'}'   // e.g. t'assume -> assume
+            (not atlimit delete)
+    )
 )
 
 define mark_regions as (
@@ -78,6 +104,12 @@ backwardmode (
                    ((hop 2 <-'i') or <-'ie')
             's'    (next gopast v delete)
             'us' 'ss'
+                   ()
+             // Additions for Early Modern English.
+            'e{'}er' // e.g. whoe'er -> whoever
+                   (<- 'ever')
+            'lie'    // e.g. assemblie -> assembly
+                   (R1  <- 'ly')
         )
     )
 
@@ -95,7 +127,17 @@ backwardmode (
                     )
                 )
             )
-            'ed' 'edly' 'ingly' 'est' 'eth'
+            'ed' 'edly' 'ingly'
+                (false) // Handled below.
+            // Additions for Early Modern English.
+            '{'}d'   // e.g. lov'd -> lov (-> love)
+            '{'}dly' // e.g. favour'dly -> favour
+            '{'}dst' // e.g. call'dst -> call
+            '{'}st'  // e.g. know'st -> know
+            '{'}t'   // e.g. advanc't -> advanc
+            'edst'   // e.g. commandedst -> command
+            'est'    // e.g. knowest -> know (but e.g. forest -> for (-> fore))
+            'eth'    // e.g. knoweth -> know (but e.g. lambeth -> lamb)
                 (false) // Handled below.
             'ing'
                 ( // Handle exceptional cases here, rest handled below.
@@ -187,6 +229,17 @@ backwardmode (
         [substring] among (
             'e' (R2 or (R1 not shortv) delete)
             'l' (R2 'l' delete)
+            // Additions for Early Modern English.
+            '{'}n'    // e.g. heav'n -> heaven
+            '{'}nd'   // e.g. quick'nd -> quicken
+                (<- 'en')
+            '{'}r'    // e.g. (rememb'red -> rememb'r) -> remember
+            '{'}rous' // e.g. murd'rous -> murder
+                (<- 'er')
+            '{'}ri'   // e.g. (wat'ry -> wat'ri) -> wateri
+                (<- 'eri')
+            '{'}li'   // e.g. (happ'ly -> happ'li) -> happili
+                (<- 'ili')
         )
     )
 )
@@ -230,6 +283,7 @@ define stem as (
     exception1 or
     not hop 3 or (
         do prelude
+        do prefixes
         do mark_regions
         backwards (
 

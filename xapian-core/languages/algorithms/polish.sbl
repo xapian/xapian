@@ -151,6 +151,7 @@ backwardmode (
       'ach' R1  'iach' R1                       // plural locative (książkach, słoniach)
         (delete)
     )
+    try (['{'}'] delete)
   )
 
   define normalize_consonant as (
