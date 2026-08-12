@@ -1,3 +1,4 @@
+11
 a
 aabakk
 aabakk
@@ -1881,6 +1882,8 @@ bostadsrattsutredning
 bostadsrettsforening
 bot
 bot
+bot
+bot
 botn
 botrygg
 bottom
@@ -2467,6 +2470,7 @@ ca
 cargo
 cargo
 carl
+cd
 cecodh
 cellulos
 centralforening
@@ -2548,6 +2552,7 @@ coordination
 cost
 cruis
 ctse
+cv
 d
 da
 dag
@@ -3663,6 +3668,8 @@ entrepris
 entyd
 enøyd
 enøyd
+ep
+ep
 epes
 epl
 epl
@@ -7583,6 +7590,9 @@ høyvann
 i
 iallfall
 ica
+id
+id
+id
 ida
 idag
 idavoll
@@ -8273,6 +8283,8 @@ investor
 involver
 involver
 iogforseg
+ip
+ip
 ipa
 ir
 ira
@@ -13087,6 +13099,8 @@ paus
 pbe
 pbes
 pbl
+pc
+pc
 peik
 peik
 peik
@@ -17494,6 +17508,7 @@ ta
 tabell
 tabell
 tabell
+tag
 tagget
 tak
 tak
@@ -18151,6 +18166,7 @@ tjuedagarsfrist
 tjuedel
 tjuvholm
 tjærebredd
+tld
 to
 todag
 toft
@@ -19154,6 +19170,8 @@ urettferd
 urim
 urim
 urim
+url
+url
 uro
 uro
 uro

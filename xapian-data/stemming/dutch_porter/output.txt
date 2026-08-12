@@ -11466,7 +11466,6 @@ eyck
 ez
 ezh
 ezw
-ève
 f
 faald
 fam
@@ -20895,6 +20894,7 @@ lager
 lager
 lagergeschoold
 lager
+lagerweij
 lagerwey
 lagun
 laidlaw

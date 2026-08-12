@@ -1,0 +1,38 @@
+voc.txt was derived from a collection of ebooks like so:
+
+scripts/ebook-txt-to-freq *.txt* 2 > voc.freq
+scripts/freq-to-voc < voc.freq > earlymodernenglish/voc.txt
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l earlymodernenglish < earlymodernenglish/voc.txt > earlymodernenglish/output.txt
+
+The source URLs used were:
+
+* The King James Version of the Bible
+  https://www.gutenberg.org/ebooks/10.txt.utf-8
+* Paradise Lost by John Milton
+  https://www.gutenberg.org/ebooks/20.txt.utf-8
+* The Complete Works of William Shakespeare
+  https://www.gutenberg.org/ebooks/100.txt.utf-8
+* Leviathan by Thomas Hobbes
+  https://www.gutenberg.org/ebooks/3207.txt.utf-8
+* The Diary of Samuel Pepys — Complete
+  https://www.gutenberg.org/ebooks/4200.txt.utf-8
+* Spenser's The Faerie Queene, Book I
+  https://www.gutenberg.org/ebooks/15272.txt.utf-8
+* The chief Elizabethan dramatists, excluding Shakespeare selected plays by Lyly, Peele, Greene, Marlowe, Kyd, Chapman, Jonson, Dekker, Marston, Heywood, Beaumont, Fletcher, Webster, Middleton, Massinger, Ford, Shirley
+  https://www.gutenberg.org/ebooks/77587.txt.utf-8
+
+These ebooks are all sufficiently old to no longer be subject to copyright.
+Project Gutenberg claims a compilation copyright, but paragraph 1.C. of the
+Project Gutenberg License allows us to create derivative works provided all
+references to Project Gutenberg are removed.
+
+A few hand-picked example words were added to provide additional coverage:
+
+    goſpel
+    jeſus
+    needly
+    righteouſneſs
+    ſhall

@@ -2417,7 +2417,6 @@ fsh
 fthe
 fu
 fuba
-fullurl
 fumana
 fumanang
 fumane
@@ -2952,7 +2951,6 @@ houston
 hoya
 hrow
 htm
-htmlbuilder
 hu
 hubei
 huddleston
@@ -6514,7 +6512,6 @@ mutare
 muthaland
 mutwa
 mw
-mwhtmlmeta
 mwr
 myanmar
 mydemonym
@@ -7369,7 +7366,6 @@ pitso
 pityana
 pk
 plaatje
-plainrowheaders
 plantae
 platinamo
 ples
@@ -7871,7 +7867,6 @@ rossouw
 rottnest
 rowan
 rowend
-rowheader
 rowid
 rrt
 rt
@@ -9713,8 +9708,6 @@ upto
 urlbook
 uropa
 usd
-usemodule
-usestr
 usiba
 uspan
 ussa
@@ -9809,7 +9802,6 @@ wonderboompoort
 wono
 worldfootball
 wpwp
-writehtml
 ws
 wuhan
 wyk
@@ -9825,8 +9817,6 @@ yanga
 yapmak
 yase
 yaus
-yearnum
-yearsold
 yebo
 yela
 yena

@@ -1,0 +1,31 @@
+voc.txt is a merge of data from:
+
+* The original Snowball italian/voc.txt which is licensed as BSD 3-clause (as
+  described in ../COPYING)
+
+* A word list extracted from a downloaded dump of the Italian Wikipedia using
+  scripts wikipedia-dump-to-freq and freq-to-voc like so:
+
+    scripts/wikipedia-dump-to-freq itwiki-20260502-pages-articles.xml.bz2 500 latin1 |\
+        scripts/freq-to-voc | grep ".'." | grep -v "''" > voc2.txt
+        
+  Some obvious non-Italian entries were then removed from this list.
+
+* A small number of hand selected words to provide better test coverage for
+  changes to the algorithm:
+
+    divano
+    m'ama
+    t'amo
+    v'adoro
+    gl'inglesi
+
+The word lists were then merged like so:
+
+  LANG=C sort -u voc.txt voc2.txt voc3.txt > italian/voc.txt
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+  stemwords -l italian -c UTF_8 -i italian/voc.txt -o italian/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

@@ -1,0 +1,23 @@
+voc.txt is a merge of data from:
+
+* The original Snowball spanish/voc.txt which is licensed as BSD 3-clause (as
+  described in ../COPYING)
+
+* A small number of hand selected words to provide better test coverage for
+  changes to the algorithm:
+
+  devolvérsela
+  construyéndose
+  excluyéndose
+  incluyendome
+  incluyéndose
+  distribuyéndose
+  sustituyéndolo
+
+The word lists were merged like so:
+
+  LANG=C sort -u voc.txt voc1.txt > spanish/voc.txt
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+  stemwords -l spanish -c UTF_8 -i spanish/voc.txt -o spanish/output.txt

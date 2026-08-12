@@ -1,0 +1,16 @@
+voc.txt was mostly generated from a dump of the Estonian wikipedia by the
+script wikipedia-most-common-words like so:
+
+WikiExtractor.py etwiki-latest-pages-articles.xml.bz2
+cat text/*/* | scripts/wikipedia-most-common-words 32 latin > voc.txt
+
+The dump used was dated September 1st 2023.
+
+It was supplemented with 751 additional words from a handmade test list
+submitted by Linda Freienthal.
+
+output.txt was generated from voc.txt by running it through the stemmer:
+
+stemwords -l estonian -c UTF_8 -i estonian/voc.txt -o estonian/output.txt
+
+Wikipedia is licensed as: https://creativecommons.org/licenses/by-sa/3.0/

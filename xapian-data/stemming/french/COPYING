@@ -14,7 +14,7 @@ voc.txt is a merge of data from:
   wikipedia-dump-to-freq and freq-to-voc like so:
 
     scripts/wikipedia-dump-to-freq frwiki-20240102-pages-articles.xml.bz2 4000 latin1 |\
-        grep "'" | scripts/freq-to-voc > voc2.txt
+        grep "'" | grep -v "''" | scripts/freq-to-voc > voc2.txt
 
 * A small number of hand selected words to provide better test coverage for
   changes to the algorithm.

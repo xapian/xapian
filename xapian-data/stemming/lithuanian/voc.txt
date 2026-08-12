@@ -10322,6 +10322,7 @@ civilizaciją
 civilizacijų
 civilizuotų
 civilių
+clarke'as
 class
 climbing
 club
@@ -18745,6 +18746,7 @@ geomorfologinį
 geopolitikos
 geopolitinė
 geopolitinės
+george's
 geostrofinio
 geoterminė
 geoterminės
@@ -36538,6 +36540,7 @@ maronitų
 maronų
 marsaeigis
 marti
+martin'as
 martingalas
 maru
 marui
@@ -48099,6 +48102,7 @@ parke
 parkelis
 parketas
 parketo
+parking'as
 parko
 parku
 parkui

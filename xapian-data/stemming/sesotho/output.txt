@@ -2417,7 +2417,6 @@ fsh
 fthe
 fu
 fub
-fullurl
 fum
 fuman
 fumane
@@ -2952,7 +2951,6 @@ houston
 hoy
 hrow
 htm
-htmlbuilder
 hu
 hube
 huddleston
@@ -6514,7 +6512,6 @@ mutare
 muthaland
 mut
 mw
-mwhtmlmet
 mwr
 myanmar
 mydemonym
@@ -7369,7 +7366,6 @@ pitso
 pity
 pk
 plaatje
-plainrowheaders
 plantae
 platinamo
 ples
@@ -7871,7 +7867,6 @@ rossouw
 rottnest
 rowan
 rowend
-rowheader
 rowid
 rrt
 rt
@@ -9713,8 +9708,6 @@ upto
 urlbook
 urop
 usd
-usemodule
-usestr
 usib
 uspan
 uss
@@ -9809,7 +9802,6 @@ wonderboompoort
 wono
 worldfootball
 wpwp
-writehtml
 ws
 wuhan
 wyk
@@ -9825,8 +9817,6 @@ yang
 yapmak
 yase
 yaus
-yearnum
-yearsold
 yebo
 yel
 yen

@@ -1,4 +1,3 @@
-0x0e00
 a
 aab
 aabenbaring
@@ -1525,6 +1524,7 @@ batseba
 batsjua
 bavd
 bazlut
+bbc
 bdellium
 be
 bealja
@@ -3075,6 +3075,12 @@ børnlil
 børn
 børt
 c
+cd
+cd
+cd
+cd
+cd
+cd
 ced
 cederbjælk
 cederbræd
@@ -3409,6 +3415,9 @@ dis
 dis
 dit
 divan
+dj
+dj'ing
+dj
 djærv
 djævel
 djævel
@@ -3649,6 +3658,11 @@ dura
 dut
 dval
 dval
+dvd
+dvd
+dvd
+dvd
+dvd
 dvæl
 dvæled
 dvæl
@@ -4051,6 +4065,7 @@ ekron
 ekronit
 ekron
 eksempel
+eksist
 el
 ela
 elaja
@@ -4316,6 +4331,11 @@ enstem
 ent
 entling
 enøj
+ep
+ep
+ep
+ep
+ep
 epafra
 epafroditus
 epikuræisk
@@ -8228,7 +8248,6 @@ hezron
 hezronit
 hezron
 heztonit
-hher
 hibrot
 hid
 hiddaj
@@ -12114,6 +12133,11 @@ lovsyng
 lovsyng
 lovsyng
 lovudlægning
+lp
+lp
+lp
+lp
+lp
 lsrael
 lte
 ltning
@@ -13925,6 +13949,7 @@ net
 nettop
 nezia
 nezib
+nfl
 ngstels
 ni
 nibhaz
@@ -14191,6 +14216,7 @@ nøl
 nøl
 nøl
 o
+o'bri
 obadia
 obadja
 obadja
@@ -15302,6 +15328,11 @@ pauk
 paulun
 paulus
 pazzez
+pc
+pc
+pc
+pc
+pc
 pe
 peb
 pedael
@@ -19232,6 +19263,8 @@ stsid
 stub
 stub
 stud
+stud
+stud
 studs
 studsed
 studsed
@@ -21097,6 +21130,10 @@ tusindfør
 tusindfør
 tusindfør
 tusindvis
+tv
+tv
+tv
+tv
 tvang
 tvangshus
 tvedelt
@@ -22163,6 +22200,7 @@ undtag
 undtog
 undveg
 undv
+unesco
 ung
 ungdom
 ungdom

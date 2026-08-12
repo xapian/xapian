@@ -646,6 +646,8 @@ aiguille
 aiguilles
 aiguillon
 aiguiser
+aiguière
+aiguières
 aigus
 aiguë
 aiguës
@@ -1030,6 +1032,8 @@ anonymes
 ans
 anse
 antagoniste
+anthologie
+anthologies
 anthropophages
 anthropoïdes
 anti
@@ -9712,6 +9716,8 @@ idéal
 idéale
 idée
 idées
+idéologie
+idéologies
 ignares
 ignes
 ignoble
@@ -10953,8 +10959,6 @@ kraï
 kâli
 l
 l'
-l''''église
-l''''équipe
 l'a
 l'abandon
 l'abbaye
@@ -14133,6 +14137,7 @@ partner
 partons
 partout
 parts
+partîmes
 partît
 paru
 parurent
@@ -14220,6 +14225,8 @@ pater
 paterne
 paternel
 paternelle
+pathologie
+pathologies
 pathos
 pathétique
 pathétiques
@@ -16370,6 +16377,7 @@ redresser
 refaire
 refaisait
 refaites
+refassiez
 referma
 refermer
 refermé
@@ -18205,6 +18213,7 @@ serra
 serraient
 serrait
 serrant
+serrassions
 serre
 serrements
 serrent
@@ -19324,6 +19333,8 @@ taïwanaise
 taïwanaises
 te
 tea
+technologie
+technologies
 tecks
 teindre
 teint

@@ -1,3 +1,4 @@
+11'er
 a
 aabakken
 aabakkens
@@ -1880,6 +1881,8 @@ bostadsrattsregister
 bostadsrattsutredningen
 bostadsrettsforening
 bot
+bot'en
+bot'er
 boten
 botnen
 botrygghet
@@ -2467,6 +2470,7 @@ ca
 cargo
 cargos
 carl
+cd'en
 cecodhas
 cellulose
 centralforening
@@ -2548,6 +2552,7 @@ coordination
 cost
 cruise
 ctse
+cv'en
 d
 da
 dag
@@ -3663,6 +3668,8 @@ entreprise
 entydig
 enøyd
 enøyde
+ep'en
+ep'er
 epes
 eple
 eplene
@@ -7583,6 +7590,9 @@ høyvann
 i
 iallfall
 ica
+id'en
+id'ene
+id'er
 ida
 idag
 idavollen
@@ -8273,6 +8283,8 @@ investorer
 involvere
 involverer
 iogforseg
+ip'en
+ip'er
 ipa
 ir
 ira
@@ -13087,6 +13099,8 @@ pausen
 pbe
 pbes
 pbl
+pc'en
+pc'er
 peikast
 peike
 peiker
@@ -17494,6 +17508,7 @@ ta
 tabell
 tabellen
 tabellene
+tag'en
 taggete
 tak
 takast
@@ -18151,6 +18166,7 @@ tjuedagarsfristen
 tjuedel
 tjuvholmen
 tjærebredd
+tld'er
 to
 todagers
 tofte
@@ -19154,6 +19170,8 @@ urettferdig
 urimeleg
 urimelege
 urimelig
+url'en
+url'er
 uro
 urolig
 urolige
