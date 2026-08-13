@@ -272,7 +272,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *  And @a flags contains flags controlling behaviour.
      *
      *  Beware that in upstream releases 1.4.5 and earlier the escaping
-     *  was sometimes incomplete; 1.4.32 and 2.0.1 fixed another case of
+     *  was sometimes incomplete; 1.4.32 and 2.1.0 fixed another case of
      *  missing escaping when hi_start and hi_end were both specified as empty
      *  strings and text was already within the requested length.
      *
