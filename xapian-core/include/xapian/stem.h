@@ -125,7 +125,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *    the Authorised Version of the Bible) but these overstem some words in
      *    contemporary English (since Xapian 1.3.2; originally this was based
      *    on "porter", since Xapian 2.0.0 this is based on "english"; the
-     *    "earlymodernenglish" alias was added in Xapian 2.0.1).
+     *    "earlymodernenglish" alias was added in Xapian 2.1.0).
      *  - lovins - Lovin's English stemmer
      *  - porter - Porter's English stemmer exactly matching his 1980 paper
      *  - esperanto (eo) - Since Xapian 2.0.0
@@ -144,13 +144,13 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - lithuanian (lt) - Since Xapian 1.4.7
      *  - nepali (ne) - Since Xapian 1.4.7
      *  - norwegian (nb, nn, no)
-     *  - persian (fa) - Since Xapian 2.0.1
+     *  - persian (fa) - Since Xapian 2.1.0
      *  - polish (pl) - Since Xapian 2.0.0
      *  - portuguese (pt)
      *  - romanian (ro)
      *  - russian (ru)
      *  - serbian (sr) - Since Xapian 2.0.0
-     *  - sesotho (st) - Since Xapian 2.0.1
+     *  - sesotho (st) - Since Xapian 2.1.0
      *  - spanish (es)
      *  - swedish (sv)
      *  - tamil (ta) - Since Xapian 1.4.7

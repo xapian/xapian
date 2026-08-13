@@ -38,7 +38,7 @@ probably use the latest upstream release.
 
 Xapian also requires a way to generate UUIDs - each disk-based database has
 its own UUID, which is used by replication and available to user code.  Since
-2.0.1, we now generate our own if the platform provides the POSIX getentropy()
+2.1.0, we now generate our own if the platform provides the POSIX getentropy()
 or BSD arc4random() function.  On AIX, Microsoft Windows and Solaris, Xapian
 generates UUIDs using built-in UUID APIs.  Linux provides getentropy() since
 glibc 2.25, available for example in Debian 10, Ubuntu 18.04 and RHEL 8 - if

@@ -430,7 +430,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberRangeProcessor : public RangeProcessor {
  *  * KB (suffix 'K')
  *  * MB (suffix 'M')
  *  * GB (suffix 'G')
- *  * TB (suffix 'T') (since 2.0.1)
+ *  * TB (suffix 'T') (since 2.1.0)
  *
  *  @since Added in Xapian 2.0.0.
  */

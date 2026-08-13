@@ -1,14 +1,12 @@
-up to: 53b594418ee9d3b19f060033959efd0476885eea
-
-Omega 2.0.1 (UNRELEASED):
+Omega 2.1.0 (2026-08-13):
 
 general:
 
-* Switch to using only space to indent most source files.  The old style
-  apparently isn't supported by some editors and proved a repeated pain point
-  with GSoC contributors.  A small number of files which are imported from
-  elsewhere are left with whatever indentation style the original uses in case
-  we want to update them.  Fixes #787, reported by Germán M. Bravo.
+* Switch to using only spaces to indent most source files.  The old identation
+  style apparently isn't supported by some editors and proved a repeated pain
+  point with GSoC contributors.  A small number of files which are imported
+  from elsewhere are left with whatever indentation style the original uses in
+  case we want to update them.  Fixes #787, reported by Germán M. Bravo.
 
 documentation:
 
@@ -18,15 +16,15 @@ indexers:
 
 * omindex:
 
-  + Fix incorrect protocol use in gepub and poppler workers.  These both
-    sent two FIELD_ERROR messages for certain cases related to loading a file.
-    Only one FIELD_ERROR is expected so this would result in the next file
-    processed by the same worker failing with an error, and then the protocol
-    would be one document out of step.
+  + Fix incorrect internal protocol use in gepub and poppler workers.  These
+    both sent two FIELD_ERROR messages for certain cases related to loading a
+    file.  Only one FIELD_ERROR is expected so this would result in the next
+    file processed by the same worker failing with an error, and then the
+    protocol would be one document out of step.
 
-  + Modern `.ai` files are now index.  Previously we assumed `.ai` files were
-    all PostScript, but newer `.ai` files are actually PDF files.  We now let
-    libmagic determine the type to index them as.
+  + Modern `.ai` files are now indexed.  Previously we assumed `.ai` files were
+    all PostScript, but newer `.ai` files are actually PDF files so we now let
+    libmagic determine their underlying type.
 
   + New worker module for PostScript files which uses libspectre to convert
     PostScript to a temporary PDF file, then libpoppler to extract text from
@@ -41,18 +39,12 @@ indexers:
 
   + Improve error message from libreofficekit worker if export to HTML fails.
 
-* scriptindex:
-
 omega:
 
 * Fix date term filter for SPAN without START/END.  In this case we're meant to
   use now as the end of the range, but were actually using the start of 1970.
   The value range filter case was unaffected by this bug.  Fixes #853, reported
   by Darrin Smart.
-
-templates:
-
-testsuite:
 
 build system:
 
@@ -63,7 +55,7 @@ build system:
   on the fly, rather than substituting the included file's contents in place of
   the directive.
 
-* Remove unused VPATH_BUILD AM_CONDITIONAL.
+* Remove unused automake condition `VPATH_BUILD`.
 
 * Update cdb code to be based on upstream 0.81.  Use wordaccess.h which gives
   more optimised code for loading an unaligned little-endian 32-bit word
@@ -80,8 +72,6 @@ portability:
 
 * configure.ac: Use $SED consistently to improve portability to platforms where
   the installed sed tool isn't just called `sed`.
-
-packaging:
 
 Omega 2.0.0 (2026-03-16):
 

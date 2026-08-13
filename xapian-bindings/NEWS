@@ -1,29 +1,21 @@
-up to: b8ea2bb9f8248b9b33b18dbdfea07078ffee2ad2
-
-Xapian-bindings 2.0.1 (UNRELEASED):
-
-Documentation:
+Xapian-bindings 2.1.0 (2026-08-13):
 
 General:
 
-* Switch to using only space to indent most source files.  The old style
-  apparently isn't supported by some editors and proved a repeated pain point
-  with GSoC contributors.  A small number of files which are imported from
-  elsewhere are left with whatever indentation style the original uses in case
-  we want to update them.  Fixes #787, reported by Germán M. Bravo.
-
-Build System:
-
-Packaging:
+* Switch to using only spaces to indent most source files.  The old identation
+  style apparently isn't supported by some editors and proved a repeated pain
+  point with GSoC contributors.  A small number of files which are imported
+  from elsewhere are left with whatever indentation style the original uses in
+  case we want to update them.  Fixes #787, reported by Germán M. Bravo.
 
 Portability:
 
 * configure.ac: Use $SED consistently to improve portability to platforms where
   the installed sed tool isn't just called `sed`.
 
-CSharp:
-
 Java:
+
+* Handle relative symlinks in javac's path.
 
 Lua:
 
@@ -34,16 +26,6 @@ Lua:
   This is a C function Lua < 5.2 used to provide which we were defining when
   using Lua 5.2 or later, but it seems unclean to be defining functions in
   Lua's namespace.
-
-Perl:
-
-PHP:
-
-Python:
-
-Python3:
-
-Ruby:
 
 Tcl:
 
