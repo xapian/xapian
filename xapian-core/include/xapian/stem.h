@@ -122,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
      *  - earlyenglish (earlymodernenglish) - English stemmer with additional
      *    rules to improve handling of Early Modern English (e.g. Shakespeare,
-     *    the Authorised Version of the Bible) but these overstem some words in
+     *    Pepys, the King James Bible) but these overstem some words in
      *    contemporary English (since Xapian 1.3.2; originally this was based
      *    on "porter", since Xapian 2.0.0 this is based on "english"; the
      *    "earlymodernenglish" alias was added in Xapian 2.1.0).
