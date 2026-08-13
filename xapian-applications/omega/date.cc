@@ -248,7 +248,6 @@ date_range_filter(const string & date_start, const string & date_end,
 	    y2 = t->tm_year + 1900;
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
-	    parse_date(date_end, &y2, &m2, &d2, false);
 	    int then = ymd_to_days(y2, m2, d2) - days;
 	    days_to_ymd(then, y1, m1, d1);
 	}

@@ -11,11 +11,12 @@ documentation:
 
 * NEWS: Remove empty section from old NEWS entry.
 
-testsuite:
+omega:
 
-* Test date term filter for SPAN without START/END.  This case was handled
-  incorrectly in 2.0.0 (#853).  1.4.x was unaffected but the improved test
-  coverage seems worth backporting.
+* Fix date term filter for SPAN without START/END.  In this case we're meant to
+  use the current date as the end of the range, but were actually using the
+  start of 1970.  Bug introduced in 1.4.27.  The value range filter case was
+  unaffected by this bug.  Fixes #853, reported by Darrin Smart.
 
 build system:
 
