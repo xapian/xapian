@@ -1,6 +1,4 @@
-up to: dd363f6177a483428f3a3d3efc6a635fc0bcf865
-
-Xapian-bindings 1.4.32 (UNRELEASED):
+Xapian-bindings 1.4.32 (2026-08-13):
 
 Documentation:
 
@@ -9,53 +7,35 @@ Documentation:
   rather than giving a postal address (which is what the FSF licence texts now
   do).
 
-General:
-
-Packaging:
-
 Portability:
 
-    xapian-bindings/configure.ac: Use $SED consistently
-
-CSharp:
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
 
 Java:
 
-    Resolve relative symlinks in javac's path
-    Backport of change accidentally bundled into
-    7a202582b977197bcc39bd318d7c3eeca30fc158 on main.
+* Handle relative symlinks in javac's path.
 
 Lua:
 
-    Adjust indentation of Lua code
-    Use two space indent, which seems to be the common Lua convention -
-    http://lua-users.org/wiki/LuaStyleGuide says:
-    .
-      Indentation - Indenting often uses two spaces. This is followed in
-      Programming in Lua, the Lua Reference Manual, Beginning Lua
-      Programming, and the Lua users wiki.
+* Adjust example Lua code to use a two space indent, which seems to be the
+  common Lua convention.
 
 Perl:
 
-    perl/t/02pod.t: Fix when builddir != srcdir
-
-PHP:
-
-Python:
-
-Python3:
-
-Ruby:
+* Fix test 02pod.t when builddir != srcdir.
 
 Tcl:
 
-    Tcl: Document `package require` use
-    In particular, document how to write a script which can use either
-    Xapian 1.x or 2.x.
-    Tcl: Also document unversioned `package require`
-    Tcl8: Adjust examples to work with Xapian 1 or 2
+* Document `package require` use, covering versioned vs unversioned `package
+  require`, and recommend a way to specify a requirement for either Xapian 1.x
+  or 2.x.
 
-    smoketest.tcl: Update package require to 1.4.0.
+* Adjust `package require` in examples to work with either Xapian 1.*
+  or Xapian 2.
+
+* smoketest.tcl: Update package require to 1.4.0 to reflect the oldest version
+  that has any chance of working.
 
 Xapian-bindings 1.4.31 (2026-02-23):
 

@@ -1,8 +1,4 @@
-up to: 0e2863e44af602f24b8d2f368203d29537bbf1db
-
-Omega 1.4.32 (UNRELEASED):
-
-general:
+Omega 1.4.32 (2026-08-13):
 
 documentation:
 
@@ -15,55 +11,32 @@ documentation:
 
 * NEWS: Remove empty section from old NEWS entry.
 
-indexers:
-
-* omindex:
-
-* scriptindex:
-
-omega:
-
-templates:
-
 testsuite:
 
-    Test date term filter for SPAN without START/END
-    This was buggy in 2.0.0 (#853).  1.4.x was unaffected but the improved
-    test coverage seems worth backporting.
+* Test date term filter for SPAN without START/END.  This case was handled
+  incorrectly in 2.0.0 (#853).  1.4.x was unaffected but the improved test
+  coverage seems worth backporting.
 
 build system:
 
-    Change how we resolve RST includes
-    We have a Perl one-liner to effectively provide an include path.
-    This now rewrites the path on `.. include::` directives rather
-    than replacing them with the contents of the included file, which
-    seems a cleaner approach and less likely to introduce differences
-    when srcdir != builddir.
+* New cleaner approach to resolving RST includes.  To support out-of-tree
+  builds we effectively want to be able to specify an include path for
+  RST files, but sphinx doesn't seem to support this.  We now address this
+  using a Perl one-liner to rewrite the path on `.. include::` directives
+  on the fly, rather than substituting the included file's contents in place of
+  the directive.
 
-    omega: Remove unused VPATH_BUILD AM_CONDITIONAL
+* Remove unused automake condition `VPATH_BUILD`.
 
 portability:
 
-Author: Sergei Trofimovich <slyich@gmail.com>
-    configure.ac: drop deprecated `-Wstrict-overflow=1`
-.
-    `gcc-17` formally deprecated `-Wstrict-overflow` options in
-    https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=b31a43560e88600d412318f75a43ac8e562ba8c5.
-    Informally the option was depracated since `gcc-8`.
-.
-    I only noticed it because `gcc-17` deprecated it slightly incorrectly and
-    started to fail `xapian-core` build: https://gcc.gnu.org/PR125558
-.
-    While it's a `gcc` bug `gcc` devs suggested removing use of the flag.
-    This change does the removal.
-.
-    Also drop the option for clang which recognises `-Wstrict-overflow` for
-    GCC compatibility but treats it as a no-op.
-    Fixes https://github.com/xapian/xapian/pull/341
+* configure: `-Wstrict-overflow=1` is no longer added to the default compiler
+  options for GCC and clang.  This option has been a no-op since GCC 8 (and
+  has always been a no-op for clang, provided only for GCC compatibility).
+  Patch from Sergei Trofimovich.
 
-    configure.ac: Use $SED consistently
-
-packaging:
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
 
 Omega 1.4.31 (2026-02-23):
 

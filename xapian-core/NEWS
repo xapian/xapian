@@ -1,43 +1,15 @@
-up to: bc905c3046753b8bbfb898b9dad9f7a3d60f7f93
-
-    Remove unused #include
-    Drop unused <fstream> and <sstream>
-
-    Remove pointless check for __cplusplus
-    We only include this header from C++, and code elsewhere in this
-    header just assumes C++ on some platforms.
-
-    lemon: Fix bug in -D handling
-    We were allocating a buffer based on an unassigned variable.  The
-    Xapian build system doesn't currently use -D so this bug is latent
-    for us.
-
-Xapian-core 1.4.32 (UNRELEASED):
-
+Xapian-core 1.4.32 (2026-08-13):
 
 API:
 
-
-testsuite:
-
-
-matcher:
-
-
-glass backend:
-
-
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
-build system:
-
+* MSet::snippet(): Fix missing escaping when parameters hi_start and hi_end are
+  empty strings and text.size() <= length.  This is essentially a missed corner
+  case from CVE-2018-0499.  To be exploitable requires that hi_start and hi_end
+  are empty, which is atypical usage in a web context (because highlighting
+  search terms in snippets is very widespread and so expected by users), and
+  searching FOSS code we didn't find any vulnerable usage.  An attacker would
+  also need to be able to supply content to the system, or find suitable content
+  already in the system.  Reported by Arpit Jain on the xapian-devel list.
 
 documentation:
 
@@ -52,39 +24,27 @@ documentation:
   rather than giving a postal address (which is what the FSF licence texts now
   do).
 
-tools:
-
-
-examples:
-
-
 portability:
 
-Author: Sergei Trofimovich <slyich@gmail.com>
-    configure.ac: drop deprecated `-Wstrict-overflow=1`
+* configure: `-Wstrict-overflow=1` is no longer added to the default compiler
+  options for GCC and clang.  This option has been a no-op since GCC 8 (and
+  has always been a no-op for clang, provided only for GCC compatibility).
+  Patch from Sergei Trofimovich.
 
-    `gcc-17` formally deprecated `-Wstrict-overflow` options in
-    https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=b31a43560e88600d412318f75a43ac8e562ba8c5.
-    Informally the option was depracated since `gcc-8`.
+* Fix -Wrestrict warning from GCC 16 (specific to 1.4.x - the equivalent code
+  in 2.x uses string_view instead).
 
-    I only noticed it because `gcc-17` deprecated it slightly incorrectly and
-    started to fail `xapian-core` build: https://gcc.gnu.org/PR125558
+* configure.ac: Use $SED consistently to improve portability to platforms where
+  the installed sed tool isn't just called `sed`.
 
-    While it's a `gcc` bug `gcc` devs suggested removing use of the flag.
-    This change does the removal.
+* lemon: Fix bug in -D handling.  We were allocating a buffer based on an
+  unassigned variable.  The Xapian build system doesn't currently use -D so
+  this bug is latent for us but could result in C compiler warnings during the
+  build.
 
-    Also drop the option for clang which recognises `-Wstrict-overflow` for
-    GCC compatibility but treats it as a no-op.
-    Fixes https://github.com/xapian/xapian/pull/341
+* Remove unused includes of <fstream> and <sstream>.
 
-
-    configure.ac: Use $SED consistently
-
-packaging:
-
-
-debug code:
-
+* Remove __cplusplus conditional in a header only included from C++ code.
 
 Xapian-core 1.4.31 (2026-02-23):
 
