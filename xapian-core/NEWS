@@ -136,7 +136,7 @@ matcher:
   shards to re-request their max weights (which won't have changed).  We also
   now use this value to detect when the current maximum weight is already tight
   on the shards which follow and if it is we now skip recalculating the max
-  weight for the current shard.  (This looping over remaning shards likely
+  weight for the current shard.  (This looping over remaining shards likely
   meant that search on a sharded database was technically O(n²) in the number
   of shards, though with a small constant and unlikely to dominate the total
   search time since the number of shards you can have is limited by per-process
