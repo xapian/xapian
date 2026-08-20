@@ -173,11 +173,11 @@ ProgClient::run_program(string_view progname, string_view args,
              static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
-    HANDLE hPipe = CreateNamedPipe(pipename,
-                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-                                   0,
-                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                   NULL);
+    HANDLE hPipe = CreateNamedPipeA(pipename,
+                                    PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                    0,
+                                    1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                    NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
         throw Xapian::NetworkError("CreateNamedPipe failed",
@@ -185,10 +185,10 @@ ProgClient::run_program(string_view progname, string_view args,
                                    -int(GetLastError()));
     }
 
-    HANDLE hClient = CreateFile(pipename,
-                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
-                                OPEN_EXISTING,
-                                FILE_FLAG_OVERLAPPED, NULL);
+    HANDLE hClient = CreateFileA(pipename,
+                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 OPEN_EXISTING,
+                                 FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
         throw Xapian::NetworkError("CreateFile failed",
@@ -210,9 +210,9 @@ ProgClient::run_program(string_view progname, string_view args,
     PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOA startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFOA));
+    startupinfo.cb = sizeof(STARTUPINFOA);
     startupinfo.hStdError = hClient;
     startupinfo.hStdOutput = hClient;
     startupinfo.hStdInput = hClient;
@@ -226,9 +226,9 @@ ProgClient::run_program(string_view progname, string_view args,
     cmdline += args;
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    BOOL ok = CreateProcess(progname_string.c_str(), &cmdline[0],
-                            0, 0, TRUE, 0, 0, 0,
-                            &startupinfo, &procinfo);
+    BOOL ok = CreateProcessA(progname_string.c_str(), &cmdline[0],
+                             0, 0, TRUE, 0, 0, 0,
+                             &startupinfo, &procinfo);
     if (!ok) {
         throw Xapian::NetworkError("CreateProcess failed",
                                    context,
