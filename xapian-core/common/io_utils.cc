@@ -204,15 +204,15 @@ io_open_block_wr(const char* filename, bool anew)
     // write() fails with EINVAL.  We implement an equivalent to pwrite() using
     // WriteFile().
     HANDLE handleWin =
-        CreateFile(filename,
-                   GENERIC_READ | GENERIC_WRITE,
-                   /* Subsequent operations may open this file to read, write
-                    * or delete it */
-                   FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                   NULL,
-                   anew ? CREATE_ALWAYS : OPEN_EXISTING,
-                   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
-                   NULL);
+        CreateFileA(filename,
+                    GENERIC_READ | GENERIC_WRITE,
+                    /* Subsequent operations may open this file to read, write
+                     * or delete it */
+                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                    NULL,
+                    anew ? CREATE_ALWAYS : OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+                    NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
         return posixy_set_errno_from_getlasterror();
     }

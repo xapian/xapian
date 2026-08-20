@@ -180,7 +180,7 @@ ProgClient::run_program(string_view progname, string_view args,
                                     NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-        throw Xapian::NetworkError("CreateNamedPipe failed",
+        throw Xapian::NetworkError("CreateNamedPipeA failed",
                                    context,
                                    -int(GetLastError()));
     }
@@ -191,7 +191,7 @@ ProgClient::run_program(string_view progname, string_view args,
                                  FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-        throw Xapian::NetworkError("CreateFile failed",
+        throw Xapian::NetworkError("CreateFileA failed",
                                    context,
                                    -int(GetLastError()));
     }
@@ -230,7 +230,7 @@ ProgClient::run_program(string_view progname, string_view args,
                              0, 0, TRUE, 0, 0, 0,
                              &startupinfo, &procinfo);
     if (!ok) {
-        throw Xapian::NetworkError("CreateProcess failed",
+        throw Xapian::NetworkError("CreateProcessA failed",
                                    context,
                                    -int(GetLastError()));
     }

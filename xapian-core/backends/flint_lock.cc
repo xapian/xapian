@@ -146,8 +146,8 @@ retry:
     // FIXME: Use LockFileEx() for locking, which would allow proper blocking
     // and also byte-range locking for when we implement MVCC.  But is there a
     // way to interwork with the CreateFile()-based locking while doing so?
-    hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
-                       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = CreateFileA(fnm, GENERIC_WRITE, FILE_SHARE_READ,
+                        NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         if (wait) {

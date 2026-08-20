@@ -165,24 +165,24 @@ Worker::start_worker_subprocess()
              static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
-    HANDLE hPipe = CreateNamedPipe(pipename,
-                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-                                   0,
-                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                   NULL);
+    HANDLE hPipe = CreateNamedPipeA(pipename,
+                                    PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                    0,
+                                    1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                    NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-        error = "CreateNamedPipe failed: " + str(GetLastError());
+        error = "CreateNamedPipeA failed: " + str(GetLastError());
         return 1;
     }
 
-    HANDLE hClient = CreateFile(pipename,
-                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
-                                OPEN_EXISTING,
-                                FILE_FLAG_OVERLAPPED, NULL);
+    HANDLE hClient = CreateFileA(pipename,
+                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 OPEN_EXISTING,
+                                 FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-        error = "CreateFile failed: " + str(GetLastError());
+        error = "CreateFileA failed: " + str(GetLastError());
         return 1;
     }
 
@@ -199,9 +199,9 @@ Worker::start_worker_subprocess()
     PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOA startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFOA));
+    startupinfo.cb = sizeof(STARTUPINFOA);
     // FIXME: Is NULL the way to say "/dev/null"?
     // It's what GetStdHandle() is documented to return if "an application does
     // not have associated standard handles"...
@@ -213,16 +213,16 @@ Worker::start_worker_subprocess()
     string cmdline{filter_module};
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    BOOL ok = CreateProcess(filter_module.c_str(), &cmdline[0],
-                            0, 0, TRUE, 0, 0, 0,
-                            &startupinfo, &procinfo);
+    BOOL ok = CreateProcessA(filter_module.c_str(), &cmdline[0],
+                             0, 0, TRUE, 0, 0, 0,
+                             &startupinfo, &procinfo);
     if (!ok) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND) {
             error = error_prefix + "failed to run helper";
             filter_module = string();
             return -1;
         }
-        error = "CreateProcess failed: " + str(GetLastError());
+        error = "CreateProcessA failed: " + str(GetLastError());
         return 1;
     }
 

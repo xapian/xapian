@@ -437,23 +437,23 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
              static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
-    HANDLE hPipe = CreateNamedPipe(pipename,
-                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-                                   0,
-                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                   NULL);
+    HANDLE hPipe = CreateNamedPipeA(pipename,
+                                    PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                    0,
+                                    1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                    NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-        throw ReadError("CreateNamedPipe failed");
+        throw ReadError("CreateNamedPipeA failed");
     }
 
-    HANDLE hClient = CreateFile(pipename,
-                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
-                                OPEN_EXISTING,
-                                FILE_FLAG_OVERLAPPED, NULL);
+    HANDLE hClient = CreateFileA(pipename,
+                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 OPEN_EXISTING,
+                                 FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-        throw ReadError("CreateFile failed");
+        throw ReadError("CreateFileA failed");
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) &&
@@ -468,9 +468,9 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOA startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFOA));
+    startupinfo.cb = sizeof(STARTUPINFOA);
     startupinfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
     startupinfo.hStdOutput = hClient;
     // FIXME: Is NULL the way to say "/dev/null"?
@@ -485,12 +485,12 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     }
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    if (!CreateProcess(NULL, &cmdline[0],
-                       0, 0, TRUE, 0, 0, 0,
-                       &startupinfo, &procinfo)) {
+    if (!CreateProcessA(NULL, &cmdline[0],
+                        0, 0, TRUE, 0, 0, 0,
+                        &startupinfo, &procinfo)) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
             throw NoSuchFilter();
-        throw ReadError("CreateProcess failed");
+        throw ReadError("CreateProcessA failed");
     }
 
     CloseHandle(hClient);
@@ -789,23 +789,23 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
              static_cast<unsigned long long>(counter.QuadPart));
     pipename[sizeof(pipename) - 1] = '\0';
     // Create a pipe so we can read stdout from the child process.
-    HANDLE hPipe = CreateNamedPipe(pipename,
-                                   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
-                                   0,
-                                   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                   NULL);
+    HANDLE hPipe = CreateNamedPipeA(pipename,
+                                    PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+                                    0,
+                                    1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+                                    NULL);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-        throw ReadError("CreateNamedPipe failed");
+        throw ReadError("CreateNamedPipeA failed");
     }
 
-    HANDLE hClient = CreateFile(pipename,
-                                GENERIC_READ|GENERIC_WRITE, 0, NULL,
-                                OPEN_EXISTING,
-                                FILE_FLAG_OVERLAPPED, NULL);
+    HANDLE hClient = CreateFileA(pipename,
+                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 OPEN_EXISTING,
+                                 FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
-        throw ReadError("CreateFile failed");
+        throw ReadError("CreateFileA failed");
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) &&
@@ -820,9 +820,9 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOA startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFOA));
+    startupinfo.cb = sizeof(STARTUPINFOA);
     startupinfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
     startupinfo.hStdOutput = hClient;
     // FIXME: Is NULL the way to say "/dev/null"?
@@ -834,12 +834,12 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     string cmdline{cmd};
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    if (!CreateProcess(NULL, &cmdline[0],
-                       0, 0, TRUE, 0, 0, 0,
-                       &startupinfo, &procinfo)) {
+    if (!CreateProcessA(NULL, &cmdline[0],
+                        0, 0, TRUE, 0, 0, 0,
+                        &startupinfo, &procinfo)) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
             throw NoSuchFilter();
-        throw ReadError("CreateProcess failed");
+        throw ReadError("CreateProcessA failed");
     }
 
     CloseHandle(hClient);

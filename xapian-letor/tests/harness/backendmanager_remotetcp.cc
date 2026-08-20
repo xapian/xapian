@@ -285,8 +285,8 @@ static void win32_throw_error_string(const char * str)
     string msg(str);
     char * error = 0;
     DWORD len;
-    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                        0, GetLastError(), 0, (CHAR*)&error, 0, 0);
+    len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                         0, GetLastError(), 0, (CHAR*)&error, 0, 0);
     if (error) {
         // Remove any trailing \r\n from output of FormatMessage.
         if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
@@ -325,9 +325,9 @@ try_next_port:
     PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO);
+    STARTUPINFOA startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFOA));
+    startupinfo.cb = sizeof(STARTUPINFOA);
     startupinfo.hStdError = hWrite;
     startupinfo.hStdOutput = hWrite;
     startupinfo.hStdInput = INVALID_HANDLE_VALUE;
@@ -335,9 +335,9 @@ try_next_port:
 
     // For some reason Windows wants a modifiable command line string
     // so pass a pointer to the first character rather than using c_str().
-    if (!CreateProcess(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE,
-                       CREATE_NEW_PROCESS_GROUP, 0, 0,
-                       &startupinfo, &procinfo)) {
+    if (!CreateProcessA(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE,
+                        CREATE_NEW_PROCESS_GROUP, 0, 0,
+                        &startupinfo, &procinfo)) {
         win32_throw_error_string("Couldn't create child process");
     }
 
