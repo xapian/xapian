@@ -440,7 +440,7 @@ class SmallVector_ {
             return c;
         void * const * b = static_cast<void * const *>(p[0]);
         void * const * e = static_cast<void * const *>(p[1]);
-        return e - b;
+        return static_cast<std::size_t>(e - b);
     }
 
     std::size_t capacity() const {
