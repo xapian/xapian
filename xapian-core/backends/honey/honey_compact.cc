@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a honey database, or merge and compact several.
  */
-/* Copyright (C) 2004-2024 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -235,6 +235,7 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
                 if (d == e) {
                     data = string();
                     pos = 0;
+                    gap_size = 0;
                     break;
                 }
                 if (!unpack_uint(&d, e, &gap_size))
