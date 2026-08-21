@@ -309,27 +309,41 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
         throw Xapian::DatabaseError("Error reading database", errno);
     }
 
+    size_t total = 0;
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
-    overlapped.Offset = (DWORD)o;
-    if constexpr (sizeof(off_t) > 4) {
-        overlapped.OffsetHigh = o >> 32;
-    }
-    DWORD c;
-    if (!ReadFile(h, p, n, &c, &overlapped)) {
-        if (GetLastError() != ERROR_IO_PENDING ||
-            !GetOverlappedResult(h,
-                                 &overlapped,
-                                 &c,
-                                 TRUE)) {
-            throw Xapian::DatabaseError("Error reading database",
-                                        -int(GetLastError()));
+    while (true) {
+        overlapped.Offset = (DWORD)o;
+        if constexpr (sizeof(off_t) > 4) {
+            overlapped.OffsetHigh = o >> 32;
         }
+        DWORD c;
+        // Clamp read size to the largest multiple of 4KB which a DWORD
+        // can hold.
+        DWORD read_size = rare(n > DWORD(-4096)) ? DWORD(-4096) : DWORD(n);
+        if (!ReadFile(h, p, read_size, &c, &overlapped)) {
+            if (GetLastError() != ERROR_IO_PENDING ||
+                !GetOverlappedResult(h,
+                                     &overlapped,
+                                     &c,
+                                     TRUE)) {
+                throw Xapian::DatabaseError("Error reading database",
+                                            -int(GetLastError()));
+            }
+        }
+        total += c;
+        // We should get a full read most of the time, so streamline that case.
+        if (usual(c == n))
+            return total;
+        if (total >= min)
+            return total;
+        if (c == 0) {
+            throw Xapian::DatabaseError("EOF reading database");
+        }
+        p += c;
+        n -= c;
+        o += c;
     }
-    if (c < min) {
-        throw Xapian::DatabaseError("EOF reading database");
-    }
-    return c;
 #else
     size_t total = 0;
     if (rare(lseek(fd, o, SEEK_SET) < 0))
@@ -386,20 +400,31 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
 
     OVERLAPPED overlapped;
     memset(&overlapped, 0, sizeof(overlapped));
-    overlapped.Offset = (DWORD)o;
-    if constexpr (sizeof(off_t) > 4) {
-        overlapped.OffsetHigh = o >> 32;
-    }
-    DWORD c;
-    if (!WriteFile(h, p, n, &c, &overlapped)) {
-        if (GetLastError() != ERROR_IO_PENDING ||
-            !GetOverlappedResult(h,
-                                 &overlapped,
-                                 &c,
-                                 TRUE)) {
-            throw Xapian::DatabaseError("Error writing database",
-                                        -int(GetLastError()));
+    while (true) {
+        overlapped.Offset = (DWORD)o;
+        if constexpr (sizeof(off_t) > 4) {
+            overlapped.OffsetHigh = o >> 32;
         }
+        DWORD c;
+        // Clamp write size to the largest multiple of 4KB.
+        DWORD write_size = rare(n > DWORD(-4096)) ? DWORD(-4096) : DWORD(n);
+        if (!WriteFile(h, p, write_size, &c, &overlapped)) {
+            if (GetLastError() != ERROR_IO_PENDING ||
+                !GetOverlappedResult(h,
+                                     &overlapped,
+                                     &c,
+                                     TRUE)) {
+                throw Xapian::DatabaseError("Error writing database",
+                                            -int(GetLastError()));
+            }
+        }
+        // We should get a full write most of the time, so streamline that
+        // case.
+        if (usual(c == n))
+            return;
+        p += c;
+        n -= c;
+        o += c;
     }
 #else
     if (rare(lseek(fd, o, SEEK_SET) < 0))
@@ -468,8 +493,10 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
     if constexpr (sizeof(off_t) > 4) {
         overlapped.OffsetHigh = o >> 32;
     }
+    // We only use read blocks up to 64KB so `n` should fit in DWORD.
+    AssertEq(DWORD(n), n);
     DWORD c;
-    if (!ReadFile(h, p, n, &c, &overlapped)) {
+    if (!ReadFile(h, p, DWORD(n), &c, &overlapped)) {
         if (GetLastError() != ERROR_IO_PENDING ||
             !GetOverlappedResult(h,
                                  &overlapped,
@@ -539,8 +566,10 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
     if constexpr (sizeof(off_t) > 4) {
         overlapped.OffsetHigh = o >> 32;
     }
+    // We only use write blocks up to 64KB so `n` should fit in DWORD.
+    AssertEq(DWORD(n), n);
     DWORD c;
-    if (!WriteFile(h, p, n, &c, &overlapped)) {
+    if (!WriteFile(h, p, DWORD(n), &c, &overlapped)) {
         if (GetLastError() != ERROR_IO_PENDING ||
             !GetOverlappedResult(h,
                                  &overlapped,
