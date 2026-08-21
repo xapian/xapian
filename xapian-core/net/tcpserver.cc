@@ -1,7 +1,7 @@
 /** @file
  *  @brief Generic TCP/IP socket based server base class.
  */
-/* Copyright 2006-2023 Olly Betts
+/* Copyright 2006-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -343,6 +343,8 @@ TcpServer::run()
  */
 static const int* pShutdownSocket = NULL;
 
+extern "C" {
+
 /// Console interrupt handler.
 static BOOL
 CtrlHandler(DWORD fdwCtrlType)
@@ -409,6 +411,8 @@ run_thread(void* param_)
 
     _endthreadex(0);
     return 0;
+}
+
 }
 
 void

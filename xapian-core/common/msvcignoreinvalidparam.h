@@ -1,7 +1,7 @@
 /** @file
  *  @brief Work around MSVC's unhelpful non-standard invalid parameter handling.
  */
-/* Copyright (C) 2006,2007,2008,2015,2018 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015,2018,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,16 @@
 # include <crtdbg.h> // For _CrtSetReportMode, etc.
 
 /** A dummy invalid parameter handler which ignores the error. */
+extern "C" {
+
 static void dummy_handler(const wchar_t*,
                           const wchar_t*,
                           const wchar_t*,
                           unsigned int,
-                          uintptr_t) noexcept
+                          uintptr_t)
 {
+}
+
 }
 
 // Recent versions of MSVC call an "_invalid_parameter_handler" if a
