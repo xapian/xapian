@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2024 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -537,6 +537,18 @@ DEFINE_TESTCASE(topercent2, backend) {
     TEST_EQUAL_DOUBLE(mymset.get_max_attained(), 1.67412192414056);
     TEST_EQUAL(mymset.size(), 6);
     mset_expect_order(mymset, 3, 1, 4, 2, 5, 6);
+
+    // Regression test for bug fixed in 2.1.1 (introduced in 2.0.0).
+    // We overcounted the number of weighted leaf subqueries by one
+    // if a subquery of a position query didn't match in a shard.
+    enquire.set_query(Xapian::Query{q.OP_PHRASE, "the", "word"});
+    mymset = enquire.get_mset(0, 10);
+    TEST(!mymset.empty());
+    TEST_EQUAL(mymset[0].get_percent(), 100); // This returned 66
+    enquire.set_query(Xapian::Query{q.OP_NEAR, "banana", "split"});
+    mymset = enquire.get_mset(0, 10);
+    TEST(!mymset.empty());
+    TEST_EQUAL(mymset[0].get_percent(), 100); // This returned 66
 }
 
 class EvenParityExpandFunctor : public Xapian::ExpandDecider {
