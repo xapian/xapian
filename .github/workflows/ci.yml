@@ -2528,7 +2528,7 @@ jobs:
         # rsync output in the logs.
     - uses: vmactions/openbsd-vm@v1
       # Limit wasted resources if the VM action gets into an infinite loop.
-      timeout-minutes: 60
+      timeout-minutes: 90
       with:
         # Default is ksh, which should be OK.
         # usesh: true
