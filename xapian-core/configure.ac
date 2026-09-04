@@ -358,13 +358,13 @@ AC_DEFUN([XAPIAN_TEST_FLAGS_],
        fi],
       [cachevar=no])
     $1=$XTF_save_$1
-    if test "$cachevar" = yes ; then
-      $4="${$4} $3"
-      $5
-    else :
-      $6
-    fi
     ])
+  if test "$cachevar" = yes ; then
+    $4="${$4} $3"
+    $5
+  else :
+    $6
+  fi
   ])
 
 dnl Test if compiling works with $1 added to CXXFLAGS; if it does, add $1 to
