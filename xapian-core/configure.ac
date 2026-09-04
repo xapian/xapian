@@ -1658,7 +1658,7 @@ AC_SUBST([LIBRARY_SHARED_IMP_EXT])
 dnl We don't make use of maths function setting errno and if we tell the
 dnl compiler that it can optimise them better in some cases.  Apparently
 dnl most BSD-derived platforms don't set errno in this case anyway.
-XAPIAN_TEST_CXXFLAGS([-fno-math-errno], [CXXFLAGS])
+XAPIAN_TEST_CXXFLAGS([-fno-math-errno], [AM_CXXFLAGS])
 
 dnl **************************
 dnl * Build the output files *
