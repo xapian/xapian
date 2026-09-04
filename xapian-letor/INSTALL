@@ -218,7 +218,7 @@ and is also likely to make the code run a little faster.
 Should you wish to disable this for some reason, you can configure like so
 which disables the probe for -Bsymbolic-functions so it won't ever be used:
 
-./configure xo_cv_symbolic_functions=no
+./configure xo_cv_ldflags__wl__bsymbolic_functions=no
 
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).
