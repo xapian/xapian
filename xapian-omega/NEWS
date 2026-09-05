@@ -1,3 +1,36 @@
+up to: 85af5dcbb69c960f91295d8229bf90f12323686e
+
+Omega 2.1.1 (UNRELEASED)
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* configure.ac: Remove macro XAPIAN_TEST_CXXFLAGS which has been unused since
+  we dropped support for Sun C++ in 2.0.0.
+
+portability:
+
+* Use C++17 [[fallthrough]] instead of magic "FALLTHRU" comments.
+
+* Microsoft Windows: Use explicit A-suffixed Win32 APIs more widely.
+
+packaging:
+
 Omega 2.1.0 (2026-08-13):
 
 general:

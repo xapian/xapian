@@ -1,3 +1,40 @@
+up to: 64c7de24cb5cfae61017e05bd9f4094d88e27c2d
+
+Xapian-bindings 2.1.1 (UNRELEASED):
+
+Documentation:
+
+General:
+
+* Stop using `$function` in SWIG interface files.  SWIG deprecated this
+  in 2008, and it was removed in SWIG 4.4.0.  The replacement is the exactly
+  equivalent (but better named) $action, which was added in 2001.
+
+Build System:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python3:
+
+* Support Python 3.15, which required upgrading the SWIG version we bootstrap
+  with - we're now using SWIG 4.5.0.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 2.1.0 (2026-08-13):
 
 General:

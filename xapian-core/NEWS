@@ -1,3 +1,144 @@
+up to: eb158aeb497b88b4daf7545806dadf196a878bea
+
+Xapian-core 2.1.1 (UNRELEASED):
+
+
+API:
+
+* Xapian::Stem:
+
+    Sync snowball compiler with upstream
+    .
+    New among implementation.
+    .
+    This reduces the number of relative relocations in the shared library
+    built on Linux by 8901, bringing us down to much closer to 1.4.x again.
+
+
+  + French:
+
+    - Remove prefix `z'`, which is a colloquial, nonstandard elision (for
+      "vous"), and also a prefix used to represent a nonstandard liaison within
+      a plural noun phrase, or eye dialect for a standard liaison.
+        https://en.wiktionary.org/wiki/z%27#French
+
+testsuite:
+
+
+matcher:
+
+    Fix bug with percentage calculation in sharded DB
+    For a positional query where only some of the terms occured in one
+    shard but it matched in another shard, we would overcount the number
+    of weighted leaf subqueries by one, leading to too low a percentage
+    score for the top match.  E.g. for a 3 term phrase, it would score
+    75% instead of 100%.
+    This bug was introduced in 2.0.0 (1.4.x is unaffected).  It was
+    found by a testcase in public-inbox's testsuite which fails when
+    run with Xapian 2.
+
+glass backend:
+
+
+honey backend:
+
+    Fix uninitialised variable in honey
+    I haven't managed to trigger this, but it seems possible it could
+    happen.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+    Fix XAPIAN_TEST_FLAGS_ macro bug
+    The macro was failing to add the flags to the specified variable if
+    the test result was already cached.  This bug was latent unless
+    the configure option --config-cache (or -C) was used.
+    .
+    For xapian-core this bug affected probing for:
+    .
+    -Wl,-Bsymbolic-functions
+    -fno-semantic-interposition
+    -fno-math-errno
+
+    Move -fno-semantic-interposition to CXXFLAGS
+    Previously we were incorrectly adding it to LDFLAGS, but (as the comment
+    noted) it's a compiler flag not a linker flag.
+    The configure probe was reporting success and so we added it to LDFLAGS,
+    but it probably has no effect when linking.
+
+    Add -fno-math-errno to AM_CXXFLAGS not CXXFLAGS
+    CXXFLAGS should be left available for the user to override.
+
+documentation:
+
+* INSTALL: Correct documentation for how to suppress use of
+  -Bsymbolic-functions.  The name of the cache variable to override was wrong
+  (it probably used to be correct before the macros got rewritten).
+
+* emscripten/README.rst: Convert from markdown to reStructured Text
+  to match the rest of our documentation.
+
+* NEWS: Fix some minor typos.
+
+tools:
+
+* xapian-quest: Add --percent option to report percentage scores.
+
+examples:
+
+
+portability:
+
+    Use C++17 [[fallthrough]] instead of magic comment
+    Leave magic "FALLTHRU" and similar comments in C code, as the
+    attribute was only added in C23.
+
+    Emscripten: Require >= 1.39.10
+    Earlier versions had a bug in their `O_TRUNC` emulation which affects
+    Xapian.
+    Remove code to workaround this bug.
+    Emscripten 1.39.10 was released in 2020 and it seems unlikely anyone
+    would want to use a version that old now.
+
+    Use \n instead of std::endl in emscripten example
+    Using std::endl causes a flush of the stream, which is rarely
+    needed.  It's not necessary here, but is liable to get copied by
+    anyone using this code as a starting point.
+
+Author: Jean-Francois Dockes <jf@dockes.org>
+    Windows: Use explicit A-suffixed Win32 APIs
+    Use CreateProcessA(), CreateFileA(), etc instead of CreateProcess(),
+    CreateFile(), etc.
+    Rationale: this is mostly a cosmetic change. Using the explicit name
+    makes the code a bit clearer, and prevents a compilation error if
+    UNICODE is defined in the context.
+    Use explicit A-suffixed Win32 APIs more widely
+    Closes https://github.com/xapian/xapian/pull/342
+
+    Make C callback functions extern "C"
+    This fixes some MSVC warnings at higher warning levels.
+
+    __WIN32__: Fix to handle large file read/writes
+    The requested read size was truncated if it didn't fit in a DWORD.
+    For block reads/writes, the size should be at most 64K so just
+    assert that there.  It's unlikely to happen for non-block reads/writes
+    but it's conceivable so handle it by calling ReadFile()/WriteFile()
+    multiple times, using a similar pattern to the one we already use
+    for POSIX read()/write() to handle short reads/writes.
+
+    Fix MSVC (-W4) warning
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 2.1.0 (2026-08-13):
 
 * Switch to using only spaces to indent most source files.  The old identation
