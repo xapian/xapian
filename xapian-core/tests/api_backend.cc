@@ -49,6 +49,7 @@
 #endif
 
 #include <cerrno>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 
@@ -2072,5 +2073,21 @@ DEFINE_TESTCASE(corruptglass1, glass) {
 
         TEST_EXCEPTION(Xapian::DatabaseCorruptError,
                        Xapian::Database::check(db_path));
+    }
+}
+
+// Test Database::check() of a single table.
+DEFINE_TESTCASE(checksingletable1, glass || honey) {
+    auto db_path = get_database_path("apitest_simpledata");
+
+    TEST_EQUAL(Xapian::Database::check(db_path + "/postlist"), 0);
+
+    // Also test passing just a leafname.
+    auto cwd = std::filesystem::current_path();
+    std::filesystem::current_path(std::filesystem::path(db_path));
+    try {
+        TEST_EQUAL(Xapian::Database::check("postlist"), 0);
+    } catch (...) {
+        std::filesystem::current_path(cwd);
     }
 }

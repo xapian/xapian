@@ -282,7 +282,7 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
     // If we found a directory separator, advance p to the next character.  If
     // we didn't, incrementing string::npos will give us 0, which is what we
     // want.
-    ++p;
+    UNSIGNED_OVERFLOW_OK(++p);
 
     string dir(filename, 0, p);
 
