@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2024 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -724,10 +724,9 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
             // if this test is "foo123" see if "foo" was listed
             // this way "./testprog foo" can run foo1, foo2, etc.
             string t = test->name;
-            string::size_type i;
-            i = t.find_last_not_of("0123456789") + 1;
+            auto i = t.find_last_not_of("0123456789");
             if (i != string::npos) {
-                t.resize(i);
+                t.resize(i + 1);
                 if (m.find(t) != m.end()) do_this_test = true;
             }
         }
