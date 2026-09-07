@@ -103,7 +103,8 @@ try {
         // If we found a directory separator, + 1 advances to the next
         // character; If we didn't, incrementing string::npos will give us 0,
         // so we use the whole of src as the leaf-name.
-        const char * leaf = src.c_str() + (src.find_last_of(DIR_SEPS) + 1);
+        auto leaf_start = UNSIGNED_OVERFLOW_OK(src.find_last_of(DIR_SEPS) + 1);
+        const char * leaf = src.c_str() + leaf_start;
 
         // Iterate over all the documents in db_in, copying each to db_out.
         Xapian::doccount dbsize = db_in.get_doccount();

@@ -278,7 +278,9 @@ main(int argc, char** argv)
         size_t slash = db_path.find_last_of(DIR_SEPS);
         // If slash is std::string::npos, this assigns the whole of db_path to
         // table_name, which is what we want.
-        table_name.assign(db_path, slash + 1, string::npos);
+        table_name.assign(db_path,
+                          UNSIGNED_OVERFLOW_OK(slash + 1),
+                          string::npos);
         if (slash != string::npos) {
             db_path.resize(slash);
         } else {
