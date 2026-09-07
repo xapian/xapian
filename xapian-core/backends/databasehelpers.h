@@ -144,7 +144,6 @@ read_stub_file(std::string_view file,
                 // prog
                 // FIXME: timeouts
                 space = line.find(' ');
-                std::string args;
                 if (space == std::string::npos) {
                     action_remote_prog(std::string_view(line).substr(1),
                                        std::string_view());
