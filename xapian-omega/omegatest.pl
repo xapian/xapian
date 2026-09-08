@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015-2025 Olly Betts
+# Copyright (C) 2015-2026 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -1327,6 +1327,7 @@ testcase('', 'P=gent');
 # Feature tests for scriptindex `squash` and `ltrim`/`rtrim`/`trim` actions.
 print_to_file $test_indexscript, "squash : squash field\nltrim : ltrim field\nrtrim : rtrim field\ntrim : trim field\n";
 my $whitespace_test="\t lots\x0b\fof\t whitespace\f ";
+my $all_whitespace="\t \x0b\f\t \f ";
 test_scriptindex 'SQUASH and trim actions',
 "squash=$whitespace_test
 ltrim=$whitespace_test
@@ -1342,6 +1343,16 @@ squash=xyz
 ltrim=xyz
 rtrim=xyz
 trim=xyz
+
+squash=
+ltrim=
+rtrim=
+trim=
+
+squash=$all_whitespace
+ltrim=$all_whitespace
+rtrim=$all_whitespace
+trim=$all_whitespace
 ";
 print_to_file $test_template, '$json{$field{$cgi{F},$cgi{ID}}}';
 testcase('lots of whitespace', 'F=squash', 'ID=1');
@@ -1351,6 +1362,8 @@ testcase('lots\u000b\fof\t whitespace', 'F=trim', 'ID=1');
 for my $f (qw(squash ltrim rtrim trim)) {
   testcase('a b', "F=$f", 'ID=2');
   testcase('xyz', "F=$f", 'ID=3');
+  testcase('', "F=$f", 'ID=4');
+  testcase('', "F=$f", 'ID=5');
 }
 
 # Feature tests for scriptindex `truncate` action.

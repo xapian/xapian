@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002-2025 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -209,7 +209,7 @@ ltrim(string& s, const string& chars)
 static void
 rtrim(string& s, const string& chars)
 {
-    s.resize(s.find_last_not_of(chars) + 1);
+    s.resize(UNSIGNED_OVERFLOW_OK(s.find_last_not_of(chars) + 1));
 }
 
 static void
