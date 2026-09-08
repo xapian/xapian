@@ -98,7 +98,7 @@ GlassChanges::start(glass_revision_number_t old_rev,
         header += '\x00'; // Changes can be applied to a live database.
     }
 
-    io_write(changes_fd, header.data(), header.size());
+    io_write(changes_fd, header);
     // FIXME: save the block stream as a single zlib stream...
 
     // bool compressed = CHANGES_VERSION != 1; FIXME: always true for glass, but make optional?

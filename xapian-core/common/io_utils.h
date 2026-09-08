@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006-2025 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 #include <string>
+#include <string_view>
 
 /** Open a block-based file for reading.
  *
@@ -155,6 +156,10 @@ void io_write(int fd, const char * p, size_t n);
 
 inline void io_write(int fd, const unsigned char * p, size_t n) {
     io_write(fd, reinterpret_cast<const char *>(p), n);
+}
+
+inline void io_write(int fd, std::string_view s) {
+    io_write(fd, s.data(), s.size());
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor

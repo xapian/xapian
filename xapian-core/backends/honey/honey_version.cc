@@ -391,7 +391,7 @@ HoneyVersion::write(honey_revision_number_t new_rev, int flags)
     }
 
     try {
-        io_write(fd, s.data(), s.size());
+        io_write(fd, s);
     } catch (...) {
         if (!single_file())
             (void)close(fd);
