@@ -47,12 +47,6 @@ $ENV{LSAN_OPTIONS} = 'leak_check_at_exit=0';
 # some testcases.
 $ENV{MSYS2_ARG_CONV_EXCL} = '*';
 
-# Enable suppressions for UBSan (these are for defined-but-dubious behaviours
-# such as unsigned overflow which UBSan can also catch - code in system library
-# headers may trigger these checks).  If UBSan isn't in use, setting this is
-# harmless.
-$ENV{UBSAN_OPTIONS} = "suppressions=$srcdir/ubsan.supp";
-
 # Set up an empty database.
 my $test_db = 'test-db';
 remove_tree($test_db);
