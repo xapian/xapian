@@ -330,7 +330,7 @@ parse_index_script(const string &filename)
         vector<Action> actions;
         string::const_iterator i, j;
         const string &s = line;
-        i = find_if(s.begin(), s.end(), [](char ch) { return !C_isspace(ch); });
+        i = find_if_not(s.begin(), s.end(), C_isspace);
         if (i == s.end() || *i == '#') {
             // Blank line or comment.
             continue;
@@ -343,18 +343,18 @@ parse_index_script(const string &filename)
             j = find_if(i + 1, s.end(),
                         [](char ch) { return !C_isalnum(ch) && ch != '_'; });
             fields.push_back(string(i, j));
-            i = find_if(j, s.end(), [](char ch) { return !C_isspace(ch); });
+            i = find_if_not(j, s.end(), C_isspace);
             if (i == s.end()) break;
             if (*i == ':') {
                 ++i;
-                i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+                i = find_if_not(i, s.end(), C_isspace);
                 break;
             }
             if (i == j) {
                 report_location(DIAG_ERROR, filename, line_no, i - s.begin());
                 cerr << "bad character '" << *i << "' in field name\n";
                 ++i;
-                i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+                i = find_if_not(i, s.end(), C_isspace);
                 if (i == s.end()) break;
             }
         }
@@ -364,7 +364,7 @@ parse_index_script(const string &filename)
         j = i;
         while (j != s.end()) {
             size_t action_pos = j - s.begin();
-            i = find_if(j, s.end(), [](char ch) { return !C_isalnum(ch); });
+            i = find_if_not(j, s.end(), C_isalnum);
             string action(s, j - s.begin(), i - j);
             Action::type code = Action::BAD;
             unsigned min_args = 0, max_args = 0;
@@ -507,7 +507,7 @@ parse_index_script(const string &filename)
                 }
             }
             auto i_after_action = i;
-            i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+            i = find_if_not(i, s.end(), C_isspace);
 
             if (i != s.end() && *i == '=') {
                 if (i != i_after_action) {
@@ -525,7 +525,7 @@ parse_index_script(const string &filename)
                 }
 
                 ++i;
-                j = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+                j = find_if_not(i, s.end(), C_isspace);
                 if (i != j) {
                     report_location(DIAG_WARN, filename, line_no,
                                     i - s.begin());
@@ -857,7 +857,7 @@ bad_hex_digit:
                     default:
                         actions.emplace_back(code, action_pos, val);
                 }
-                i = find_if(i, s.end(), [](char ch) { return !C_isspace(ch); });
+                i = find_if_not(i, s.end(), C_isspace);
             } else {
                 if (min_args > 0) {
                     report_location(DIAG_ERROR, filename, line_no,

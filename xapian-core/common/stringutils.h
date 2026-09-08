@@ -215,14 +215,6 @@ inline bool C_isspace(char ch) {
     return bool(C_tab_(ch) & IS_SPACE);
 }
 
-inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
-inline bool C_isnotxdigit(char ch) { return !C_isxdigit(ch); }
-inline bool C_isnotupper(char ch) { return !C_isupper(ch); }
-inline bool C_isnotlower(char ch) { return !C_islower(ch); }
-inline bool C_isnotalpha(char ch) { return !C_isalpha(ch); }
-inline bool C_isnotalnum(char ch) { return !C_isalnum(ch); }
-inline bool C_isnotspace(char ch) { return !C_isspace(ch); }
-
 inline char C_tolower(char ch) {
     using namespace Xapian::Internal;
     return ch | (C_tab_(ch) & IS_ALPHA);

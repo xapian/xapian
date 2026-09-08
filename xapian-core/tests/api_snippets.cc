@@ -155,7 +155,7 @@ make_tg_db(Xapian::WritableDatabase &db, const string & source)
         string line, data;
         while (true) {
             getline(input, line);
-            if (find_if(line.begin(), line.end(), C_isnotspace) == line.end())
+            if (find_if_not(line.begin(), line.end(), C_isspace) == line.end())
                 break;
             tg.index_text(line);
             if (!data.empty()) data += ' ';

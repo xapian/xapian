@@ -40,7 +40,7 @@ get_paragraph(istream &input)
     string para, line;
     while (true) {
         getline(input, line);
-        if (find_if(line.begin(), line.end(), C_isnotspace) == line.end())
+        if (find_if_not(line.begin(), line.end(), C_isspace) == line.end())
             return para;
         para += line;
         para += '\n';
@@ -101,7 +101,7 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
         const string::const_iterator para_end = para.end();
         while (word_end != para_end) {
             string::const_iterator word_start;
-            word_start = find_if(word_end, para_end, C_isnotspace);
+            word_start = find_if_not(word_end, para_end, C_isspace);
             word_end = find_if(word_start, para_end, C_isspace);
             string word = stemmer(munge_term(string(word_start, word_end)));
             if (!word.empty()) doc.add_posting(word, ++pos);

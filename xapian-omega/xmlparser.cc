@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002-2023 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,7 +100,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             }
         }
 
-        p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+        p = find_if_not(p, end, C_isspace);
 
         if (p == end || *p != '=') {
             // Boolean attribute - e.g. <input type=checkbox checked>
@@ -111,7 +111,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             continue;
         }
 
-        p = find_if(p + 1, end, [](char ch) { return !C_isspace(ch); });
+        p = find_if_not(p + 1, end, C_isspace);
         if (p == end) break;
 
         start = p;
@@ -120,7 +120,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             p = find(++start, end, quote);
         } else {
             quote = 0;
-            p = find_if(start, end, [](char ch) { return C_isspace(ch); });
+            p = find_if(start, end, C_isspace);
         }
 
         if (found) {
@@ -131,7 +131,7 @@ XmlParser::get_attribute(const string& name, string& value) const
         if (p == end) break;
 
         if (quote) ++p;
-        p = find_if(p, end, [](char ch) { return !C_isspace(ch); });
+        p = find_if_not(p, end, C_isspace);
     }
     return false;
 }
@@ -176,7 +176,7 @@ XmlParser::decode_entities(string& s)
                 end = p;
             }
         } else {
-            end = find_if(p, s.end(), C_isnotalnum);
+            end = find_if_not(p, s.end(), C_isalnum);
             int k = keyword2(tab, s.data() + (p - s.begin()), end - p);
             if (k >= 0) val = named_ent_codepoint[k];
         }
@@ -471,7 +471,7 @@ XmlParser::parse(string_view text)
 
             if (*start == '/') {
                 closing = true;
-                start = find_if(start + 1, text.end(), C_isnotspace);
+                start = find_if_not(start + 1, text.end(), C_isspace);
             }
 
             p = find_if(start, text.end(), p_nottag);

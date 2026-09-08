@@ -265,13 +265,6 @@ static void test_chartype1()
         TEST(C_isdigit(ch));
         TEST(C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(C_isnotalpha(ch));
-        TEST(!C_isnotalnum(ch));
-        TEST(!C_isnotdigit(ch));
-        TEST(!C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
         int v = ch - '0';
         TEST_EQUAL(hex_digit(ch), v);
         TEST_EQUAL(hex_decode('0', ch), char(v));
@@ -288,13 +281,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(!C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(!C_isnotalpha(ch));
-        TEST(!C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(!C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
         int v = ch - 'A' + 10;
         TEST_EQUAL(hex_digit(ch), v);
         TEST_EQUAL(hex_decode('0', ch), char(v));
@@ -311,13 +297,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(!C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(!C_isnotalpha(ch));
-        TEST(!C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
     }
 
     for (int ch = 'a'; ch != 'f' + 1; ++ch) {
@@ -329,13 +308,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(!C_isnotlower(ch));
-        TEST(!C_isnotalpha(ch));
-        TEST(!C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(!C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
         int v = ch - 'a' + 10;
         TEST_EQUAL(hex_digit(ch), v);
         TEST_EQUAL(hex_decode('0', ch), char(v));
@@ -352,13 +324,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(!C_isnotlower(ch));
-        TEST(!C_isnotalpha(ch));
-        TEST(!C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
     }
 
     for (const char* p = "\t\n\f\r "; *p; ++p) {
@@ -371,13 +336,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(C_isnotalpha(ch));
-        TEST(C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(!C_isnotspace(ch));
     }
 
     // Check remaining non-top-bit-set characters aren't anything.
@@ -390,13 +348,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(C_isnotalpha(ch));
-        TEST(C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
     }
 
     // Non-ASCII characters aren't anything for these functions.
@@ -408,13 +359,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(C_isnotalpha(ch));
-        TEST(C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
     }
 
     // Check signed char values work the same way.
@@ -426,13 +370,6 @@ static void test_chartype1()
         TEST(!C_isdigit(ch));
         TEST(!C_isxdigit(ch));
         TEST(!C_isspace(ch));
-        TEST(C_isnotupper(ch));
-        TEST(C_isnotlower(ch));
-        TEST(C_isnotalpha(ch));
-        TEST(C_isnotalnum(ch));
-        TEST(C_isnotdigit(ch));
-        TEST(C_isnotxdigit(ch));
-        TEST(C_isnotspace(ch));
     }
 }
 
