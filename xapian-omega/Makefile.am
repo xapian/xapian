@@ -177,7 +177,17 @@ endif
 
 check_PROGRAMS = atomparsertest csvesctest htmlparsertest jsonesctest md5test sdbntest urlenctest utf8converttest omindexcheck timecheck
 dist_check_SCRIPTS = omegatest.pl sourcetest omindextest
-TESTS_ENVIRONMENT = UBSAN_OPTIONS=suppressions=$(srcdir)/ubsan.supp $(EATMYDATA)
+
+# Set UBSan options (if UBSan isn't in use UBSAN_OPTIONS will be ignored):
+#
+# * Cause the process to exit with non-zero return code.
+#
+# * Enable suppressions (these are for defined-but-possibly-unintended
+#   behaviours such as unsigned overflow which UBSan can also catch - we
+#   annotate the rare instances in our own source code; suppressions deal
+#   with instances in inline code in system library headers).
+TESTS_ENVIRONMENT = UBSAN_OPTIONS=halt_on_error=1,suppressions=$(srcdir)/ubsan.supp $(EATMYDATA)
+
 TESTS =	atomparsertest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsertest$(EXEEXT)\
