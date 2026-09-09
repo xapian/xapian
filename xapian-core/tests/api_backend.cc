@@ -2082,8 +2082,16 @@ DEFINE_TESTCASE(checksingletable1, glass || honey) {
 
     TEST_EQUAL(Xapian::Database::check(db_path + "/postlist"), 0);
 
-    // FIXME: This code compiler with MSVC seems to cause apitest.exe to exit.
-#ifndef _MSC_VER
+#ifdef __DragonFly__
+    // FIXME: Fails to link with:
+    // api_backend.cc:2091: error: undefined reference to 'std::filesystem::current_path[abi:cxx11]()'
+    // /usr/include/c++/8.0/bits/fs_path.h:184: error: undefined reference to 'std::filesystem::__cxx11::path::_M_split_cmpts()'
+    // api_backend.cc:2092: error: undefined reference to 'std::filesystem::current_path(std::filesystem::__cxx11::path const&)'
+    // api_backend.cc:2096: error: undefined reference to 'std::filesystem::current_path(std::filesystem::__cxx11::path const&)'
+#elif defined _MSC_VER
+    // FIXME: When compiled with MSVC, apitest.exe seems to exit when it gets
+    // to here.
+#else
     // Also test passing just a leafname.
     auto cwd = std::filesystem::current_path();
     std::filesystem::current_path(std::filesystem::path(db_path));
