@@ -257,8 +257,8 @@ PKG_CHECK_MODULES([POPPLER], [poppler-glib >= 0.16], [
     dnl check if libspectre is available (only useful if we have poppler).
     dnl We require 0.2.12 which fixed saving as a PDF.
     PKG_CHECK_MODULES([LIBSPECTRE], [libspectre >= 0.2.12], [
-	AC_DEFINE(HAVE_LIBSPECTRE, 1, [Define HAVE_LIBSPECTRE if the library is available])
-	OMINDEX_MODULES="$OMINDEX_MODULES omindex_spectrepoppler"],[ ])
+        AC_DEFINE(HAVE_LIBSPECTRE, 1, [Define HAVE_LIBSPECTRE if the library is available])
+        OMINDEX_MODULES="$OMINDEX_MODULES omindex_spectrepoppler"],[ ])
     ],[ ])
 
 dnl check if libe-book is available.
