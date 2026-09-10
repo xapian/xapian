@@ -439,9 +439,10 @@ DEFINE_TESTCASE(unicodetables, !backend) {
     }
     tout.str(string());
     tout << "Testing unassigned codepoints up to max unsigned int\n";
-    do {
-        // Test "all-F" values up to max of type.
-        codepoint = (codepoint << 1) | 0x0FFFFF;
+    // Test "all-1" values up to max of type.
+    codepoint = numeric_limits<decltype(codepoint)>::max();
+    while (codepoint > 0x0FFFFF) {
         test_codepoint(codepoint, codepoint, codepoint, Unicode::UNASSIGNED);
-    } while (codepoint < numeric_limits<decltype(codepoint)>::max());
+        codepoint >>= 1;
+    }
 }
