@@ -1,7 +1,7 @@
 /** @file
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2013,2014,2016,2017,2018 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2013,2014,2016,2017,2018,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -139,7 +139,10 @@ BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
         // the accumulator.  So we arrange to shift out 8 bits, then
         // adjust things so we're adding 8 fewer bits.
         Assert(bits <= sizeof(acc) * 8);
-        acc |= (value << n_bits);
+        // The shift can overflow here but that doesn't matter as we only
+        // actually need to or in the bottom 8 bits of value here - the rest
+        // will get or-ed in after this `if`.
+        acc |= UNSIGNED_OVERFLOW_OK(value << n_bits);
         buf += char(acc);
         acc >>= 8;
         value >>= 8;

@@ -191,7 +191,7 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
 // is desirable to avoid in most code.  The code here makes use of it, so
 // turn off UBSan's optional "unsigned-integer-overflow" check for this
 // function.
-[[clang::no_sanitize("unsigned-integer-overflow")]]
+[[clang::no_sanitize("unsigned-integer-overflow","unsigned-shift-base")]]
 #endif
 static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
