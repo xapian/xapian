@@ -22,6 +22,7 @@
 #include "xapian/database.h"
 
 #include "xapian/constants.h"
+#include "xapian/constinfo.h"
 #include "xapian/error.h"
 
 // We always need GLASS_TABLE_EXTENSION.
@@ -291,7 +292,7 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
     while (p != filename.size()) {
         char ch = filename[p++];
         if (ch == '.') break;
-        tablename += C_tolower(ch);
+        tablename += Xapian::C::tolower(ch);
     }
 
 #if defined XAPIAN_HAS_GLASS_BACKEND

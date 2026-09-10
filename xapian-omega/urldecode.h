@@ -25,11 +25,12 @@
 #ifndef OMEGA_INCLUDED_URLDECODE_H
 #define OMEGA_INCLUDED_URLDECODE_H
 
+#include <xapian.h>
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include "stringutils.h"
 
 struct CGIParameterHandler {
     void operator()(const std::string&, const std::string&) const;
@@ -62,7 +63,7 @@ process_ch:
                     break;
                 char hex1 = *begin;
                 ++begin;
-                if (begin == end || !C_isxdigit(hex1)) {
+                if (begin == end || !Xapian::C::isxdigit(hex1)) {
                     val += ch;
                     ch = hex1;
                     if (begin == end)
@@ -71,7 +72,7 @@ process_ch:
                 }
                 char hex2 = *begin;
                 ++begin;
-                if (!C_isxdigit(hex2)) {
+                if (!Xapian::C::isxdigit(hex2)) {
                     val += ch;
                     val += hex1;
                     ch = hex2;
@@ -79,7 +80,7 @@ process_ch:
                         break;
                     goto process_ch;
                 }
-                ch = hex_decode(hex1, hex2);
+                ch = Xapian::C::hex_decode(hex1, hex2);
                 break;
             }
             case '+':
@@ -283,7 +284,7 @@ encoded_ucont(const std::string & s, size_t i)
 {
     return s[i] == '%' &&
         url_chars[static_cast<unsigned char>(s[i + 1])] == OK89AB &&
-        C_isxdigit(s[i + 2]);
+        Xapian::C::isxdigit(s[i + 2]);
 }
 
 /** Prettify a URL.
@@ -316,8 +317,9 @@ url_prettify(std::string & url)
     url.reserve(in.size());
     while (true) {
         // We've checked there are at least two bytes after the '%' already.
-        if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
-            char ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+        if (Xapian::C::isxdigit(in[pcent + 1]) &&
+            Xapian::C::isxdigit(in[pcent + 2])) {
+            char ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
             bool safe = true;
             switch (url_chars[static_cast<unsigned char>(ch)]) {
                 case UNSAFE:
@@ -332,7 +334,7 @@ url_prettify(std::string & url)
                     url.append(in, start, pcent - start);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
                     break;
                 case SEQ3:
@@ -346,10 +348,10 @@ url_prettify(std::string & url)
                     url.append(in, start, pcent - start);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
                     break;
                 case SEQ4:
@@ -365,13 +367,13 @@ url_prettify(std::string & url)
                     url.append(in, start, pcent - start);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     url += ch;
                     pcent += 3;
-                    ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+                    ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
                     break;
                 case INPATH:

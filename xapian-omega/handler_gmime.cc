@@ -20,11 +20,13 @@
  */
 
 #include <config.h>
+
 #include "handler.h"
+
+#include <xapian.h>
 
 #include "htmlparser.h"
 #include "str.h"
-#include "stringutils.h"
 #include "utf8convert.h"
 
 #ifdef __GNUC__
@@ -251,7 +253,7 @@ parse_mime_part(GMimePart* part,
         for (size_t i = 0; leaf[i]; ++i) {
             char ch = leaf[i];
             // Only allow clearly safe characters.
-            if (C_isalnum(ch) || ch == '.' || ch == '-' || ch == '+')
+            if (Xapian::C::isalnum(ch) || ch == '.' || ch == '-' || ch == '+')
                 filename += ch;
             else
                 filename += '_';

@@ -21,12 +21,6 @@
 #ifndef XAPIAN_INCLUDED_STRINGUTILS_H
 #define XAPIAN_INCLUDED_STRINGUTILS_H
 
-// Hack to allow inclusion from xapian-omega.
-// FIXME: Move C_isalpha(), etc to the public API?
-#define XAPIAN_IN_XAPIAN_H
-#include <xapian/constinfo.h>
-#undef XAPIAN_IN_XAPIAN_H
-
 #include <algorithm>
 #include <string>
 #include <string_view>
@@ -147,94 +141,6 @@ common_prefix_length(std::string_view a, std::string_view b,
         if (a[common] != b[common]) break;
     }
     return common;
-}
-
-// Like C's isXXXXX() but:
-//  (a) always work in the C locale
-//  (b) handle signed char as well as unsigned char
-//  (c) have a suitable signature for use as predicates with find_if()
-//  (d) add negated versions isnotXXXXX() which are useful as predicates
-
-namespace Xapian {
-    namespace Internal {
-        const unsigned char HEX_MASK = 0x0f;
-        const unsigned char IS_UPPER = 0x10;
-        const unsigned char IS_ALPHA = 0x20; // NB Same as ASCII "case bit".
-        const unsigned char IS_DIGIT = 0x40;
-        const unsigned char IS_SPACE = 0x80;
-    }
-}
-
-// FIXME: These functions assume ASCII or an ASCII compatible character set
-// such as ISO-8859-N or UTF-8.  EBCDIC would need some work (patches
-// welcome!)
-static_assert('\x20' == ' ', "character set isn't a superset of ASCII");
-
-inline unsigned char C_tab_(char ch) {
-    const unsigned char * C_tab = Xapian::Internal::get_constinfo_()->C_tab;
-    return C_tab[static_cast<unsigned char>(ch)];
-}
-
-inline bool C_isdigit(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_DIGIT);
-}
-
-inline bool C_isxdigit(char ch) {
-    using namespace Xapian::Internal;
-    // Include IS_DIGIT so '0' gives true.
-    return bool(C_tab_(ch) & (HEX_MASK|IS_DIGIT));
-}
-
-inline bool C_isupper(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_UPPER);
-}
-
-inline bool C_islower(char ch) {
-    using namespace Xapian::Internal;
-    return (C_tab_(ch) & (IS_ALPHA|IS_UPPER)) == IS_ALPHA;
-}
-
-inline bool C_isalpha(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_ALPHA);
-}
-
-inline bool C_isalnum(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & (IS_ALPHA|IS_DIGIT));
-}
-
-inline bool C_isspace(char ch) {
-    using namespace Xapian::Internal;
-    return bool(C_tab_(ch) & IS_SPACE);
-}
-
-inline char C_tolower(char ch) {
-    using namespace Xapian::Internal;
-    return ch | (C_tab_(ch) & IS_ALPHA);
-}
-
-inline char C_toupper(char ch) {
-    using namespace Xapian::Internal;
-    return ch &~ (C_tab_(ch) & IS_ALPHA);
-}
-
-inline int hex_digit(char ch) {
-    using namespace Xapian::Internal;
-    return C_tab_(ch) & HEX_MASK;
-}
-
-/** Decode a pair of ASCII hex digits.
- *
- *  E.g. hex_decode('4', 'A') gives 'J'.
- *
- *  If C_isxdigit(ch1) isn't true then ch1 is treated as '0', and similarly for
- *  ch2.
- */
-inline char hex_decode(char ch1, char ch2) {
-    return char(hex_digit(ch1) << 4 | hex_digit(ch2));
 }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H

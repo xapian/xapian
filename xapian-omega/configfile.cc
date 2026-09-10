@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include <xapian.h>
+
 #include <fstream>
 
 #include <sys/types.h>
@@ -70,20 +72,20 @@ try_read_config_file(const char * cfile)
         in.getline(line, sizeof(line));
 
         char *p = line;
-        while (C_isspace(*p)) ++p;
+        while (Xapian::C::isspace(*p)) ++p;
         if (!*p || *p == '#') continue; // Ignore blank line and comments
 
         char *q = p;
-        while (*q && !C_isspace(*q)) ++q;
+        while (*q && !Xapian::C::isspace(*q)) ++q;
         string name(p, q - p);
 
         p = q;
-        while (C_isspace(*p)) ++p;
+        while (Xapian::C::isspace(*p)) ++p;
         q = p;
-        while (*q && !C_isspace(*q)) ++q;
+        while (*q && !Xapian::C::isspace(*q)) ++q;
         string value(p, q - p);
 
-        while (*q && C_isspace(*q)) ++q;
+        while (*q && Xapian::C::isspace(*q)) ++q;
         if (value.empty() || *q) {
             throw string("Bad line in configuration file '") + cfile + "'";
         }

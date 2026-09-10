@@ -21,7 +21,8 @@
 #include <config.h>
 
 #include "runprocess.h"
-#include "stringutils.h"
+
+#include <xapian.h>
 
 #include <stdio.h>
 #include <string>
@@ -58,7 +59,7 @@ stdout_to_string(const string &cmd)
         }
         throw ReadError();
     }
-    while (out.size() > 0 && C_isspace(out[out.size() - 1])) {
+    while (out.size() > 0 && C::isspace(out[out.size() - 1])) {
         out.resize(out.size() - 1);
     }
     return out;

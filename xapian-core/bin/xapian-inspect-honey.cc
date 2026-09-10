@@ -115,9 +115,9 @@ unescape(const string& s)
                     if (++i == s.end())
                         goto bad_escaping;
                     char ch2 = *i;
-                    if (!C_isxdigit(ch1) || !C_isxdigit(ch2))
+                    if (!Xapian::C::isxdigit(ch1) || !Xapian::C::isxdigit(ch2))
                         goto bad_escaping;
-                    ch = hex_decode(ch1, ch2);
+                    ch = char(Xapian::C::hex_decode(ch1, ch2));
                     break;
                 }
                 default:

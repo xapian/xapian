@@ -25,11 +25,12 @@
 
 #include "mime.h"
 
+#include <xapian.h>
+
 #include <algorithm>
 
 #include "keyword.h"
 #include "mimemap.h"
-#include "stringutils.h"
 
 using namespace std;
 
@@ -60,7 +61,7 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
     string::iterator i;
     for (i = ext.begin(); i != ext.end(); ++i) {
         if (*i >= 'A' && *i <= 'Z') {
-            *i = C_tolower(*i);
+            *i = Xapian::C::tolower(*i);
             changed = true;
         }
     }

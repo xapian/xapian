@@ -175,7 +175,7 @@ prefix_from_term(string* prefix, const string& term)
         if (term[0] == 'X') {
             const string::const_iterator begin = term.begin();
             string::const_iterator i = begin + 1;
-            while (i != term.end() && C_isupper(*i))
+            while (i != term.end() && Xapian::C::isupper(*i))
                 ++i;
             if (prefix)
                 prefix->assign(begin, i);
@@ -184,7 +184,7 @@ prefix_from_term(string* prefix, const string& term)
             return i - begin;
         }
 
-        if (C_isupper(term[0])) {
+        if (Xapian::C::isupper(term[0])) {
             if (prefix)
                 *prefix = term[0];
             return 1;
@@ -781,14 +781,14 @@ unordered_map<string, int> WordList::word_to_occurrence;
 static inline bool
 p_notid(unsigned int c)
 {
-    return !C_isalnum(c) && c != '_';
+    return !Xapian::C::isalnum(c) && c != '_';
 }
 
 // Not a character in an HTML tag name
 static inline bool
 p_nottag(unsigned int c)
 {
-    return !C_isalnum(c) && c != '.' && c != '-';
+    return !Xapian::C::isalnum(c) && c != '.' && c != '-';
 }
 
 // FIXME: shares algorithm with indextext.cc!
@@ -812,10 +812,11 @@ html_highlight(const string &s, const string &list,
         string term;
         string word;
         const char *l = j.raw();
-        if (*first < 128 && C_isupper(*first)) {
+        if (*first < 128 && Xapian::C::isupper(*first)) {
             j = first;
             Xapian::Unicode::append_utf8(term, *j);
-            while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && C_isupper(*j)) {
+            while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 &&
+                   Xapian::C::isupper(*j)) {
                 Xapian::Unicode::append_utf8(term, *j);
             }
             if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
@@ -2517,7 +2518,7 @@ eval(const string& fmt, vector<string>& param)
                         size_t j = s.find('|', i);
                         string flag(s, i, j - i);
                         for (char& c : flag) {
-                            c = C_tolower(c);
+                            c = Xapian::C::tolower(c);
                         }
                         if (startswith(flag, "snippet_")) {
                             flag.erase(0, CONST_STRLEN("snippet_"));
@@ -2962,7 +2963,7 @@ pretty_term(string term)
     if (term.length() <= 1) return term;
 
     // Assume unprefixed terms are unstemmed.
-    if (!C_isupper(term[0])) return term;
+    if (!Xapian::C::isupper(term[0])) return term;
 
     // Handle stemmed terms.
     bool stemmed = (term[0] == 'Z');
@@ -2980,7 +2981,7 @@ pretty_term(string term)
     bool add_quotes = false;
 
     // Check if the term has a prefix.
-    if (C_isupper(term[0])) {
+    if (Xapian::C::isupper(term[0])) {
         // See if we have this prefix in the termprefix_to_userprefix map.  If
         // so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
         string prefix;
@@ -3113,7 +3114,7 @@ ensure_query_parsed()
                 topdoc = 0;
         } else if ((val = cgi_params.find("[")) != cgi_params.end() ||
                    (val = cgi_params.find("#")) != cgi_params.end()) {
-            if (!C_isdigit(val->second[0])) {
+            if (!Xapian::C::isdigit(val->second[0])) {
                 throw "Page parameter must be >= 0";
             }
             long page = atol(val->second.c_str());
@@ -3209,7 +3210,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
                 ch = term[0];
             }
 
-            if (C_isupper(ch)) {
+            if (Xapian::C::isupper(ch)) {
                 size_t prefix_len = prefix_from_term(nullptr, term);
                 term.erase(0, prefix_len);
             }
@@ -3227,7 +3228,7 @@ OmegaExpandDecider::operator()(const string & term) const
     unsigned char ch = term[0];
 
     // Reject terms with a prefix.
-    if (C_isupper(ch)) return false;
+    if (Xapian::C::isupper(ch)) return false;
 
     {
         MyStopper stopper;
@@ -3236,7 +3237,7 @@ OmegaExpandDecider::operator()(const string & term) const
     }
 
     // Reject small numbers.
-    if (term.size() < 4 && C_isdigit(ch)) return false;
+    if (term.size() < 4 && Xapian::C::isdigit(ch)) return false;
 
     // Reject terms containing a space.
     if (term.find(' ') != string::npos) return false;

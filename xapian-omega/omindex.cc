@@ -228,7 +228,7 @@ static off_t
 parse_size(char* p)
 {
     // Don't want negative numbers, infinity, NaN, or hex numbers.
-    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+    if (Xapian::C::isdigit(p[0]) && (p[1] | 32) != 'x') {
         double arg = strtod(p, &p);
         switch (*p) {
             case '\0':
@@ -686,7 +686,7 @@ main(int argc, char **argv)
         case OPT_OPENDIR_SLEEP: {
             // Don't want negative numbers, infinity, NaN, or hex numbers.
             char * p = optarg;
-            if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+            if (Xapian::C::isdigit(p[0]) && (p[1] | 32) != 'x') {
                 sleep_before_opendir = strtod(p, &p);
                 if (*p == '\0')
                     break;
@@ -778,7 +778,7 @@ main(int argc, char **argv)
 
     // Host term, if the URL contains a hostname (omits any port number):
     string::size_type j;
-    j = find_if_not(baseurl.begin(), baseurl.end(), C_isalnum) -
+    j = find_if_not(baseurl.begin(), baseurl.end(), Xapian::C::isalnum) -
         baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://" && j + 3 < baseurl.size()) {
         j += 3;

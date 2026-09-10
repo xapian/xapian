@@ -23,7 +23,6 @@
 
 #include "atomparser.h"
 #include "htmlparser.h"
-#include "stringutils.h"
 
 using namespace std;
 

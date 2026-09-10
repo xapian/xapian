@@ -28,7 +28,7 @@
 
 #include "gnu_getopt.h"
 #include "hashterm.h"
-#include "common/stringutils.h"
+#include "stringutils.h"
 
 using namespace std;
 

@@ -25,7 +25,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "stringutils.h"
 #include "testutils.h"
 
 #include <cctype>
@@ -216,8 +215,8 @@ static unsigned
 decode_codepoint(const char** p) {
     unsigned r = 0;
     while (**p != ';') {
-        TEST(C_isxdigit(**p));
-        r = (r << 4) | hex_digit(**p);
+        TEST(Xapian::C::isxdigit(**p));
+        r = (r << 4) | Xapian::C::hex_digit(**p);
         ++*p;
     }
     return r;
@@ -291,8 +290,8 @@ DEFINE_TESTCASE(unicodetables, !backend) {
         bool end_of_range =
             (*desc == '<' && p - desc > 5 && memcmp(p - 5, "Last>", 5) == 0);
         ++p;
-        TEST(C_isupper(p[0]));
-        TEST(C_islower(p[1]));
+        TEST(Xapian::C::isupper(p[0]));
+        TEST(Xapian::C::islower(p[1]));
 #define ENCODE(C1, C2) ((C1 - 'A') * 26 + (C2 - 'a'))
         Xapian::Unicode::category category;
         switch (ENCODE(p[0], p[1])) {
@@ -444,5 +443,135 @@ DEFINE_TESTCASE(unicodetables, !backend) {
     while (codepoint > 0x0FFFFF) {
         test_codepoint(codepoint, codepoint, codepoint, Unicode::UNASSIGNED);
         codepoint >>= 1;
+    }
+}
+
+/// Test C::isupper() etc.
+#ifdef __clang__
+# if __clang_major__ >= 8
+// We're explicitly trying to test that both signed and unsigned char values
+// are handled here.
+[[clang::no_sanitize("implicit-integer-sign-change")]]
+# endif
+#endif
+DEFINE_TESTCASE(clocalectype1)
+{
+    char tested[128];
+    memset(tested, 0, sizeof(tested));
+    for (int ch = '0'; ch != '9' + 1; ++ch) {
+        tested[ch] = 1;
+        TEST(!C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(!C::isalpha(ch));
+        TEST(C::isalnum(ch));
+        TEST(C::isdigit(ch));
+        TEST(C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+        int v = ch - '0';
+        TEST_EQUAL(C::hex_digit(ch), v);
+        TEST_EQUAL(C::hex_decode('0', ch), char(v));
+        TEST_EQUAL(C::hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(C::hex_decode(ch, ch), char((v << 4) | v));
+    }
+
+    for (int ch = 'A'; ch != 'F' + 1; ++ch) {
+        tested[ch] = 1;
+        TEST(C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(C::isalpha(ch));
+        TEST(C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+        int v = ch - 'A' + 10;
+        TEST_EQUAL(C:hex_digit(ch), v);
+        TEST_EQUAL(C:hex_decode('0', ch), char(v));
+        TEST_EQUAL(C:hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(C:hex_decode(ch, ch), char((v << 4) | v));
+    }
+
+    for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
+        tested[ch] = 1;
+        TEST(C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(C::isalpha(ch));
+        TEST(C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+    }
+
+    for (int ch = 'a'; ch != 'f' + 1; ++ch) {
+        tested[ch] = 1;
+        TEST(!C::isupper(ch));
+        TEST(C::islower(ch));
+        TEST(C::isalpha(ch));
+        TEST(C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+        int v = ch - 'a' + 10;
+        TEST_EQUAL(C:hex_digit(ch), v);
+        TEST_EQUAL(C:hex_decode('0', ch), char(v)); // FIXME unsigned char, and below
+        TEST_EQUAL(C:hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(C:hex_decode(ch, ch), char((v << 4) | v));
+    }
+
+    for (int ch = 'g'; ch != 'z' + 1; ++ch) {
+        tested[ch] = 1;
+        TEST(!C::isupper(ch));
+        TEST(C::islower(ch));
+        TEST(C::isalpha(ch));
+        TEST(C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+    }
+
+    for (const char* p = "\t\n\f\r "; *p; ++p) {
+        int ch = *p;
+        tested[ch] = 1;
+        TEST(!C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(!C::isalpha(ch));
+        TEST(!C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(C::isspace(ch));
+    }
+
+    // Check remaining non-top-bit-set characters aren't anything.
+    for (int ch = 0; ch != 128; ++ch) {
+        if (tested[ch]) continue;
+        TEST(!C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(!C::isalpha(ch));
+        TEST(!C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+    }
+
+    // Non-ASCII characters aren't anything for these functions.
+    for (int i = 128; i != 256; ++i) {
+        unsigned char ch(i);
+        TEST(!C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(!C::isalpha(ch));
+        TEST(!C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(!C::isspace(ch));
+    }
+
+    // Check signed char values work the same way.
+    for (signed char ch = -128; ch != 0; ++ch) {
+        TEST(!C::isupper(ch));
+        TEST(!C::islower(ch));
+        TEST(!C::isalpha(ch));
+        TEST(!C::isalnum(ch));
+        TEST(!C::isdigit(ch));
+        TEST(!C::isxdigit(ch));
+        TEST(!C::isspace(ch));
     }
 }

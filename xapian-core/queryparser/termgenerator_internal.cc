@@ -25,6 +25,7 @@
 #include "api/msetinternal.h"
 #include "api/queryinternal.h"
 
+#include <xapian/constinfo.h>
 #include <xapian/document.h>
 #include <xapian/queryparser.h>
 #include <xapian/stem.h>
@@ -51,7 +52,7 @@ namespace Xapian {
 static inline bool
 U_isupper(unsigned ch)
 {
-    return ch < 128 && C_isupper(static_cast<unsigned char>(ch));
+    return ch < 128 && C::isupper(static_cast<unsigned char>(ch));
 }
 
 static inline unsigned

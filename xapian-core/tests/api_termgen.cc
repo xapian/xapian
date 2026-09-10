@@ -334,7 +334,7 @@ static const test test_simple[] = {
     { "something ADJ/3 else", "(something:(pos=1) PHRASE 4 else:(pos=2))" },
     { "a ADJ/6 b ADJ c", "(a:(pos=1) PHRASE 8 b:(pos=2) PHRASE 8 c:(pos=3))" },
     // Regression test - Unicode character values were truncated to 8 bits
-    // before testing C_isdigit(), so this rather artificial example parsed
+    // before testing C::isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
     { "a NEAR/\xc4\xb5 b", "((a:(pos=1) NEAR 11 \xc4\xb5:(pos=2)) OR Zb:(pos=3))" },
     // Real world examples from tweakers.net:

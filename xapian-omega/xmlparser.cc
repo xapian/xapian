@@ -48,7 +48,7 @@ static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-        *i = C_tolower(*i);
+        *i = Xapian::C::tolower(*i);
     }
 }
 
@@ -56,13 +56,13 @@ static inline bool
 p_nottag(char c)
 {
     // ':' for XML namespaces.
-    return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
+    return !Xapian::C::isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
 static inline bool
 p_whitespaceeqgt(char c)
 {
-    return C_isspace(c) || c == '=' || c == '>';
+    return Xapian::C::isspace(c) || c == '=' || c == '>';
 }
 
 bool
@@ -92,7 +92,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             } else {
                 // Compare with lower-cased version of attribute name from tag.
                 for (size_t i = 0; i != len; ++i) {
-                    if (C_tolower(start[i]) != name[i]) {
+                    if (Xapian::C::tolower(start[i]) != name[i]) {
                         found = false;
                         break;
                     }
@@ -100,7 +100,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             }
         }
 
-        p = find_if_not(p, end, C_isspace);
+        p = find_if_not(p, end, Xapian::C::isspace);
 
         if (p == end || *p != '=') {
             // Boolean attribute - e.g. <input type=checkbox checked>
@@ -111,7 +111,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             continue;
         }
 
-        p = find_if_not(p + 1, end, C_isspace);
+        p = find_if_not(p + 1, end, Xapian::C::isspace);
         if (p == end) break;
 
         start = p;
@@ -120,7 +120,7 @@ XmlParser::get_attribute(const string& name, string& value) const
             p = find(++start, end, quote);
         } else {
             quote = 0;
-            p = find_if(start, end, C_isspace);
+            p = find_if(start, end, Xapian::C::isspace);
         }
 
         if (found) {
@@ -131,7 +131,7 @@ XmlParser::get_attribute(const string& name, string& value) const
         if (p == end) break;
 
         if (quote) ++p;
-        p = find_if_not(p, end, C_isspace);
+        p = find_if_not(p, end, Xapian::C::isspace);
     }
     return false;
 }
@@ -163,20 +163,20 @@ XmlParser::decode_entities(string& s)
             ++p;
             if (p != s.end() && (*p == 'x' || *p == 'X')) {
                 // hex
-                while (++p != s.end() && C_isxdigit(*p)) {
+                while (++p != s.end() && Xapian::C::isxdigit(*p)) {
                     val = (val << 4) | hex_digit(*p);
                 }
                 end = p;
             } else {
                 // number
-                while (p != s.end() && C_isdigit(*p)) {
+                while (p != s.end() && Xapian::C::isdigit(*p)) {
                     val = val * 10 + (*p - '0');
                     ++p;
                 }
                 end = p;
             }
         } else {
-            end = find_if_not(p, s.end(), C_isalnum);
+            end = find_if_not(p, s.end(), Xapian::C::isalnum);
             int k = keyword2(tab, s.data() + (p - s.begin()), end - p);
             if (k >= 0) val = named_ent_codepoint[k];
         }
@@ -249,8 +249,10 @@ XmlParser::parse(string_view text)
             unsigned char ch = *(p + 1);
 
             // Opening tag, closing tag, or comment/SGML declaration.
-            if ((state != HTML_IN_SCRIPT && C_isalpha(ch)) || ch == '/' || ch == '!')
+            if ((state != HTML_IN_SCRIPT && Xapian::C::isalpha(ch)) ||
+                ch == '/' || ch == '!') {
                 break;
+            }
 
             if (ch == '?') {
                 // PHP code or XML declaration.
@@ -374,31 +376,31 @@ XmlParser::parse(string_view text)
                 process_content(content);
                 if (i == text.npos) break;
                 start = text.begin() + i + 2;
-            } else if (C_tolower(first_ch) == 'd' &&
+            } else if (Xapian::C::tolower(first_ch) == 'd' &&
                        text.end() - start > 6 &&
-                       C_tolower(start[0]) == 'o' &&
-                       C_tolower(start[1]) == 'c' &&
-                       C_tolower(start[2]) == 't' &&
-                       C_tolower(start[3]) == 'y' &&
-                       C_tolower(start[4]) == 'p' &&
-                       C_tolower(start[5]) == 'e' &&
-                       C_isspace(start[6])) {
+                       Xapian::C::tolower(start[0]) == 'o' &&
+                       Xapian::C::tolower(start[1]) == 'c' &&
+                       Xapian::C::tolower(start[2]) == 't' &&
+                       Xapian::C::tolower(start[3]) == 'y' &&
+                       Xapian::C::tolower(start[4]) == 'p' &&
+                       Xapian::C::tolower(start[5]) == 'e' &&
+                       Xapian::C::isspace(start[6])) {
                 // DOCTYPE declaration.
                 start += 7;
-                while (start != text.end() && C_isspace(*start)) {
+                while (start != text.end() && Xapian::C::isspace(*start)) {
                     ++start;
                 }
                 if (start == text.end()) break;
                 if (text.end() - start >= 5 &&
-                    C_tolower(start[0]) == 'h' &&
-                    C_tolower(start[1]) == 't' &&
-                    C_tolower(start[2]) == 'm' &&
-                    C_tolower(start[3]) == 'l' &&
-                    (start[4] == '>' || C_isspace(start[4]))) {
+                    Xapian::C::tolower(start[0]) == 'h' &&
+                    Xapian::C::tolower(start[1]) == 't' &&
+                    Xapian::C::tolower(start[2]) == 'm' &&
+                    Xapian::C::tolower(start[3]) == 'l' &&
+                    (start[4] == '>' || Xapian::C::isspace(start[4]))) {
                     start += 4;
 
                     // HTML doctype.
-                    while (start != text.end() && C_isspace(*start)) {
+                    while (start != text.end() && Xapian::C::isspace(*start)) {
                         ++start;
                     }
                     if (start == text.end()) break;
@@ -409,15 +411,15 @@ XmlParser::parse(string_view text)
                         charset = "utf-8";
                     }
                 } else if (text.end() - start >= 29 &&
-                           C_tolower(start[0]) == 's' &&
-                           C_tolower(start[1]) == 'y' &&
-                           C_tolower(start[2]) == 's' &&
-                           C_tolower(start[3]) == 't' &&
-                           C_tolower(start[4]) == 'e' &&
-                           C_tolower(start[5]) == 'm' &&
-                           C_isspace(start[6])) {
+                           Xapian::C::tolower(start[0]) == 's' &&
+                           Xapian::C::tolower(start[1]) == 'y' &&
+                           Xapian::C::tolower(start[2]) == 's' &&
+                           Xapian::C::tolower(start[3]) == 't' &&
+                           Xapian::C::tolower(start[4]) == 'e' &&
+                           Xapian::C::tolower(start[5]) == 'm' &&
+                           Xapian::C::isspace(start[6])) {
                     start += 7;
-                    while (start != text.end() && C_isspace(*start)) {
+                    while (start != text.end() && Xapian::C::isspace(*start)) {
                         ++start;
                     }
                     size_t left = text.end() - start;
@@ -471,7 +473,7 @@ XmlParser::parse(string_view text)
 
             if (*start == '/') {
                 closing = true;
-                start = find_if_not(start + 1, text.end(), C_isspace);
+                start = find_if_not(start + 1, text.end(), Xapian::C::isspace);
             }
 
             p = find_if(start, text.end(), p_nottag);
@@ -527,7 +529,7 @@ XmlParser::parse(string_view text)
                     if (p[-1] == '/') {
                         // <a href=foo/> isn't an empty element though
                         if (attribute_len == 1 ||
-                            C_isspace(p[-2]) ||
+                            Xapian::C::isspace(p[-2]) ||
                             p[-2] == '"' ||
                             p[-2] == '\'') {
                             empty_element = true;

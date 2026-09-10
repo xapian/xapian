@@ -22,8 +22,9 @@
 
 #include "index_utils.h"
 
+#include <xapian.h>
+
 #include "errno_to_string.h"
-#include "stringutils.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -40,7 +41,8 @@ get_paragraph(istream &input)
     string para, line;
     while (true) {
         getline(input, line);
-        if (find_if_not(line.begin(), line.end(), C_isspace) == line.end())
+        if (find_if_not(line.begin(), line.end(),
+                        Xapian::C::isspace) == line.end())
             return para;
         para += line;
         para += '\n';
@@ -101,8 +103,8 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
         const string::const_iterator para_end = para.end();
         while (word_end != para_end) {
             string::const_iterator word_start;
-            word_start = find_if_not(word_end, para_end, C_isspace);
-            word_end = find_if(word_start, para_end, C_isspace);
+            word_start = find_if_not(word_end, para_end, C::isspace);
+            word_end = find_if(word_start, para_end, C::isspace);
             string word = stemmer(munge_term(string(word_start, word_end)));
             if (!word.empty()) doc.add_posting(word, ++pos);
         }
@@ -118,8 +120,8 @@ munge_term(const string &term)
     string result;
     for (string::const_iterator i = term.begin(); i != term.end(); ++i) {
         char ch = *i;
-        if (C_isalnum(ch))
-            result += C_tolower(ch);
+        if (C::isalnum(ch))
+            result += C::tolower(ch);
         else if (ch == '\\') {
             ++i;
             if (i != term.end()) {
@@ -138,10 +140,10 @@ munge_term(const string &term)
                         string::const_iterator j = i;
                         char b = *++i;
                         char c = *++i;
-                        if (!C_isxdigit(b) || !C_isxdigit(c)) {
+                        if (!C::isxdigit(b) || !C::isxdigit(c)) {
                             i = j - 1;
                         } else {
-                            ch = hex_decode(b, c);
+                            ch = char(C::hex_decode(b, c));
                         }
                         break;
                     }

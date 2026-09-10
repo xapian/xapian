@@ -22,6 +22,8 @@
 
 #include <xapian/queryparser.h>
 
+#include <xapian/constinfo.h>
+
 #include <cerrno>
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
 # include <charconv>
@@ -45,24 +47,24 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
     }
     if (s.size() < 5 || s.size() > 10) return false;
     const char* p = s.c_str();
-    if (!C_isdigit(*p)) return false;
+    if (!C::isdigit(*p)) return false;
     x1 = *p++ - '0';
-    if (C_isdigit(*p)) {
+    if (C::isdigit(*p)) {
         x1 = x1 * 10 + (*p++ - '0');
     }
     if (x1 < 1 || x1 > 31) return false;
     char sep = *p++;
     if (sep != '/' && sep != '-' && sep != '.') return false;
-    if (!C_isdigit(*p)) return false;
+    if (!C::isdigit(*p)) return false;
     x2 = *p++ - '0';
-    if (C_isdigit(*p)) {
+    if (C::isdigit(*p)) {
         x2 = x2 * 10 + (*p++ - '0');
     }
     if (x2 < 1 || x2 > 31) return false;
     if (*p++ != sep) return false;
     if (s.size() - (p - s.c_str()) > 4) return false;
     y = *p++ - '0';
-    while (C_isdigit(*p)) {
+    while (C::isdigit(*p)) {
         y = y * 10 + (*p++ - '0');
     }
     return size_t(p - s.c_str()) == s.size();

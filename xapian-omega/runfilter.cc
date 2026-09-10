@@ -22,6 +22,8 @@
 
 #include "runfilter.h"
 
+#include <xapian.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -51,7 +53,6 @@
 #include "closefrom.h"
 #include "freemem.h"
 #include "setenv.h"
-#include "stringutils.h"
 
 #ifdef __WIN32__
 # include "append_filename_arg.h"
@@ -557,9 +558,9 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
         size_t j = 0;
         while (true) {
             j = s.find_first_not_of(" \t\n", j);
-            if (!(C_isalpha(s[j]) || s[j] == '_')) break;
+            if (!(Xapian::C::isalpha(s[j]) || s[j] == '_')) break;
             size_t i = j;
-            do ++j; while (C_isalnum(s[j]) || s[j] == '_');
+            do ++j; while (Xapian::C::isalnum(s[j]) || s[j] == '_');
             if (s[j] != '=') {
                 j = i;
                 break;

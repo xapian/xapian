@@ -50,7 +50,6 @@
 #include "parseint.h"
 #include "setenv.h"
 #include "str.h"
-#include "stringutils.h"
 #include "strptime.h"
 #include "timegm.h"
 #include "utf8truncate.h"
@@ -88,7 +87,7 @@ static bool skipping_record = false;
 static inline bool
 prefix_needs_colon(const string & prefix, unsigned ch)
 {
-    if (!C_isupper(ch) && ch != ':') return false;
+    if (!Xapian::C::isupper(ch) && ch != ':') return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }
@@ -330,31 +329,32 @@ parse_index_script(const string &filename)
         vector<Action> actions;
         string::const_iterator i, j;
         const string &s = line;
-        i = find_if_not(s.begin(), s.end(), C_isspace);
+        i = find_if_not(s.begin(), s.end(), Xapian::C::isspace);
         if (i == s.end() || *i == '#') {
             // Blank line or comment.
             continue;
         }
         while (true) {
-            if (!C_isalnum(*i)) {
+            if (!Xapian::C::isalnum(*i)) {
                 report_location(DIAG_ERROR, filename, line_no, i - s.begin());
                 cerr << "field name must start with alphanumeric\n";
             }
             j = find_if(i + 1, s.end(),
-                        [](char ch) { return !C_isalnum(ch) && ch != '_'; });
+                        [](char ch) { return !Xapian::C::isalnum(ch) &&
+                                             ch != '_'; });
             fields.push_back(string(i, j));
-            i = find_if_not(j, s.end(), C_isspace);
+            i = find_if_not(j, s.end(), Xapian::C::isspace);
             if (i == s.end()) break;
             if (*i == ':') {
                 ++i;
-                i = find_if_not(i, s.end(), C_isspace);
+                i = find_if_not(i, s.end(), Xapian::C::isspace);
                 break;
             }
             if (i == j) {
                 report_location(DIAG_ERROR, filename, line_no, i - s.begin());
                 cerr << "bad character '" << *i << "' in field name\n";
                 ++i;
-                i = find_if_not(i, s.end(), C_isspace);
+                i = find_if_not(i, s.end(), Xapian::C::isspace);
                 if (i == s.end()) break;
             }
         }
@@ -364,7 +364,7 @@ parse_index_script(const string &filename)
         j = i;
         while (j != s.end()) {
             size_t action_pos = j - s.begin();
-            i = find_if_not(j, s.end(), C_isalnum);
+            i = find_if_not(j, s.end(), Xapian::C::isalnum);
             string action(s, j - s.begin(), i - j);
             Action::type code = Action::BAD;
             unsigned min_args = 0, max_args = 0;
@@ -499,7 +499,7 @@ parse_index_script(const string &filename)
             if (code == Action::BAD) {
                 report_location(DIAG_ERROR, filename, line_no, action_pos);
                 if (action.empty()) {
-                    i = find_if(i, s.end(), C_isspace);
+                    i = find_if(i, s.end(), Xapian::C::isspace);
                     cerr << "Expected index action, found '"
                          << string(s, j - s.begin(), i - j) << "'\n";
                 } else {
@@ -507,7 +507,7 @@ parse_index_script(const string &filename)
                 }
             }
             auto i_after_action = i;
-            i = find_if_not(i, s.end(), C_isspace);
+            i = find_if_not(i, s.end(), Xapian::C::isspace);
 
             if (i != s.end() && *i == '=') {
                 if (i != i_after_action) {
@@ -525,7 +525,7 @@ parse_index_script(const string &filename)
                 }
 
                 ++i;
-                j = find_if_not(i, s.end(), C_isspace);
+                j = find_if_not(i, s.end(), Xapian::C::isspace);
                 if (i != j) {
                     report_location(DIAG_WARN, filename, line_no,
                                     i - s.begin());
@@ -585,7 +585,7 @@ bad_escaping:
                                     if (++i == s.end())
                                         goto bad_escaping;
                                     char ch1 = *i;
-                                    if (!C_isxdigit(ch1)) {
+                                    if (!Xapian::C::isxdigit(ch1)) {
 bad_hex_digit:
                                         report_location(DIAG_ERROR, filename,
                                                         line_no, i - s.begin());
@@ -596,10 +596,10 @@ bad_hex_digit:
                                     if (++i == s.end())
                                         goto bad_escaping;
                                     char ch2 = *i;
-                                    if (!C_isxdigit(ch2)) {
+                                    if (!Xapian::C::isxdigit(ch2)) {
                                         goto bad_hex_digit;
                                     }
-                                    ch = hex_decode(ch1, ch2);
+                                    ch = char(Xapian::C::hex_decode(ch1, ch2));
                                     break;
                                 }
                                 default:
@@ -613,7 +613,7 @@ bad_hex_digit:
                             j = i + 1;
                         }
                         vals.emplace_back(std::move(arg));
-                        if (i == s.end() || C_isspace(*i)) break;
+                        if (i == s.end() || Xapian::C::isspace(*i)) break;
                         if (*i == ',') {
                             ++i;
                         } else {
@@ -623,7 +623,8 @@ bad_hex_digit:
                                  << "' after closing quote\n";
                             do {
                                 ++i;
-                            } while (i != s.end() && *i != ',' && !C_isspace(*i));
+                            } while (i != s.end() && *i != ',' &&
+                                     !Xapian::C::isspace(*i));
                             if (*i != ',') break;
                             ++i;
                         }
@@ -631,7 +632,8 @@ bad_hex_digit:
                         // Unquoted argument, split on comma.
                         i = find_if(j, s.end(),
                                     [](char ch) {
-                                        return C_isspace(ch) || ch == ',';
+                                        return Xapian::C::isspace(ch) ||
+                                               ch == ',';
                                     });
                         vals.emplace_back(j, i);
                         if (*i != ',') break;
@@ -639,7 +641,9 @@ bad_hex_digit:
                     } else {
                         // Unquoted argument, including any commas.
                         i = find_if(j, s.end(),
-                                    [](char ch) { return C_isspace(ch); });
+                                    [](char ch) {
+                                        return Xapian::C::isspace(ch);
+                                    });
                         vals.emplace_back(j, i);
                         break;
                     }
@@ -857,7 +861,7 @@ bad_hex_digit:
                     default:
                         actions.emplace_back(code, action_pos, val);
                 }
-                i = find_if_not(i, s.end(), C_isspace);
+                i = find_if_not(i, s.end(), Xapian::C::isspace);
             } else {
                 if (min_args > 0) {
                     report_location(DIAG_ERROR, filename, line_no,
@@ -1054,12 +1058,12 @@ run_actions(vector<Action>::const_iterator action_it,
                 for (size_t j = 0; j < len; j += 2) {
                     char a = value[j];
                     char b = value[j + 1];
-                    if (!C_isxdigit(a) || !C_isxdigit(b)) {
+                    if (!Xapian::C::isxdigit(a) || !Xapian::C::isxdigit(b)) {
                         report_location(DIAG_ERROR, fname, line_no);
                         cerr << "hextobin: input must be all hex digits\n";
                         exit(1);
                     }
-                    char r = hex_decode(a, b);
+                    char r = char(Xapian::C::hex_decode(a, b));
                     output.push_back(r);
                 }
                 value = std::move(output);
@@ -1318,7 +1322,7 @@ run_actions(vector<Action>::const_iterator action_it,
             }
             case Action::VALUEPACKED: {
                 uint32_t word = 0;
-                if (value.empty() || !C_isdigit(value[0])) {
+                if (value.empty() || !Xapian::C::isdigit(value[0])) {
                     // strtoul() accepts leading whitespace and negated
                     // values, neither of which we want to allow.
                     errno = EINVAL;

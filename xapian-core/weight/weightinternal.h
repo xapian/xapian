@@ -24,6 +24,7 @@
 
 #include "xapian/weight.h"
 
+#include "xapian/constinfo.h"
 #include "xapian/database.h"
 #include "xapian/error.h"
 #include "xapian/query.h"
@@ -31,7 +32,6 @@
 #include "backends/databaseinternal.h"
 #include "internaltypes.h"
 #include "omassert.h"
-#include "stringutils.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -286,7 +286,7 @@ class Weight::Internal {
 #ifdef HAVE_STD_FROM_CHARS_DOUBLE
         const char* startptr = *p;
         // Unlike strtod(), std::from_chars() doesn't skip leading whitespace.
-        while (C_isspace(*startptr)) ++startptr;
+        while (C::isspace(*startptr)) ++startptr;
         const char* endptr = startptr + std::strlen(startptr);
         double v;
         const auto& r = std::from_chars(startptr, endptr, v);

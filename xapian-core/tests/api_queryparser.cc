@@ -30,7 +30,6 @@
 #include "clamp_cast.h"
 #include "cputimer.h"
 #include "str.h"
-#include "stringutils.h"
 
 #include <string>
 #include <vector>
@@ -177,7 +176,7 @@ static const test test_or_queries[] = {
     //{ "dog SYN mutt -cat", "((Zdog@1 SYNONYM Zmutt@2) AND_NOT Zcat@3)" },
     //{ "dog SYN mutt -\"fire dog\"", "((Zdog@1 SYNONYM Zmutt@2) AND_NOT (fire@3 PHRASE 2 dog@4))" },
     // Regression test - Unicode character values were truncated to 8 bits
-    // before testing C_isdigit(), so this rather artificial example parsed
+    // before testing C::isdigit(), so this rather artificial example parsed
     // to: (a@1 NEAR 262 b@2)
     { "a NEAR/\xc4\xb5 b", "(Za@1 OR (near@2 PHRASE 2 \xc4\xb5@3) OR Zb@4)" },
     { "a ADJ/\xc4\xb5 b", "(Za@1 OR (adj@2 PHRASE 2 \xc4\xb5@3) OR Zb@4)" },
@@ -2399,7 +2398,7 @@ class HostFieldProcessor : public Xapian::FieldProcessor {
             return Xapian::Query::MatchAll;
         string res = "H";
         for (string::const_iterator i = str.begin(); i != str.end(); ++i)
-            res += C_tolower(*i);
+            res += Xapian::C::tolower(*i);
         return Xapian::Query(res);
     }
 };

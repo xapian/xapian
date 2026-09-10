@@ -23,6 +23,10 @@
 
 #include <config.h>
 
+#include "omega.h"
+
+#include <xapian.h>
+
 #include <cerrno>
 #include <cstdio>
 #include <ctime>
@@ -35,7 +39,6 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 
-#include "omega.h"
 #include "utils.h"
 #include "cgiparam.h"
 #include "query.h"
@@ -350,7 +353,7 @@ try {
         for (auto i = g.first; i != g.second; ++i) {
             const string & v = i->second;
             // we'll definitely get empty B fields from "-ALL-" options
-            if (!v.empty() && C_isalnum(v[0])) {
+            if (!v.empty() && Xapian::C::isalnum(v[0])) {
                 add_bterm(v);
                 filter_v.push_back(v);
             }
@@ -399,7 +402,7 @@ try {
         for (auto i = g.first; i != g.second; ++i) {
             const string & v = i->second;
             // we'll definitely get empty N fields from "-ALL-" options
-            if (!v.empty() && C_isalnum(v[0])) {
+            if (!v.empty() && Xapian::C::isalnum(v[0])) {
                 add_nterm(v);
                 filter_v.push_back(v);
             }
@@ -612,7 +615,7 @@ try {
             if (*p == '-' || *p == '+') {
                 ++p;
             }
-            if (!C_isdigit(*p)) {
+            if (!Xapian::C::isdigit(*p)) {
                 // Invalid.
                 break;
             }
@@ -652,7 +655,7 @@ try {
                 sort_key = slot;
                 reverse_sort = rev;
             }
-            while (C_isspace(*p) || *p == ',') ++p;
+            while (Xapian::C::isspace(*p) || *p == ',') ++p;
         } while (*p);
 
         val = cgi_params.find("SORTREVERSE");

@@ -26,7 +26,7 @@
 
 #include "urlencode.h"
 
-#include "stringutils.h"
+#include <xapian.h>
 
 #include <cstring>
 #include <string>
@@ -38,7 +38,7 @@ url_encode_(string & res, const char * p, size_t len, const char * safe)
 {
     for ( ; len ; --len) {
         auto ch = *p++;
-        if (C_isalnum(ch) || strchr(safe, ch)) {
+        if (Xapian::C::isalnum(ch) || strchr(safe, ch)) {
             // Unreserved by RFC3986.
             res += ch;
         } else {

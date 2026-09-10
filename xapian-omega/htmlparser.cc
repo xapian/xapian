@@ -23,10 +23,11 @@
 
 #include "htmlparser.h"
 
+#include <xapian.h>
+
 #include "datetime.h"
 #include "html-tok.h"
 #include "keyword.h"
-#include "stringutils.h"
 #include "utf8convert.h"
 
 #include <cstring>
@@ -37,7 +38,7 @@ static inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-        *i = C_tolower(*i);
+        *i = Xapian::C::tolower(*i);
     }
 }
 

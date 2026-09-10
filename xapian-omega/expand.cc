@@ -23,6 +23,8 @@
 
 #include "expand.h"
 
+#include <xapian.h>
+
 #include "stringutils.h"
 
 #include <cerrno>
@@ -68,7 +70,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
             enq.set_expansion_scheme("prob");
             return;
         }
-        if (C_isspace(*p)) {
+        if (Xapian::C::isspace(*p)) {
             // Initialise k just to silence compiler warning.
             double k = 0.0;
             if (!double_param(&p, &k))
@@ -86,7 +88,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
             enq.set_expansion_scheme("bo1");
             return;
         }
-        if (C_isspace(*p)) {
+        if (Xapian::C::isspace(*p)) {
             throw "No parameters are required for BO1";
         }
     }

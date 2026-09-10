@@ -22,9 +22,10 @@
 
 #include "sort.h"
 
+#include <xapian.h>
+
 // For option["decimal"].
 #include "omega.h"
-#include "stringutils.h"
 
 #include <algorithm>
 #include <string>
@@ -51,7 +52,7 @@ string_sign(const string& s, const string& decimal, size_t i = 0)
             ++i;
         }
     }
-    return C_isdigit(s[i]) ? r : 0;
+    return Xapian::C::isdigit(s[i]) ? r : 0;
 }
 
 // Compare strings of two non-zero floating point numbers, without loss of
@@ -76,14 +77,14 @@ ncmp(const string& a, const string& b, const string& decimal)
     if (b[bi] == '-') ++bi;
     while (b[bi] == '0') ++bi;
 
-    while (a[ai] == b[bi] && C_isdigit(a[ai])) {
+    while (a[ai] == b[bi] && Xapian::C::isdigit(a[ai])) {
         // Matching digits.
         ++ai;
         ++bi;
     }
 
-    if (C_isdigit(a[ai])) {
-        if (!C_isdigit(b[bi])) {
+    if (Xapian::C::isdigit(a[ai])) {
+        if (!Xapian::C::isdigit(b[bi])) {
             // a > b
             return 1;
         }
@@ -93,8 +94,8 @@ ncmp(const string& a, const string& b, const string& decimal)
         do {
             ++ai;
             ++bi;
-            a_digit = C_isdigit(a[ai]);
-            b_digit = C_isdigit(b[bi]);
+            a_digit = Xapian::C::isdigit(a[ai]);
+            b_digit = Xapian::C::isdigit(b[bi]);
         } while (a_digit && b_digit);
 
         if (!a_digit && !b_digit) {
@@ -104,7 +105,7 @@ ncmp(const string& a, const string& b, const string& decimal)
         return a_digit ? 1 : -1;
     }
 
-    if (C_isdigit(b[bi])) {
+    if (Xapian::C::isdigit(b[bi])) {
         // a < b
         return -1;
     }
@@ -118,21 +119,21 @@ ncmp(const string& a, const string& b, const string& decimal)
     if (!b_frac) {
         // Check if a's fractional part is zero.
         while (a[ai] == '0') ++ai;
-        return C_isdigit(a[ai]) ? 1 : 0;
+        return Xapian::C::isdigit(a[ai]) ? 1 : 0;
     }
     if (!a_frac) {
         // Check if b's fractional part is zero.
         while (b[bi] == '0') ++bi;
-        return C_isdigit(b[bi]) ? -1 : 0;
+        return Xapian::C::isdigit(b[bi]) ? -1 : 0;
     }
 
     // Both have fractional parts, so compare.
-    while (a[ai] == b[bi] && C_isdigit(a[ai])) {
+    while (a[ai] == b[bi] && Xapian::C::isdigit(a[ai])) {
         ++ai;
         ++bi;
     }
-    if (C_isdigit(a[ai])) return 1;
-    if (C_isdigit(b[bi])) return -1;
+    if (Xapian::C::isdigit(a[ai])) return 1;
+    if (Xapian::C::isdigit(b[bi])) return -1;
     return 0;
 }
 
@@ -144,19 +145,19 @@ natcmp(const string& a, const string& b)
     while (i != shorter) {
         int cha = static_cast<unsigned char>(a[i]);
         int chb = static_cast<unsigned char>(b[i]);
-        if (!C_isdigit(cha)) {
+        if (!Xapian::C::isdigit(cha)) {
             if (cha == chb) {
                 // Matching non-digits.
                 ++i;
                 continue;
             }
 
-            if (C_isdigit(chb)) return 1;
+            if (Xapian::C::isdigit(chb)) return 1;
             return cha - chb;
         }
 
         // Sort embedded digit spans by numeric value and before non-digits.
-        if (!C_isdigit(chb)) return -1;
+        if (!Xapian::C::isdigit(chb)) return -1;
 
         // Skip any leading zeros on each.
         size_t sa = i;
@@ -168,8 +169,8 @@ natcmp(const string& a, const string& b)
         size_t eb = sb;
         int res = 0;
         while (true) {
-            if (!C_isdigit(a[ea])) {
-                if (C_isdigit(b[eb])) {
+            if (!Xapian::C::isdigit(a[ea])) {
+                if (Xapian::C::isdigit(b[eb])) {
                     // Number in b is longer and so larger.
                     return -1;
                 }
@@ -177,7 +178,7 @@ natcmp(const string& a, const string& b)
                 break;
             }
             if (a[ea] != b[eb]) {
-                if (!C_isdigit(b[eb])) {
+                if (!Xapian::C::isdigit(b[eb])) {
                     // Number in a is longer and so larger.
                     return 1;
                 }
