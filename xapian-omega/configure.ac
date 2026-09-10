@@ -654,12 +654,13 @@ AH_BOTTOM(
 /* This macro can be used around expressions which intentionally make use of
  * unsigned integer overflow (which is defined behaviour, unlike signed integer
  * overflow) so that we can use UBSan's optional unsigned-integer-overflow
- * check to find potential bugs where we unintentionally overflow an unsigned
- * integer.
+ * and unsigned-shift-base checks to find potential bugs where we
+ * unintentionally overflow an unsigned integer.
  */
 #ifdef __clang__
 #define UNSIGNED_OVERFLOW_OK(X) \
-    ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
+    ([&]() __attribute__((no_sanitize("unsigned-integer-overflow",\
+                                      "unsigned-shift-base"))) {\
         return (X);\
     }())
 #else

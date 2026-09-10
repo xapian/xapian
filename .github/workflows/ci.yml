@@ -186,10 +186,11 @@ jobs:
         # extra sanitiser checks compared to GCC.
         export CC='ccache clang'
         export CXX='ccache clang++'
-        # float-divide-by-zero, nullability and unsigned-overflow aren't
-        # undefined behaviour checks, but they catch for things we don't expect
-        # our code to do.
-        export CXXFLAGS='-fsanitize=address,undefined,float-divide-by-zero,local-bounds,nullability,unsigned-integer-overflow -fsanitize-address-use-after-scope -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        # float-divide-by-zero, nullability, unsigned-overflow and
+        # unsigned-shift-base aren't undefined behaviour checks, but they catch
+        # things we don't expect our code to typically do (and we've annotated
+        # any places which intentionally do these things).
+        export CXXFLAGS='-fsanitize=address,undefined,float-divide-by-zero,local-bounds,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
