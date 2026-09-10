@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2022 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -222,8 +222,7 @@ static void test_pack_uint_preserving_sort1()
         TEST_REL(prev_packed, <, packed);
         swap(prev_packed, packed);
     }
-    unsigned int prev = 64999;
-    for (unsigned int i = 65000; i > prev; prev = i, i = (i << 1) ^ 1337) {
+    for (unsigned int i = 65000; ; i = (i << 1) ^ 1337) {
         string packed;
         pack_uint_preserving_sort(packed, i);
         const char* ptr = packed.data();
@@ -234,6 +233,7 @@ static void test_pack_uint_preserving_sort1()
         TEST(ptr == end);
         TEST_REL(prev_packed, <, packed);
         swap(prev_packed, packed);
+        if (i & 0x80000000u) break;
     }
 
     /* Test packing multiple numbers to one string. */
