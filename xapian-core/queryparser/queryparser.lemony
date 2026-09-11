@@ -595,7 +595,6 @@ Query *
 Term::as_unbroken_query() const
 {
     const auto& prefixes = field_info->prefixes;
-    Query *q;
     vector<Query> prefix_subqs;
 
 #ifdef USE_ICU
@@ -606,8 +605,8 @@ Term::as_unbroken_query() const
                 prefix_subqs.push_back(Query(prefix + token, 1, pos));
             }
         }
-
-        q = new Query(Query::OP_AND, prefix_subqs.begin(), prefix_subqs.end());
+        auto q = new Query(Query::OP_AND,
+                           prefix_subqs.begin(), prefix_subqs.end());
 
         delete this;
         return q;
@@ -624,7 +623,7 @@ Term::as_unbroken_query() const
                                      ngram_subqs.begin(), ngram_subqs.end()));
         ngram_subqs.clear();
     }
-    q = new Query(Query::OP_OR, prefix_subqs.begin(), prefix_subqs.end());
+    auto q = new Query(Query::OP_OR, prefix_subqs.begin(), prefix_subqs.end());
 
     delete this;
     return q;
