@@ -1598,19 +1598,19 @@ typedef long long off_t_redefinition_typedef;
  */
 #ifdef __clang__
 # if __clang_major__ >= 12
-#  define UNSIGNED_OVERFLOW_OK(X) \
+#  define UNSIGNED_OVERFLOW_OK(...) \
     ([&]() __attribute__((no_sanitize("unsigned-integer-overflow",\
                                       "unsigned-shift-base"))) {\
-        return (X);\
+        return (__VA_ARGS__);\
     }())
 # else
-#  define UNSIGNED_OVERFLOW_OK(X) \
+#  define UNSIGNED_OVERFLOW_OK(...) \
     ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
-        return (X);\
+        return (__VA_ARGS__);\
     }())
 # endif
 #else
-# define UNSIGNED_OVERFLOW_OK(X) (X)
+# define UNSIGNED_OVERFLOW_OK(...) (__VA_ARGS__)
 #endif
 
 /* Signal we're building the library so it's OK to include headers such as
