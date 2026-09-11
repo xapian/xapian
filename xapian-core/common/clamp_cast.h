@@ -30,7 +30,7 @@
 
 /** Cast a value to a type, clamping out of range values.
  *
- *  Version for const pointers.
+ *  E.g. clamp_cast<Xapian::termcount>(vec.size())
  */
 template<typename T, typename U>
 T
