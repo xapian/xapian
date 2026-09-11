@@ -243,9 +243,9 @@ static void handle_sig(int signum_)
 
 class SignalRedirector {
   private:
-    bool active;
+    bool active = false;
   public:
-    SignalRedirector() : active(false) { }
+    SignalRedirector() { }
     void activate() {
         active = true;
         signum = 0;
