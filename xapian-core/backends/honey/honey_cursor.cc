@@ -53,22 +53,11 @@ HoneyCursor::do_next()
         return false;
     }
 
-    int ch = store.read();
-    if (ch == EOF) {
-        // The root check above should mean this can't legitimately happen.
-        throw Xapian::DatabaseCorruptError("EOF reading key");
-    }
-
-    size_t reuse = ch;
+    size_t reuse = store.read();
     if (reuse > last_key.size()) {
         throw Xapian::DatabaseCorruptError("Reuse > previous key size");
     }
-    ch = store.read();
-    if (ch == EOF) {
-        throw Xapian::DatabaseError("EOF/error while reading key length",
-                                    errno);
-    }
-    size_t key_size = ch;
+    size_t key_size = store.read();
     char buf[256];
     store.read(buf, key_size);
     current_key.assign(last_key, 0, reuse);
@@ -96,10 +85,7 @@ HoneyCursor::next_from_index()
         // anyway?
         char* p = buf;
         for (int i = 0; i < 8; ++i) {
-            int ch2 = store.read();
-            if (ch2 == EOF) {
-                break;
-            }
+            unsigned char ch2 = store.read();
             *p++ = char(ch2);
             if (ch2 < 128) break;
         }
@@ -207,12 +193,11 @@ HoneyCursor::do_find(string_view key, bool greater_than)
 
     if (use_index) {
         store.rewind(root);
-        int index_type = store.read();
+        unsigned char index_type = store.read();
         switch (index_type) {
-            case EOF:
-                return false;
             case 0x00: {
-                unsigned char first = key[0] - store.read();
+                unsigned char first =
+                    static_cast<unsigned char>(key[0]) - store.read();
                 unsigned char range = store.read();
                 if (first > range) {
                     is_at_end = true;

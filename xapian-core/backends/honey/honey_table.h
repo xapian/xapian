@@ -272,15 +272,14 @@ class BufferedFile {
 #endif
     }
 
-    int read() const {
+    unsigned char read() const {
         if (buf_end == 0) {
             // The buffer is currently empty, so we need to read at least one
             // byte.
-            size_t r = io_pread(common->fd, buf, sizeof(buf), pos, 0);
+            size_t r = io_pread(common->fd, buf, sizeof(buf), pos, 1);
             if (r < sizeof(buf)) {
-                if (r == 0) {
-                    return EOF;
-                }
+                // io_pread() should throw an exception if it read < 1 byte.
+                Assert(r > 0);
                 memmove(buf + sizeof(buf) - r, buf, r);
             }
             pos += r;
@@ -290,10 +289,10 @@ class BufferedFile {
     }
 
     uint4 read_uint4_be() const {
-        uint4 res = read() << 24;
-        res |= read() << 16;
-        res |= read() << 8;
-        res |= read();
+        uint4 res = uint4(read()) << 24;
+        res |= uint4(read()) << 16;
+        res |= uint4(read()) << 8;
+        res |= uint4(read());
         return res;
     }
 

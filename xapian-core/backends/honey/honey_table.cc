@@ -176,19 +176,11 @@ HoneyTable::read_key(std::string& key,
         AssertEq(store.get_pos(), root);
         return false;
     }
-    int ch = store.read();
-    if (ch == EOF) return false;
-
-    size_t reuse = ch;
+    size_t reuse = store.read();
     if (reuse > last_key.size()) {
         throw Xapian::DatabaseCorruptError("Reuse > previous key size");
     }
-    ch = store.read();
-    if (ch == EOF) {
-        throw Xapian::DatabaseError("EOF/error while reading key length",
-                                    errno);
-    }
-    size_t key_size = ch;
+    size_t key_size = store.read();
     char buf[256];
     store.read(buf, key_size);
     key.assign(last_key, 0, reuse);
@@ -208,10 +200,7 @@ HoneyTable::read_key(std::string& key,
         // FIXME: rework to take advantage of buffering that's happening anyway?
         char* p = buf;
         for (int i = 0; i < 8; ++i) {
-            int ch2 = store.read();
-            if (ch2 == EOF) {
-                break;
-            }
+            unsigned char ch2 = store.read();
             *p++ = char(ch2);
             if (ch2 < 128) break;
         }
@@ -258,10 +247,8 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
     bool exact_match = false;
     bool compressed = false;
     size_t val_size = 0;
-    int index_type = store.read();
+    unsigned char index_type = store.read();
     switch (index_type) {
-        case EOF:
-            return false;
         case 0x00: {
             unsigned char first =
                 static_cast<unsigned char>(key[0] - store.read());
@@ -322,10 +309,8 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
             make_unsigned_t<off_t> ptr = 0;
             int cmp0 = 1;
             while (true) {
-                int reuse = store.read();
-                if (reuse == EOF) break;
-                int len = store.read();
-                if (len == EOF) abort(); // FIXME
+                unsigned reuse = store.read();
+                unsigned len = store.read();
                 index_key.resize(reuse + len);
                 store.read(&index_key[reuse], len);
 
@@ -345,8 +330,8 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
                 char buf[8];
                 char* e = buf;
                 while (true) {
-                    int b = store.read();
-                    *e++ = b;
+                    unsigned char b = store.read();
+                    *e++ = char(b);
                     if ((b & 0x80) == 0) break;
                 }
                 const char* p = buf;
@@ -375,11 +360,8 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
                     // FIXME: rework to take advantage of buffering that's happening anyway?
                     char* p = buf;
                     for (int i = 0; i < 8; ++i) {
-                        int ch2 = store.read();
-                        if (ch2 == EOF) {
-                            break;
-                        }
-                        *p++ = ch2;
+                        unsigned char ch2 = store.read();
+                        *p++ = char(ch2);
                         if (ch2 < 128) break;
                     }
                     r = p - buf;
