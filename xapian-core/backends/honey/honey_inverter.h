@@ -77,7 +77,7 @@ class HoneyInverter {
 
         /// Constructor for a removed posting.
         PostingChanges(Xapian::docid did, Xapian::termcount wdf, bool)
-            : tf_delta(-1u),
+            : tf_delta(UNSIGNED_OVERFLOW_OK(-1)),
               cf_delta(negate_unsigned(wdf))
         {
             pl_changes.insert(std::make_pair(did, DELETED_POSTING));

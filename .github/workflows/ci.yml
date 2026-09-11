@@ -196,12 +196,12 @@ jobs:
         # * unsigned-integer-overflow
         # * unsigned-shift-base (Added in clang 12.0)
         #
-        # We tell UBSan to ignore some patterns which are warned about by the
-        # above by default but are not problematic:
-        #
-        # * negated-unsigned-const stops warning about uses of e.g.
-        #   `-1u` which is clearly deliberate (and is well-defined). (Added in
-        #   clang 20.1)
+        # It would be nice to be able to use the (new in clang 20.1) option
+        # -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const
+        # and then use e.g. `-1u` instead of `UNSIGNED_OVERFLOW_OK(-1)` but MSVC
+        # warns about `-1u`.  We could suppress that warning, but it seems to be
+        # for negating any unsigned value, and in general we want to avoid that
+        # (the `-1u` pattern is an exception).
         export CXXFLAGS='-fsanitize=address,undefined,local-bounds,float-divide-by-zero,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
