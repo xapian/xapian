@@ -194,7 +194,7 @@ jobs:
         # * float-divide-by-zero
         # * nullability
         # * unsigned-integer-overflow
-        # * unsigned-shift-base
+        # * unsigned-shift-base (Added in clang 12.0)
         #
         # We tell UBSan to ignore some patterns which are warned about by the
         # above by default but are not problematic:
