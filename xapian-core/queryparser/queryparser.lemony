@@ -26,7 +26,9 @@
 #include "queryparser_internal.h"
 
 #include "api/queryinternal.h"
+#include "clamp_cast.h"
 #include "omassert.h"
+#include "overflow.h"
 #include "str.h"
 #include "stringutils.h"
 #include "xapian/error.h"
@@ -1518,60 +1520,59 @@ phrased_term:
                     *i = C_toupper(*i);
                 }
             }
+            int token;
             if (op.size() == 3) {
                 if (op == "AND") {
-                    Parse(&parser, AND, NULL, &state);
-                    goto just_had_operator;
+                    token = AND;
+                    goto handle_token;
                 }
                 if (op == "NOT") {
-                    Parse(&parser, NOT, NULL, &state);
-                    goto just_had_operator;
+                    token = NOT;
+                    goto handle_token;
                 }
                 if (op == "XOR") {
-                    Parse(&parser, XOR, NULL, &state);
-                    goto just_had_operator;
+                    token = XOR;
+                    goto handle_token;
                 }
                 if (op == "ADJ") {
-                    if (it != end && *it == '/') {
-                        size_t width = 0;
-                        Utf8Iterator p = it;
-                        while (++p != end && U_isdigit(*p)) {
-                            width = (width * 10) + (*p - '0');
-                        }
-                        if (width && (p == end || is_whitespace(*p))) {
-                            it = p;
-                            Parse(&parser, ADJ, new Term(width), &state);
-                            goto just_had_operator;
-                        }
-                    } else {
-                        Parse(&parser, ADJ, NULL, &state);
-                        goto just_had_operator;
-                    }
+                    token = ADJ;
+                    goto handle_positional_token;
                 }
                 if (op == "SYN") {
-                    Parse(&parser, SYN, NULL, &state);
-                    goto just_had_operator;
+                    token = SYN;
+                    goto handle_token;
                 }
             } else if (op.size() == 2) {
                 if (op == "OR") {
-                    Parse(&parser, OR, NULL, &state);
-                    goto just_had_operator;
+                    token = OR;
+                    goto handle_token;
                 }
             } else if (op.size() == 4) {
                 if (op == "NEAR") {
+                    token = NEAR;
+handle_positional_token:
                     if (it != end && *it == '/') {
-                        size_t width = 0;
+                        Xapian::termpos width = 0;
                         Utf8Iterator p = it;
                         while (++p != end && U_isdigit(*p)) {
-                            width = (width * 10) + (*p - '0');
+                            if (mul_overflows(width, 10u, width) ||
+                                add_overflows(width, (*p - '0'), width)) {
+                                width = numeric_limits<Xapian::termpos>::max();
+                            }
                         }
-                        if (width && (p == end || is_whitespace(*p))) {
+                        if (p == end || is_whitespace(*p)) {
                             it = p;
-                            Parse(&parser, NEAR, new Term(width), &state);
+                            if (rare(width == 0)) {
+                                // Treat `/0` as requiring the terms to be as
+                                // close as possible (i.e. the same as `/1`).
+                                width = 1;
+                            }
+                            Parse(&parser, token, new Term(width), &state);
                             goto just_had_operator;
                         }
                     } else {
-                        Parse(&parser, NEAR, NULL, &state);
+handle_token:
+                        Parse(&parser, token, NULL, &state);
                         goto just_had_operator;
                     }
                 }
@@ -2007,10 +2008,9 @@ class Terms {
 
     /** Window size.
      *
-     *  size_t(-1) means don't use positional info (so an OP_AND query gets
-     *  created).
+     *  0 means set based on terms.size().
      */
-    size_t window;
+    Xapian::termcount window = 0;
 
     /** Keep track of whether the terms added all have the same list of
      *  prefixes.  If so, we'll build a set of phrases, one using each prefix.
@@ -2021,12 +2021,12 @@ class Terms {
      *  returned with all terms having one of those prefixes, rather than a
      *  phrase comprised of terms with differing prefixes.
      */
-    bool uniform_prefixes;
+    bool uniform_prefixes = true;
 
     /** The list of prefixes of the terms added.
      *  This will be NULL if the terms have different prefixes.
      */
-    const vector<string>* prefixes;
+    const vector<string>* prefixes = nullptr;
 
     Query opwindow_subq(Query::op op,
                         const vector<Query>& v,
@@ -2038,11 +2038,13 @@ class Terms {
     }
 
     /// Convert to a query using the given operator and window size.
-    Query * as_opwindow_query(Query::op op, Xapian::termcount w_delta) const {
-        if (window == size_t(-1)) op = Query::OP_AND;
+    Query* as_opwindow_query(Query::op op,
+                             Xapian::termcount w_delta,
+                             State* state) const {
+        if (state->flags & QueryParser::FLAG_NO_POSITIONS) op = Query::OP_AND;
         Query * q = NULL;
         size_t n_terms = terms.size();
-        Xapian::termcount w = w_delta + terms.size();
+        Xapian::termcount w = clamp_cast<Xapian::termcount>(w_delta + n_terms);
         if (uniform_prefixes) {
             if (prefixes) {
                 for (auto&& prefix : *prefixes) {
@@ -2071,15 +2073,12 @@ class Terms {
         return q;
     }
 
-    explicit Terms(bool no_pos)
-        : window(no_pos ? size_t(-1) : 0),
-          uniform_prefixes(true),
-          prefixes(NULL) { }
+    Terms() { }
 
   public:
     /// Factory function - ensures heap allocation.
-    static Terms* create(State* state) {
-        return new Terms(state->flags & QueryParser::FLAG_NO_POSITIONS);
+    static Terms* create() {
+        return new Terms();
     }
 
     ~Terms() {
@@ -2103,13 +2102,13 @@ class Terms {
         terms.push_back(term);
     }
 
-    void adjust_window(size_t alternative_window) {
+    void adjust_window(termpos alternative_window) {
         if (alternative_window > window) window = alternative_window;
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
-    Query * as_phrase_query() const {
-        return as_opwindow_query(Query::OP_PHRASE, 0);
+    Query* as_phrase_query(State* state) const {
+        return as_opwindow_query(Query::OP_PHRASE, 0, state);
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
@@ -2139,7 +2138,7 @@ class Terms {
             Xapian::TermIterator end = db.synonyms_end(term);
 
             // Caution: this does `delete this;`!
-            Query* q = as_opwindow_query(Query::OP_PHRASE, 0);
+            Query* q = as_opwindow_query(Query::OP_PHRASE, 0, state);
             // FIXME: Is this right when there's more than one entry in
             // prefixes?
             Query* q2 = new Query(q->OP_SYNONYM,
@@ -2153,23 +2152,23 @@ class Terms {
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
-    Query * as_near_query() const {
+    Query* as_near_query(State* state) const {
         // The common meaning of 'a NEAR b' is "a within 10 terms of b", which
         // means a window size of 11.  For more than 2 terms, we just add one
         // to the window size for each extra term.
-        size_t w = window;
+        Xapian::termcount w = window;
         if (w == 0) w = 10;
-        return as_opwindow_query(Query::OP_NEAR, w - 1);
+        return as_opwindow_query(Query::OP_NEAR, w - 1, state);
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
-    Query * as_adj_query() const {
+    Query* as_adj_query(State* state) const {
         // The common meaning of 'a ADJ b' is "a at most 10 terms before b",
         // which means a window size of 11.  For more than 2 terms, we just add
         // one to the window size for each extra term.
-        size_t w = window;
+        Xapian::termcount w = window;
         if (w == 0) w = 10;
-        return as_opwindow_query(Query::OP_PHRASE, w - 1);
+        return as_opwindow_query(Query::OP_PHRASE, w - 1, state);
     }
 };
 
@@ -2576,19 +2575,19 @@ compound_term(T) ::= PARTIAL_TERM(U).
         { T = U->as_partial_query(state); /*T-overwrites-U*/ }
 
 compound_term(T) ::= QUOTE phrase(P) QUOTE.
-        { T = P->as_phrase_query(); }
+        { T = P->as_phrase_query(state); }
 
 compound_term(T) ::= phrased_term(P).
-        { T = P->as_phrase_query(); /*T-overwrites-P*/ }
+        { T = P->as_phrase_query(state); /*T-overwrites-P*/ }
 
 compound_term(T) ::= group(P).
         { T = P->as_group(state); /*T-overwrites-P*/ }
 
 compound_term(T) ::= near_expr(P).
-        { T = P->as_near_query(); /*T-overwrites-P*/ }
+        { T = P->as_near_query(state); /*T-overwrites-P*/ }
 
 compound_term(T) ::= adj_expr(P).
-        { T = P->as_adj_query(); /*T-overwrites-P*/ }
+        { T = P->as_adj_query(state); /*T-overwrites-P*/ }
 
 compound_term(T) ::= BRA expr(E) KET.
         { T = E; }
@@ -2612,12 +2611,12 @@ compound_term(T) ::= UNBROKEN_WORDS(U). {
 %destructor phrase { delete $$; }
 
 phrase(P) ::= TERM(T). {
-    P = Terms::create(state);
+    P = Terms::create();
     P->add_positional_term(T);
 }
 
 phrase(P) ::= UNBROKEN_WORDS(T). {
-    P = Terms::create(state);
+    P = Terms::create();
     T->as_positional_unbroken(P);
 }
 
@@ -2637,7 +2636,7 @@ phrase(P) ::= phrase(P) UNBROKEN_WORDS(T). {
 %destructor phrased_term { delete $$; }
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = Terms::create(state);
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -2671,7 +2670,7 @@ group(P) ::= group(P) EMPTY_GROUP_OK. {
 %destructor near_expr { delete $$; }
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = Terms::create(state);
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -2695,7 +2694,7 @@ near_expr(P) ::= near_expr(P) NEAR(N) TERM(T). {
 %destructor adj_expr { delete $$; }
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = Terms::create(state);
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {

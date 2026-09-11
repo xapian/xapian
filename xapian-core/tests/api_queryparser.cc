@@ -27,6 +27,7 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "clamp_cast.h"
 #include "cputimer.h"
 #include "str.h"
 #include "stringutils.h"
@@ -3439,4 +3440,54 @@ DEFINE_TESTCASE(qp_stop_all, !backend) {
 
     qobj = qp.parse_query("le la");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+}
+
+// Regression test for bug fixed in 2.1.1.  The window size was truncated to
+// fit in the smaller of size_t and Xapian::termcount.
+DEFINE_TESTCASE(qp_poswithverylargewindow, !backend) {
+    string expected_window;
+    Xapian::Query q;
+    Xapian::QueryParser qp;
+
+    // `/0` failed to parse and would typically trigger a reparse, but it
+    // seems more helpful to treat it as requiring the terms to be as
+    // close as possible (i.e. the same as `/1`).
+    q = qp.parse_query("a NEAR/0 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 NEAR 2 b@2))");
+    q = qp.parse_query("a ADJ/0 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 PHRASE 2 b@2))");
+    q = qp.parse_query("a NEAR/1 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 NEAR 2 b@2))");
+    q = qp.parse_query("a ADJ/1 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 PHRASE 2 b@2))");
+
+    // Test largest 32-bit window.  This was incorrectly mapped to 2.
+    q = qp.parse_query("a NEAR/4294967295 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 NEAR 4294967295 b@2))");
+    q = qp.parse_query("a ADJ/4294967295 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 PHRASE 4294967295 b@2))");
+
+    // Test window size > 32 bits.
+    expected_window = str(clamp_cast<Xapian::termcount>(4444444444));
+    q = qp.parse_query("a NEAR/4444444444 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 NEAR " + expected_window + " b@2))");
+    q = qp.parse_query("a ADJ/4444444444 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 PHRASE " + expected_window + " b@2))");
+
+    // Test window size > 64 bits.
+    expected_window = str(Xapian::termcount(-1));
+    q = qp.parse_query("a NEAR/22222222222222222222 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 NEAR " + expected_window + " b@2))");
+    q = qp.parse_query("a ADJ/22222222222222222222 b");
+    TEST_STRINGS_EQUAL(q.get_description(),
+                       "Query((a@1 PHRASE " + expected_window + " b@2))");
 }
