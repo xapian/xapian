@@ -1597,11 +1597,18 @@ typedef long long off_t_redefinition_typedef;
  * unintentionally overflow an unsigned integer.
  */
 #ifdef __clang__
-#define UNSIGNED_OVERFLOW_OK(X) \
+# if __clang_major__ >= 12
+#  define UNSIGNED_OVERFLOW_OK(X) \
     ([&]() __attribute__((no_sanitize("unsigned-integer-overflow",\
                                       "unsigned-shift-base"))) {\
         return (X);\
     }())
+# else
+#  define UNSIGNED_OVERFLOW_OK(X) \
+    ([&]() __attribute__((no_sanitize("unsigned-integer-overflow"))) {\
+        return (X);\
+    }())
+# endif
 #else
 # define UNSIGNED_OVERFLOW_OK(X) (X)
 #endif
