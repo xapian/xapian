@@ -154,6 +154,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install \
+            clang-20 \
             python3-sphinx \
             libpcre2-dev \
             libmagic-dev \
@@ -184,16 +185,24 @@ jobs:
       run: |
         # We use clang here because (at least currently) it supports a few
         # extra sanitiser checks compared to GCC.
-        export CC='ccache clang'
-        export CXX='ccache clang++'
-        # float-divide-by-zero, nullability, unsigned-overflow and
-        # unsigned-shift-base aren't undefined behaviour checks, but they catch
+        export CC='ccache clang-20'
+        export CXX='ccache clang++-20'
+        # The following aren't undefined behaviour checks, but they catch
         # things we don't expect our code to typically do (and we've annotated
-        # any places which intentionally do these things).
+        # any places which intentionally do these things):
         #
-        # negated-unsigned-const tells UBSan not to warn about uses of e.g.
-        # `-1u` which is clearly deliberate (and is well-defined).
-        export CXXFLAGS='-fsanitize=address,undefined,float-divide-by-zero,local-bounds,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        # * float-divide-by-zero
+        # * nullability
+        # * unsigned-integer-overflow
+        # * unsigned-shift-base
+        #
+        # We tell UBSan to ignore some patterns which are warned about by the
+        # above by default but are not problematic:
+        #
+        # * negated-unsigned-const stops warning about uses of e.g.
+        #   `-1u` which is clearly deliberate (and is well-defined). (Added in
+        #   clang 20.1)
+        export CXXFLAGS='-fsanitize=address,undefined,local-bounds,float-divide-by-zero,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
