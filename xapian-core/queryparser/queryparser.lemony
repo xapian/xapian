@@ -26,7 +26,6 @@
 #include "queryparser_internal.h"
 
 #include "api/queryinternal.h"
-#include "clamp_cast.h"
 #include "omassert.h"
 #include "overflow.h"
 #include "str.h"
@@ -2043,7 +2042,10 @@ class Terms {
         if (state->flags & QueryParser::FLAG_NO_POSITIONS) op = Query::OP_AND;
         Query * q = NULL;
         size_t n_terms = terms.size();
-        Xapian::termcount w = clamp_cast<Xapian::termcount>(w_delta + n_terms);
+        Xapian::termcount w;
+        if (add_overflows(w_delta, n_terms, w)) {
+            w = numeric_limits<Xapian::termpos>::max();
+        }
         if (uniform_prefixes) {
             if (prefixes) {
                 for (auto&& prefix : *prefixes) {
