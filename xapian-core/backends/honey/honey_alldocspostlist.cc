@@ -236,7 +236,7 @@ DocLenChunkReader::update(HoneyCursor* cursor)
     p = reinterpret_cast<const unsigned char*>(cursor->current_tag.data());
     end = p + len;
     width = *p++;
-    if (((width - 8) &~ 0x18) != 0) {
+    if (((width - 8) &~ 0x18u) != 0) {
         throw Xapian::DatabaseCorruptError("Invalid doclen width - currently "
                                            "8, 16, 24 and 32 are supported");
     }

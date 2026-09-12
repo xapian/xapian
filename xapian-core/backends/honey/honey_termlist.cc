@@ -58,7 +58,7 @@ HoneyTermList::HoneyTermList(const HoneyDatabase* db_, Xapian::docid did_)
     if (pos == end)
         throw_database_corrupt("No termlist data", pos);
 
-    size_t slot_enc_size = *pos++;
+    size_t slot_enc_size = static_cast<unsigned char>(*pos++);
 
     // If the top bit is clear we have a 7-bit bitmap of slots used.
     if (slot_enc_size & 0x80) {

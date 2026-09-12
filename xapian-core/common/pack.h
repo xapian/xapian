@@ -210,9 +210,9 @@ pack_uint_preserving_sort(std::string& s, U value)
     // as a special case.
     if (value < 0x8000) {
         s.resize(s.size() + 2);
-        s[s.size() - 2] = static_cast<unsigned char>(value >> 8);
+        s[s.size() - 2] = char(static_cast<unsigned char>(value >> 8));
         Assert(s[s.size() - 2] != '\xff');
-        s[s.size() - 1] = static_cast<unsigned char>(value);
+        s[s.size() - 1] = char(static_cast<unsigned char>(value));
         return;
     }
 
@@ -226,11 +226,11 @@ pack_uint_preserving_sort(std::string& s, U value)
 
     s.resize(s.size() + len);
     for (size_t i = 1; i != len; ++i) {
-        s[s.size() - i] = static_cast<unsigned char>(value);
+        s[s.size() - i] = char(static_cast<unsigned char>(value));
         value >>= 8;
     }
 
-    s[s.size() - len] = static_cast<unsigned char>(value | mask);
+    s[s.size() - len] = char(static_cast<unsigned char>(value | mask));
     Assert(s[s.size() - len] != '\xff');
 
     AssertRel(len, >, 2);

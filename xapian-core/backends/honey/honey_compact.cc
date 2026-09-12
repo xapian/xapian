@@ -134,7 +134,7 @@ key_type(const string& key)
     if (key.size() <= 1)
         return -1;
 
-    unsigned char ch = key[1];
+    unsigned char ch = static_cast<unsigned char>(key[1]);
     if (ch >= Honey::KEY_VALUE_STATS && ch <= Honey::KEY_VALUE_STATS_HI)
         return Honey::KEY_VALUE_STATS;
     if (ch >= Honey::KEY_VALUE_CHUNK && ch <= Honey::KEY_VALUE_CHUNK_HI)

@@ -257,7 +257,11 @@ class SignalRedirector {
         struct sigaction sa;
         sa.sa_sigaction = handle_sig;
         sigemptyset(&sa.sa_mask);
-        sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
+        // The explicit `int` conversion squashes a complaint from
+        // -fsanitize=implicit-integer-sign-change here - on x86-64
+        // Linux, SA_RESETHAND is 0x80000000 which is implicitly unsigned
+        // because its value isn't representable as a signed `int`.
+        sa.sa_flags = int(SA_RESETHAND|SA_SIGINFO);
         sigaction(SIGSEGV, &sa, NULL);
         sigaction(SIGFPE, &sa, NULL);
         sigaction(SIGILL, &sa, NULL);

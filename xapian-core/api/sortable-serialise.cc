@@ -156,7 +156,7 @@ handle_as_infinity:
 
     word1 &= 0x03ffffff;
     next |= static_cast<unsigned char>(word1 >> 24);
-    buf[len++] = next;
+    buf[len++] = char(next);
     buf[len++] = char(word1 >> 16);
     buf[len++] = char(word1 >> 8);
     buf[len++] = char(word1);
@@ -228,7 +228,7 @@ Xapian::sortable_unserialise(std::string_view value) noexcept
 
     unsigned word2 = 0;
     if (i < value.size()) {
-        word2 = numfromstr(value, ++i) << 24;
+        word2 = unsigned(numfromstr(value, ++i)) << 24;
         word2 |= numfromstr(value, ++i) << 16;
         word2 |= numfromstr(value, ++i) << 8;
         word2 |= numfromstr(value, ++i);

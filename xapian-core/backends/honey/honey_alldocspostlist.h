@@ -70,7 +70,7 @@ docid_from_key(const std::string& key)
         // Not a doclen chunk key.
         return 0;
     }
-    unsigned char code = *p++;
+    unsigned char code = static_cast<unsigned char>(*p++);
     if (code < Honey::KEY_DOCLEN_CHUNK || code > Honey::KEY_DOCLEN_CHUNK_HI) {
         // Also not a doclen chunk key.
         return 0;

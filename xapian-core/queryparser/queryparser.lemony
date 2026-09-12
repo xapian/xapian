@@ -66,11 +66,6 @@ U_isdigit(unsigned ch) {
     return ch < 128 && C_isdigit(static_cast<unsigned char>(ch));
 }
 
-inline bool
-U_isalpha(unsigned ch) {
-    return ch < 128 && C_isalpha(static_cast<unsigned char>(ch));
-}
-
 using Xapian::Unicode::is_whitespace;
 
 inline bool
@@ -111,10 +106,15 @@ is_double_quote(unsigned ch) {
     return ch == '"' || ch == 0x201c || ch == 0x201d;
 }
 
+// All prefix_needs_colon() callers currently pass `char`.  If in future we
+// need to pass a Unicode code point then the same code but with U_isupper() is
+// suitable.
+bool prefix_needs_colon(const string& prefix, unsigned ch) = delete;
+
 inline bool
-prefix_needs_colon(const string & prefix, unsigned ch)
+prefix_needs_colon(const string& prefix, char ch)
 {
-    if (!U_isupper(ch) && ch != ':') return false;
+    if (!C_isupper(ch) && ch != ':') return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }
@@ -1510,7 +1510,7 @@ phrased_term:
             // Don't want to interpret A.N.D. as an AND operator.
             !was_acronym &&
             !field_info &&
-            term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
+            term.size() >= 2 && term.size() <= 4 && C_isalpha(term[0])) {
             // Boolean operators.
             string op = term;
             if (flags & FLAG_BOOLEAN_ANY_CASE) {
