@@ -82,12 +82,6 @@ static string url_start_path;
 static vector<pair<const char*, const char*>> mime_patterns;
 #endif
 
-static inline bool
-p_notalnum(unsigned int c)
-{
-    return !C_isalnum(c);
-}
-
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
            map<string, string>& mime_map)
@@ -784,7 +778,8 @@ main(int argc, char **argv)
 
     // Host term, if the URL contains a hostname (omits any port number):
     string::size_type j;
-    j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
+    j = find_if_not(baseurl.begin(), baseurl.end(), C_isalnum) -
+        baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://" && j + 3 < baseurl.size()) {
         j += 3;
         // We must find a '/' - we ensured baseurl ended with a '/' above.
