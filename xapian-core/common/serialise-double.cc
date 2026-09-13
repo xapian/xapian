@@ -100,12 +100,14 @@ string serialise_double(double v)
     static_assert(uint64_t(1) << 52 < numeric_limits<double>::max(),
                   "Check if 2^52 can be represented by a double");
 
-    uint64_t result = 0;
-
     if (v == 0.0) {
-        result = 0;
-        return string(reinterpret_cast<const char *>(&result),
-                      sizeof(uint64_t));
+        // -0.0 == +0.0 so we need to distinguish with signbit().
+# ifdef WORDS_BIGENDIAN
+        uint64_t zero = uint64_t(!!signbit(v)) << 7;
+# else
+        uint64_t zero = uint64_t(!!signbit(v)) << 63;
+# endif
+        return string(reinterpret_cast<const char*>(&zero), sizeof(uint64_t));
     }
 
     if (rare(!isfinite(v))) {
@@ -128,6 +130,8 @@ string serialise_double(double v)
         }
         return string(v > 0 ? pos_nan : neg_nan, 8);
     }
+
+    uint64_t result = 0;
 
     bool negative = (v < 0.0);
     if (negative) {
@@ -181,7 +185,9 @@ double unserialise_double(const char ** p, const char * end) {
 
     *p += 8;
 
-    if (exp + 1023 == 0 && mantissa_bp == 0) return 0.0;
+    if (exp + 1023 == 0 && mantissa_bp == 0) {
+        return negative ? -0.0 : 0.0;
+    }
 
     if (rare(exp == 1024)) {
         // Infinity or NaN.  The mantissa is non-zero for NaN.

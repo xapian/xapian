@@ -227,6 +227,8 @@ check_double_serialisation(double u)
     tout << "FLT_RADIX = " << FLT_RADIX << '\n';
     tout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
     TEST_EQUAL(u, v);
+    // +0.0 and -0.0 compare equal so explicitly check the signbits match too.
+    TEST_EQUAL(!!signbit(u), !!signbit(v));
     TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
 
@@ -244,6 +246,7 @@ DEFINE_TESTCASE(serialisedouble1) {
     };
 
     check_double_serialisation(0.0);
+    check_double_serialisation(-0.0);
     check_double_serialisation(1.0);
     check_double_serialisation(-1.0);
     check_double_serialisation(DBL_MAX);
