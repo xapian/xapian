@@ -222,11 +222,11 @@ check_double_serialisation(double u)
     const char * ptr[3] = { NULL, buf, NULL };
     const char * end = ptr[1] + encoded.size();
     double v = unserialise_double(&(ptr[1]), end);
-    if (ptr[1] != end || u != v) {
-        cout << u << " -> " << v << ", difference = " << v - u << '\n';
-        cout << "FLT_RADIX = " << FLT_RADIX << '\n';
-        cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
-    }
+    tout.str(string());
+    tout << u << " -> " << v << ", difference = " << v - u << '\n';
+    tout << "FLT_RADIX = " << FLT_RADIX << '\n';
+    tout << "DBL_MAX_EXP = " << DBL_MAX_EXP << '\n';
+    TEST_EQUAL(u, v);
     TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
 
