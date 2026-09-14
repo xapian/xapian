@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007,2008,2009,2015,2025 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2015,2025,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -168,44 +168,43 @@ double unserialise_double(const char ** p, const char * end) {
         throw Xapian::SerialisationError(
             "Bad encoded double: insufficient data");
     }
-    unsigned char first = *(*p + 7); // little-endian stored
-    unsigned char second = *(*p + 6);
 
-    bool negative = (first & (0x80)) != 0;
+    // Copy the double into an integer so we can access the bits.
+    uint64_t bits;
+    memcpy(&bits, *p, sizeof(double));
 
-    // bitwise operations to extract exponent
-    int exp = (first & (0x80 - 1));
-    exp <<= 4;
-    exp |= (second & (15 << 4)) >> 4;
-    exp -= 1023;
+# ifdef WORDS_BIGENDIAN
+    bits = do_bswap(bits);
+# endif
 
-    uint64_t mantissa_bp; // variable to store bit pattern of mantissa;
-    memcpy(&mantissa_bp, *p, sizeof(double));
-    mantissa_bp &= (uint64_t(1) << 52) - 1;
+    bool negative = (bits & (uint64_t(1) << 63)) != 0;
+    int exp = (bits >> 52) & 0x7ffu;
+    uint64_t mantissa = bits & ((uint64_t(1) << 52) - 1u);
 
     *p += 8;
 
-    if (exp + 1023 == 0 && mantissa_bp == 0) {
-        return negative ? -0.0 : 0.0;
-    }
+    if (exp == 0 && mantissa == 0) return negative ? -0.0 : 0.0;
+
+    // Apply the bias to the exponent.
+    exp -= 1023;
 
     if (rare(exp == 1024)) {
         // Infinity or NaN.  The mantissa is non-zero for NaN.
-        if (mantissa_bp != 0) {
+        if (mantissa != 0) {
             // If NaNs are not supported, nan() returns zero which seems as
             // good a value as any to use.
             return negative ? -nan("") : nan("");
         }
-        // HUGE_VAL is infinity is the implementation support infinity,
+        // HUGE_VAL is infinity if the implementation supports infinity,
         // and otherwise is a very large value which is our best fallback.
         return negative ? -HUGE_VAL : HUGE_VAL;
     }
 
 # if FLT_RADIX == 2
-    double result = scalbn(mantissa_bp, -52);
+    double result = scalbn(mantissa, -52);
     result = scalbn(result + 1.0, exp);
 # else
-    double result = ldexp(mantissa_bp, -52);
+    double result = ldexp(mantissa, -52);
     result = ldexp(result + 1.0, exp);
 # endif
 

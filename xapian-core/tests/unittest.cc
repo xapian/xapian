@@ -245,6 +245,18 @@ DEFINE_TESTCASE(serialisedouble1) {
         257.03125,
     };
 
+    {
+        // Test decoding a known pre-encoded value.  Regression test for
+        // bug introduced in 2.0.0 and fixed in 2.1.1, which only affects
+        // big-endian platforms which don't use IEEE double representation.
+        static const char endianness_check[8] = {
+            0, 0, 0, 0, 0, 0, 0x45, 0x40
+        };
+        const char * p = endianness_check;
+        TEST_EQUAL(unserialise_double(&p, p + 8), 42.0);
+        TEST_EQUAL(p - endianness_check, 8);
+    }
+
     check_double_serialisation(0.0);
     check_double_serialisation(-0.0);
     check_double_serialisation(1.0);
