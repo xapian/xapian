@@ -1,7 +1,7 @@
 /** @file
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2012 Olly Betts
+/* Copyright (C) 2006,2012,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,6 +28,13 @@
 #include <string>
 
 /** Serialise a double to a string.
+ *
+ * Xapian 2 switched to serialising doubles as little-endian IEEE 754
+ * doubles, which means serialisation and unserialisation is just a
+ * copy on modern little-endian platforms (and just an endian-ness swap
+ * and copy on modern big-endian platforms).
+ *
+ * This also means the encoded size should always be exactly 8 bytes.
  *
  *  @param v    The double to serialise.
  *

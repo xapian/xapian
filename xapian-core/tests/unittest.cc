@@ -214,7 +214,9 @@ check_double_serialisation(double u)
     // value into a temporary buffer.
     char buf[16];
     string encoded = serialise_double(u);
-    TEST(encoded.size() < sizeof(buf));
+    // Xapian 2 switched to serialising doubles as little-endian IEEE 754
+    // doubles, so the encoded size should always be exactly 8 bytes.
+    TEST_EQUAL(encoded.size(), 8);
     memcpy(buf, encoded.data(), encoded.size());
     // Put a NULL pointer either side, to catch incrementing/decrementing at
     // the wrong level of indirection (regression test for a bug in an
