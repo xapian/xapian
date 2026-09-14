@@ -1,7 +1,7 @@
 /** @file
  * @brief Negate unsigned integer, avoiding compiler warnings
  */
-/* Copyright (C) 2023 Olly Betts
+/* Copyright (C) 2023,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -29,7 +29,12 @@
 
 template<typename T>
 #ifdef __clang__
+# if __clang_major__ >= 8
+[[clang::no_sanitize("implicit-integer-sign-change",
+                     "unsigned-integer-overflow")]]
+# else
 [[clang::no_sanitize("unsigned-integer-overflow")]]
+# endif
 #endif
 inline constexpr typename std::enable_if_t<std::is_unsigned_v<T>, T>
 negate_unsigned(T value)

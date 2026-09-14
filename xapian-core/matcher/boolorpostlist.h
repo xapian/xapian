@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList class implementing unweighted Query::OP_OR
  */
-/* Copyright 2017,2018 Olly Betts
+/* Copyright 2017,2018,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -125,7 +125,7 @@ class BoolOrPostList : public PostList {
             // bit-twiddling trick if we have __builtin_ffs() available.
 #if HAVE_DECL___BUILTIN_FFS
             ++i;
-            i >>= __builtin_ffs(i & ~1) - 1;
+            i >>= __builtin_ffs(i & ~1u) - 1;
             --i;
 #else
             // Fall-back to just ascending one level at a time, which is

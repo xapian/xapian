@@ -1,7 +1,7 @@
 /** @file
  * @brief Parse signed and unsigned type from string and check for trailing characters.
  */
-/* Copyright (C) 2019 Olly Betts
+/* Copyright (C) 2019,2026 Olly Betts
  * Copyright (C) 2019 Vaibhav Kansagara
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ bool parse_unsigned(const char* p, T& res)
 {
     res = 0;
     do {
-        unsigned char digit = *p - '0';
+        unsigned char digit = static_cast<unsigned char>(*p - '0');
         if (digit > 9 ||
             mul_overflows(res, unsigned(10), res) ||
             add_overflows(res, digit, res)) {
@@ -48,7 +48,7 @@ bool parse_signed(const char* p, T& res)
     if (*p == '-' && parse_unsigned(++p, temp) &&
         // casting the min signed value to unsigned gives us its absolute value.
         temp <= unsigned_type(std::numeric_limits<T>::min())) {
-        res = negate_unsigned(temp);
+        res = T(negate_unsigned(temp));
         return true;
     } else if (parse_unsigned(p, temp) &&
                temp <= unsigned_type(std::numeric_limits<T>::max())) {

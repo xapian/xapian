@@ -2,7 +2,7 @@
  * @brief Support for glass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014,2015,2016,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -303,7 +303,7 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
         // 00BBBTTT - table block:
         //   Block size = (GLASS_MIN_BLOCKSIZE<<BBB) BBB=0..5
         //   Table TTT=0..(Glass::MAX_-1)
-        unsigned char chunk_type = *ptr++;
+        unsigned char chunk_type = static_cast<unsigned char>(*ptr++);
         if (chunk_type == 0xff)
             break;
         if (chunk_type == 0xfe) {

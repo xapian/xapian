@@ -1,7 +1,7 @@
 /** @file
  * @brief URL decoding as described by RFC3986.
  */
-/* Copyright (C) 2011,2012,2015,2022 Olly Betts
+/* Copyright (C) 2011,2012,2015,2022,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -42,7 +42,7 @@ url_decode(const CGIParameterHandler & handle_parameter, I begin, I end)
     bool seen_equals = false;
     std::string var, val;
     while (begin != end) {
-        unsigned char ch = *begin;
+        char ch = *begin;
         ++begin;
 process_ch:
         if (ch == '&') {
@@ -60,7 +60,7 @@ process_ch:
             case '%': {
                 if (begin == end)
                     break;
-                unsigned char hex1 = *begin;
+                char hex1 = *begin;
                 ++begin;
                 if (begin == end || !C_isxdigit(hex1)) {
                     val += ch;
@@ -69,7 +69,7 @@ process_ch:
                         break;
                     goto process_ch;
                 }
-                unsigned char hex2 = *begin;
+                char hex2 = *begin;
                 ++begin;
                 if (!C_isxdigit(hex2)) {
                     val += ch;
@@ -317,9 +317,9 @@ url_prettify(std::string & url)
     while (true) {
         // We've checked there are at least two bytes after the '%' already.
         if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
-            unsigned char ch = hex_decode(in[pcent + 1], in[pcent + 2]);
+            char ch = hex_decode(in[pcent + 1], in[pcent + 2]);
             bool safe = true;
-            switch (url_chars[ch]) {
+            switch (url_chars[static_cast<unsigned char>(ch)]) {
                 case UNSAFE:
                     safe = false;
                     break;
@@ -330,7 +330,7 @@ url_prettify(std::string & url)
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -339,15 +339,15 @@ url_prettify(std::string & url)
                     if (in.size() - (pcent + 2) < 3 * 2 ||
                         !encoded_ucont(in, pcent + 3) ||
                         !encoded_ucont(in, pcent + 6) ||
-                        (ch == 0xe0 && in[pcent + 4] <= '9')) {
+                        (ch == '\xe0' && in[pcent + 4] <= '9')) {
                         safe = false;
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -357,19 +357,19 @@ url_prettify(std::string & url)
                         !encoded_ucont(in, pcent + 3) ||
                         !encoded_ucont(in, pcent + 6) ||
                         !encoded_ucont(in, pcent + 9) ||
-                        (ch == 0xf0 && in[pcent + 4] == '8') ||
-                        (ch == 0xf4 && in[pcent + 4] >= '9')) {
+                        (ch == '\xf0' && in[pcent + 4] == '8') ||
+                        (ch == '\xf4' && in[pcent + 4] >= '9')) {
                         safe = false;
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += char(ch);
+                    url += ch;
                     pcent += 3;
                     ch = hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -401,7 +401,7 @@ url_prettify(std::string & url)
 
             if (safe) {
                 url.append(in, start, pcent - start);
-                url += char(ch);
+                url += ch;
                 pcent += 3;
                 start = pcent;
             } else {

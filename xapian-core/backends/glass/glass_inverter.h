@@ -1,7 +1,7 @@
 /** @file
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013,2014,2023,2024 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ class Inverter {
 
         /// Constructor for a removed posting.
         PostingChanges(Xapian::docid did, Xapian::termcount wdf, bool)
-            : tf_delta(UNSIGNED_OVERFLOW_OK(-1)),
+            : tf_delta(negate_unsigned(1u)),
               cf_delta(negate_unsigned(wdf))
         {
             pl_changes.insert(std::make_pair(did, DELETED_POSTING));

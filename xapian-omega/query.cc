@@ -1770,7 +1770,8 @@ eval(const string& fmt, vector<string>& param)
                     string md5;
                     md5_string(data, md5);
                     value.reserve(md5.size() * 2);
-                    for (unsigned char byte : md5) {
+                    for (auto b : md5) {
+                        auto byte = static_cast<unsigned char>(b);
                         value += "0123456789abcdef"[byte >> 4];
                         value += "0123456789abcdef"[byte & 0x0f];
                     }

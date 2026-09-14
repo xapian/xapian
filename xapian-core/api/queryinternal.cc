@@ -984,7 +984,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 {
     if (*p == end)
         return NULL;
-    unsigned char ch = *(*p)++;
+    unsigned char ch = static_cast<unsigned char>(*(*p)++);
     switch (ch >> 5) {
         case 4: case 5: case 6: case 7: {
             // Multi-way branch
@@ -1948,7 +1948,7 @@ QueryWildcard::test_wildcard_(const string& candidate, size_t o, size_t p,
         }
         if (o == p) return false;
         if ((flags & Query::WILDCARD_PATTERN_SINGLE) && pattern[i] == '?') {
-            unsigned char b = candidate[o];
+            unsigned char b = static_cast<unsigned char>(candidate[o]);
             if (b < 0xc0) {
                 ++o;
                 continue;
@@ -2250,7 +2250,7 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
         // Multi-way operator.
         if (subqueries.size() < 8)
             ch |= subqueries.size();
-        result += ch;
+        result += char(ch);
         if (subqueries.size() >= 8)
             pack_uint(result, subqueries.size() - 8);
         if (ch >= MULTIWAY(13))

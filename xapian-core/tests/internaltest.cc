@@ -252,6 +252,13 @@ static void test_pack_uint_preserving_sort1()
 }
 
 /// Test C_isupper() etc.
+#ifdef __clang__
+# if __clang_major__ >= 8
+// We're explicitly trying to test that both signed and unsigned char values
+// are handled here.
+[[clang::no_sanitize("implicit-integer-sign-change")]]
+# endif
+#endif
 static void test_chartype1()
 {
     char tested[128];

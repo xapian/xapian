@@ -192,6 +192,7 @@ jobs:
         # any places which intentionally do these things):
         #
         # * float-divide-by-zero
+        # * implicit-integer-sign-change (Added in clang 8.0.0)
         # * nullability
         # * unsigned-integer-overflow
         # * unsigned-shift-base (Added in clang 12.0)
@@ -202,7 +203,7 @@ jobs:
         # warns about `-1u`.  We could suppress that warning, but it seems to be
         # for negating any unsigned value, and in general we want to avoid that
         # (the `-1u` pattern is an exception).
-        export CXXFLAGS='-fsanitize=address,undefined,local-bounds,float-divide-by-zero,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        export CXXFLAGS='-fsanitize=address,undefined,local-bounds,float-divide-by-zero,implicit-integer-sign-change,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config

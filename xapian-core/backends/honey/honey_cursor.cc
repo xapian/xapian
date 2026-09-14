@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyCursor class
  */
-/* Copyright (C) 2017,2018,2024 Olly Betts
+/* Copyright (C) 2017,2018,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,8 +196,11 @@ HoneyCursor::do_find(string_view key, bool greater_than)
         unsigned char index_type = store.read();
         switch (index_type) {
             case 0x00: {
+                auto delta = static_cast<unsigned char>(key[0]) - store.read();
+                // The subtraction result has type `int`.  We cast it back to
+                // `unsigned char` so all out of range values are large.
                 unsigned char first =
-                    static_cast<unsigned char>(key[0]) - store.read();
+                    UNSIGNED_OVERFLOW_OK(static_cast<unsigned char>(delta));
                 unsigned char range = store.read();
                 if (first > range) {
                     is_at_end = true;

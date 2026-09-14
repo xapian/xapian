@@ -52,7 +52,7 @@ GlassSynonymTable::merge_changes()
     } else {
         string tag;
         for (const auto& synonym : last_synonyms) {
-            tag += uint8_t(synonym.size() ^ MAGIC_XOR_VALUE);
+            tag += char(uint8_t(synonym.size() ^ MAGIC_XOR_VALUE));
             tag += synonym;
         }
         add(last_term, tag);

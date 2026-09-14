@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002-2025 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -153,7 +153,7 @@ class Key {
     }
     char operator[](size_t i) const {
         AssertRel(i,<,size_t(length()));
-        return p[i + K1];
+        return char(p[i + K1]);
     }
 };
 

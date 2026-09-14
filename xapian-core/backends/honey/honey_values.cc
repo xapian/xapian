@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyValueManager class
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017,2018 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2016,2017,2018,2026 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -539,7 +539,7 @@ HoneyValueManager::get_all_values(map<Xapian::valueno, string>& values,
 
     const char* p = s.data();
     const char* end = p + s.size();
-    size_t slot_enc_size = *p++;
+    size_t slot_enc_size = static_cast<unsigned char>(*p++);
 
     if ((slot_enc_size & 0x80) == 0) {
         // If the top bit is clear we have a 7-bit bitmap of slots used.

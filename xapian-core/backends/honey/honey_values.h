@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyValueManager class
  */
-/* Copyright (C) 2008,2009,2011,2018 Olly Betts
+/* Copyright (C) 2008,2009,2011,2018,2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -58,7 +58,7 @@ docid_from_key(Xapian::valueno required_slot, const std::string& key)
         // Not a value chunk key.
         return 0;
     }
-    unsigned char code = *p++;
+    unsigned char code = static_cast<unsigned char>(*p++);
     if (code < Honey::KEY_VALUE_CHUNK || code > Honey::KEY_VALUE_CHUNK_HI) {
         // Also not a value chunk key.
         return 0;

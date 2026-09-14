@@ -1,7 +1,7 @@
 /** @file
  * @brief Serialise floating point values to strings which sort the same way.
  */
-/* Copyright (C) 2007,2009,2015,2016,2024,2025 Olly Betts
+/* Copyright (C) 2007,2009,2015,2016,2024,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ handle_as_infinity:
         // first byte:
         next |= static_cast<unsigned char>(exponent >> 6);
         if (negative ^ exponent_negative) next ^= 0x1f;
-        buf[len++] = next;
+        buf[len++] = char(next);
         // And the lower 6 bits of the exponent go into the upper 6 bits
         // of the second byte:
         next = static_cast<unsigned char>(exponent << 2);

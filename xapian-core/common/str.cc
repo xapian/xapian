@@ -1,7 +1,7 @@
 /** @file
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2012,2015,2017 Olly Betts
+/* Copyright (C) 2009,2012,2015,2017,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ tostring(T value)
     bool negative = (value < 0);
 
     typedef typename std::make_unsigned_t<T> unsigned_type;
-    unsigned_type val(value);
+    unsigned_type val = static_cast<unsigned_type>(value);
     if (negative) {
         val = negate_unsigned(val);
     }

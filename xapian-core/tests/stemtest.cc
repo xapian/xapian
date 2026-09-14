@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007,2008,2009,2012,2015,2025 Olly Betts
+ * Copyright 2002,2003,2004,2007,2008,2009,2012,2015,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -144,14 +144,14 @@ test_stemdict()
             while (true) {
                 int ch = gzgetc(voc);
                 if (ch == EOF || ch == '\n') break;
-                word += ch;
+                word += char(ch);
             }
 
             expect.clear();
             while (true) {
                 int ch = gzgetc(st);
                 if (ch == EOF || ch == '\n') break;
-                expect += ch;
+                expect += char(ch);
             }
 
             string stem = stemmer(word);

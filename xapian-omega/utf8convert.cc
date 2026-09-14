@@ -1,7 +1,7 @@
 /** @file
  * @brief convert a string to UTF-8 encoding.
  */
-/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021,2023 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2013,2017,2019,2021,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,14 +174,14 @@ convert_to_utf8_(string_view text, const string& charset, string& output)
         tmp.reserve(text.size());
 
         size_t start = 0;
-        for (unsigned char ch : text) {
+        for (auto ch : text) {
             static const unsigned cp1252_to_unicode[32] = {
                 0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
                 0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
                 0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
                 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178
             };
-            unsigned code_point = ch;
+            unsigned code_point = static_cast<unsigned char>(ch);
             unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 128);
             if (i < std::size(cp1252_to_unicode))
                 code_point = cp1252_to_unicode[i];
@@ -224,14 +224,14 @@ iso8859_15:
         tmp.reserve(text.size());
 
         size_t start = 0;
-        for (unsigned char ch : text) {
+        for (auto ch : text) {
             static const unsigned iso8859_15_to_unicode[] = {
                 0x20ac, 0x00a5, 0x0160, 0x00a7, 0x0161, 0x00a9, 0x00aa, 0x00ab,
                 0x00ac, 0x00ad, 0x00ae, 0x00af, 0x00b0, 0x00b1, 0x00b2, 0x00b3,
                 0x017d, 0x00b5, 0x00b6, 0x00b7, 0x017e, 0x00b9, 0x00ba, 0x00bb,
                 0x0152, 0x0153, 0x0178
             };
-            unsigned code_point = ch;
+            unsigned code_point = static_cast<unsigned char>(ch);
             unsigned i = UNSIGNED_OVERFLOW_OK(code_point - 164);
             if (i < std::size(iso8859_15_to_unicode))
                 code_point = iso8859_15_to_unicode[i];

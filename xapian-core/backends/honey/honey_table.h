@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyTable class
  */
-/* Copyright (C) 2017,2018,2023,2024 Olly Betts
+/* Copyright (C) 2017,2018,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -378,7 +378,7 @@ class SSTIndex {
     void maybe_add_entry(std::string_view key, off_t ptr) {
         Assert(!key.empty());
 #ifdef SSTINDEX_ARRAY
-        unsigned char initial = key[0];
+        unsigned char initial = static_cast<unsigned char>(key[0]);
         if (!pointers) {
             pointers = new off_t[256]();
             first = initial;
@@ -476,8 +476,8 @@ class SSTIndex {
         data.resize(0);
         data.resize(3 + (last - first + 1) * 4);
         data[0] = 0;
-        data[1] = first;
-        data[2] = last - first;
+        data[1] = char(first);
+        data[2] = char(last - first);
         for (unsigned ch = first; ch <= last; ++ch) {
             size_t o = 3 + (ch - first) * 4;
             // FIXME: Just make offsets 8 bytes?  Or allow different widths?

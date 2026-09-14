@@ -1,7 +1,7 @@
 /** @file
  * @brief Glass changesets
  */
-/* Copyright 2014,2016,2020 Olly Betts
+/* Copyright 2014,2016,2020,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -210,7 +210,7 @@ GlassChanges::check(const string & changes_file)
         p = buf;
         end = buf + n;
 
-        unsigned char v = *p++;
+        unsigned char v = static_cast<unsigned char>(*p++);
         if (v == 0xff) {
             if (p != end)
                 throw Xapian::DatabaseError("Changes file - junk at end");
