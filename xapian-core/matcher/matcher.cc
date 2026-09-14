@@ -543,19 +543,14 @@ Matcher::get_local_mset(Xapian::doccount first,
                 continue;
         }
 
-        // Apply any MatchSpy objects.
-        if (spymaster) {
-            if (!calculated_weight) {
-                weight = pltree.get_weight();
-                new_item.set_weight(weight);
-                calculated_weight = true;
-            }
-            spymaster(doc, weight);
-        }
-
         if (!calculated_weight) {
             weight = pltree.get_weight();
             new_item.set_weight(weight);
+        }
+
+        // Apply any MatchSpy objects.
+        if (spymaster) {
+            spymaster(doc, weight);
         }
 
         if (!proto_mset.process(std::move(new_item), vsdoc))
