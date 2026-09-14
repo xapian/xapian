@@ -97,7 +97,7 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
             throw Xapian::DatabaseCorruptError("Bad first doclen chunk key");
         }
         cursor->read_tag();
-        unsigned width = cursor->current_tag[0] / 8;
+        unsigned width = static_cast<unsigned char>(cursor->current_tag[0]) / 8;
         first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
     }
 

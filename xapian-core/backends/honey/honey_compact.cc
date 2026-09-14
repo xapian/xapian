@@ -645,9 +645,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
                 // bits per entry (which currently can be 8, 16, 24 or 32.  We
                 // want to subtract one less than the number of entries in the
                 // chunk to get the first did, so we subtract an extra one
-                // before the division and integer division will rounding down
-                // to give us the result we want.
-                firstdid = chunk_lastdid - (tag.size() - 2) / (tag[0] / 8);
+                // before the division and integer division will round down to
+                // give us the result we want.
+                unsigned width = static_cast<unsigned char>(tag[0]) / 8;
+                firstdid = chunk_lastdid - (tag.size() - 2) / width;
                 // Normalise so all doclen chunk keys are the same.
                 key.assign(KEY_DOCLEN_PREFIX, 2);
                 return true;
@@ -950,7 +951,7 @@ merge_postlists(Xapian::Compactor* compactor,
                 // FIXME: We would ideally optimise the total size here.
                 break;
             }
-            size_t byte_width = tag[0] / 8;
+            size_t byte_width = static_cast<unsigned char>(tag[0]) / 8;
             auto new_size = tag.size();
             Xapian::docid gap_size = cur->firstdid - chunk_lastdid - 1;
             new_size += gap_size * byte_width;
