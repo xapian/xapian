@@ -250,9 +250,9 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
 
             Xapian::docid new_chunk_firstdid = did;
             AssertEq(chunk.size() % 4, 1);
-            // If the maximum possible docid is used then this will overflow to 0.
-            // If this happens, we must be on the final chunk, and the only further
-            // uses of did are in the lines which immediately follow.
+            // If the maximum possible docid is used then this will overflow to
+            // 0.  If this happens, we must be on the final chunk, and the only
+            // further uses of did are in the lines which immediately follow.
             UNSIGNED_OVERFLOW_OK(did += chunk.size() / 4);
             // In the overflow case, this will overflow back again.
             Xapian::docid new_chunk_lastdid = UNSIGNED_OVERFLOW_OK(did - 1);
