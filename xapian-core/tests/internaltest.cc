@@ -358,7 +358,8 @@ static void test_chartype1()
     }
 
     // Non-ASCII characters aren't anything for these functions.
-    for (unsigned char ch = 128; ch != 0; ++ch) {
+    for (int i = 128; i != 256; ++i) {
+        unsigned char ch(i);
         TEST(!C_isupper(ch));
         TEST(!C_islower(ch));
         TEST(!C_isalpha(ch));
