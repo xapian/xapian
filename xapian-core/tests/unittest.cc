@@ -207,11 +207,11 @@ DEFINE_TESTCASE(resolverelativepath1) {
 static void
 check_double_serialisation(double u)
 {
-    // Commonly C++ string implementations keep the string nul-terminated, and
-    // encoded.data() returns a pointer to a buffer including the nul (the same
-    // as encoded.c_str()).  This means that valgrind won't catch a read one
-    // past the end of the serialised value, so we copy just the serialised
-    // value into a temporary buffer.
+    // Since C++11, std::string::data() is specified to return a pointer to a
+    // buffer including a terminating nul (the same as encoded.c_str()).  This
+    // means that valgrind won't catch a read one past the end of the
+    // serialised value, so we copy just the serialised value into a temporary
+    // buffer with uninitialised space after it.
     char buf[16];
     string encoded = serialise_double(u);
     // Xapian 2 switched to serialising doubles as little-endian IEEE 754
