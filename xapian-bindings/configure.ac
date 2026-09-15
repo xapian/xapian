@@ -1103,6 +1103,11 @@ AC_SUBST(SWIG_CXXFLAGS)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
+if test yes = "$msvc"; then
+  dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
+  AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
+fi
+
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
 AC_SUBST([AUTOM4TE])

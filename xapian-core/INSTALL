@@ -173,6 +173,9 @@ requirement, but it's probably at least Clang 4.0.
 MSVC
 ----
 
+(Note that these instructions apply to Xapian 2.1.1 and later; for earlier
+versions please follow the version of INSTALL in the version you are building.)
+
 If you're using MS Visual C++, you'll need at least MSVS 2017 for C++17
 support. We support both 32-bit and 64-bit compilation.
 
@@ -209,12 +212,13 @@ the link command for `$(SHAREDLIB)` as this triggers a linker warning (LNK4281).
 
 To build Xapian, first run configure from the MSYS2 shell like so::
 
-  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS=-EHsc AR=lib LD=link NM=dumpbin
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" AR=lib LD=link NM=dumpbin
 
 If you want a `.pdb` file (which contains debugging information), add `-Zi` to
-`CXXFLAGS`, i.e.:
+`CXXFLAGS` (which defaults of `-O2` so you need to also specify that if you
+want an optimised build), i.e.:
 
-  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" CXXFLAGS="-EHsc -Zi" AR=lib LD=link NM=dumpbin
+  ./configure CC="cl -nologo" CXX="$PWD/compile cl -nologo" AR=lib LD=link NM=dumpbin CXXFLAGS="-O2 -Zi"
 
 Then build using GNU make::
 

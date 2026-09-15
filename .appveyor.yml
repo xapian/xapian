@@ -44,8 +44,6 @@ install:
       $env:CC="cl -nologo"
       $env:CXX="c:/projects/xapian/xapian-core/compile cl -nologo"
       $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
-      # Standard C++ stack unwinding; assume extern "C" functions never throw.
-      $env:CXXFLAGS="-EHsc"
       $env:LD="link"
       $env:LDFLAGS="-Lc:/projects/xapian/zlib"
       $env:NM="dumpbin"

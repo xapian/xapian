@@ -655,6 +655,9 @@ if test "$GXX" = yes; then
     AC_DEFINE([FORTIFY_SOURCE_OK], [1], [Define to 1 if '-D_FORTIFY_SOURCE=2' link test passes])],
     [AC_MSG_RESULT([no])])
   CPPFLAGS=$save_CPPFLAGS
+elif test yes = "$msvc"; then
+  dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
+  AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
 fi
 
 AH_BOTTOM(

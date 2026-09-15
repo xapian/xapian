@@ -2173,8 +2173,6 @@ jobs:
         export CC="cl -nologo"
         export CXX="$PWD/xapian-core/compile cl -nologo"
         export CPPFLAGS="-I$PWD/zlib"
-        # Standard C++ stack unwinding; assume extern "C" functions never throw.
-        export CXXFLAGS=-EHsc
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
@@ -2283,8 +2281,6 @@ jobs:
         export CC="cl -nologo"
         export CXX="$PWD/xapian-core/compile cl -nologo"
         export CPPFLAGS="-I$PWD/zlib"
-        # Standard C++ stack unwinding; assume extern "C" functions never throw.
-        export CXXFLAGS=-EHsc
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
@@ -2396,8 +2392,6 @@ jobs:
         export CC="cl -nologo"
         export CXX="$PWD/xapian-core/compile cl -nologo"
         export CPPFLAGS="-I$PWD/zlib"
-        # Standard C++ stack unwinding; assume extern "C" functions never throw.
-        export CXXFLAGS=-EHsc
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
@@ -2506,8 +2500,6 @@ jobs:
         export CC="cl -nologo"
         export CXX="$PWD/xapian-core/compile cl -nologo"
         export CPPFLAGS="-I$PWD/zlib"
-        # Standard C++ stack unwinding; assume extern "C" functions never throw.
-        export CXXFLAGS=-EHsc
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
