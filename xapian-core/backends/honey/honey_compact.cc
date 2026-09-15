@@ -1128,12 +1128,6 @@ merge_postlists(Xapian::Compactor* compactor,
                 Xapian::termcount first_wdf = tags[0].first_wdf;
                 Xapian::docid chunk_lastdid = tags[0].last;
                 Xapian::docid last_did = tags.back().last;
-                Xapian::termcount wdf_max =
-                    max_element(tags.begin(), tags.end(),
-                                [](const HoneyPostListChunk& x,
-                                   const HoneyPostListChunk& y) {
-                                    return x.wdf_max < y.wdf_max;
-                                })->wdf_max;
 
                 bool have_wdfs = true;
                 if (cf == 0) {
@@ -1146,6 +1140,30 @@ merge_postlists(Xapian::Compactor* compactor,
                     // wdf must be 1 for second and subsequent entries.
                     have_wdfs = false;
                 } else {
+                    // We may still be able to set have_wdfs below.
+                }
+
+                // Largest wdf value in this postlist.
+                Xapian::termcount wdf_max = 0;
+
+                // We need to decide whether to concatenate chunks, and if so
+                // how many.  We do this before we start to encode the first
+                // output chunk because the header encodes the final docid in
+                // the chunk.
+                //
+                // The first output chunk is a merge of chunks [0,first_split).
+                size_t first_split = 0;
+
+                size_t estimated_size = 0;
+                for (const HoneyPostListChunk& chunk : tags) {
+                    wdf_max = std::max(wdf_max, chunk.wdf_max);
+                    if (estimated_size <= HONEY_DOCLEN_CHUNK_MAX) {
+                        ++first_split;
+                        estimated_size += chunk.data_size(have_wdfs);
+                    }
+                }
+
+                if (have_wdfs) {
                     Xapian::termcount remaining_cf_for_flat_wdf;
                     if (!mul_overflows(tf - 1, wdf_max,
                                        remaining_cf_for_flat_wdf) &&
@@ -1153,33 +1171,24 @@ merge_postlists(Xapian::Compactor* compactor,
                         // The wdf is flat for the second and subsequent entries
                         // so we don't need to store it.
                         have_wdfs = false;
-                    }
-                }
 
-                // Decide whether to concatenate chunks, and if so how many.
-                // We need to know the final docid in the chunk in order to
-                // encode the header.  We merge [0,j) here.
-                size_t j = 1;
-                if (tags.size() > 1) {
-                    if (tf <= HONEY_POSTLIST_CHUNK_MAX / (2 * (64 / 7 + 1))) {
-                        // The worst-case size if we merged all the chunks is
-                        // small enough to just have one chunk.
-                        //
-                        // Each posting needs a docid delta and wdf value, both
-                        // of which might be 64 bit and the encoding used needs
-                        // a byte for every 7 bits up to the msb set bit.
-                        j = tags.size();
-                    } else {
-                        size_t est = tags[0].data_size(have_wdfs);
-                        while (j < tags.size()) {
-                            est += tags[j].data_size(have_wdfs);
-                            if (est > HONEY_POSTLIST_CHUNK_MAX) break;
-                            ++j;
+                        if (first_split != tags.size()) {
+                            // Recalculate first_split using estimates without
+                            // wdfs.
+                            size_t i = 1;
+                            estimated_size = tags[0].data_size(false);
+                            while (i < tags.size()) {
+                                estimated_size += tags[i].data_size(false);
+                                if (estimated_size > HONEY_POSTLIST_CHUNK_MAX)
+                                    break;
+                                ++i;
+                            }
+                            first_split = i;
                         }
                     }
                 }
 
-                chunk_lastdid = tags[j - 1].last;
+                chunk_lastdid = tags[first_split - 1].last;
 
                 string first_tag;
                 encode_initial_chunk_header(tf, cf, tags[0].first, last_did,
@@ -1189,14 +1198,14 @@ merge_postlists(Xapian::Compactor* compactor,
                 if (tf > 2) {
                     // If tf <= 2 there's no explicit posting data.
                     tags[0].append_postings_to(first_tag, have_wdfs);
-                    for (size_t chunk = 1; chunk != j; ++chunk) {
+                    for (size_t chunk = 1; chunk != first_split; ++chunk) {
                         tags[chunk].append_postings_to(first_tag, have_wdfs,
                                                        tags[chunk - 1].last);
                     }
                 }
                 out->add(last_key, first_tag);
 
-                if (j != tags.size()) {
+                if (first_split != tags.size()) {
                     // Output continuation chunk(s).
                     string term;
                     const char* p = last_key.data();
@@ -1207,8 +1216,8 @@ merge_postlists(Xapian::Compactor* compactor,
                                                            "chunk key");
                     }
 
+                    size_t j = first_split;
                     while (j < tags.size()) {
-                        // Here we merge tags [i,j) to a continuation chunk.
                         size_t i = j;
                         size_t est = tags[j].data_size(have_wdfs);
                         while (++j < tags.size()) {
@@ -1216,6 +1225,7 @@ merge_postlists(Xapian::Compactor* compactor,
                             if (est > HONEY_POSTLIST_CHUNK_MAX) break;
                         }
 
+                        // Merge tags [i,j) to a continuation chunk.
                         last_did = tags[j - 1].last;
                         string tag;
                         if (have_wdfs) {
