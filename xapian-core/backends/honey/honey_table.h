@@ -384,12 +384,20 @@ class SSTIndex {
             first = initial;
         }
         // We should only be called for valid index points.
-        AssertRel(int(initial), !=, last);
+        AssertRel(initial, !=, last);
 
-        while (++last != int(initial)) {
-            pointers[last] = ptr;
+        while (UNSIGNED_OVERFLOW_OK(++last) != initial) {
+            // Set entries outside the used range to point to this entry.
+            // This means that seeking a cursor can efficiently return the
+            // first entry > the requested one if there's no exact match.
+            //
+            // The loop starts after the last used and wraps round to end
+            // before the first used.
+            //
             // FIXME: Perhaps record this differently so that an exact key
-            // search can return false?
+            // search can more efficiently return false?  Also do we need
+            // to set entries after the last here?
+            pointers[last] = ptr;
         }
         pointers[initial] = ptr;
         last = initial;
