@@ -290,8 +290,10 @@ CC=$save_CC
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
-dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
-dnl also needs to be used when compiling user code.
+dnl With xlC on AIX, -D_LARGE_FILES changed the ABI of std::string, so it
+dnl also needed to be used when compiling user code.  We no longer support
+dnl using xlC because it lacks C++17 support, but this may still be needed
+dnl somewhere.
 abi_affecting_cxxflags=
 if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
   abi_affecting_cxxflags=-D_LARGE_FILES
@@ -437,17 +439,10 @@ if test $xo_cv_link___builtin_exp10 = yes ; then
   AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the '__builtin_exp10' function.])
 fi
 
-dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
+dnl See if <typeinfo> can be used in the testsuite - at least for GCC,
 dnl compilation of the test code below fails if RTTI isn't being generated
-dnl (g++ -fno-rtti, or by default with xlC).
+dnl (g++ -fno-rtti).
 AC_MSG_CHECKING([if RTTI is supported])
-save_CXXFLAGS=$CXXFLAGS
-dnl xlC issues a warning for typeid() being used without RTTI being enabled,
-dnl so for this test we pass the xlC option to make that warning into an error.
-CXXFLAGS="$CXXFLAGS -qhaltonmsg=1540-2412"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-      [],
-      [CXXFLAGS=$save_CXXFLAGS])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <exception>
 #include <typeinfo>]],
@@ -461,7 +456,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     [AC_MSG_RESULT([yes])
     AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI])],
     [AC_MSG_RESULT([no])])
-CXXFLAGS=$save_CXXFLAGS
 
 dnl We need to specify the argument types for builtin functions, or else
 dnl AC_CHECK_DECLS fails to detect them when the compiler is clang.

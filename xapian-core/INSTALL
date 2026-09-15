@@ -230,6 +230,15 @@ HP's aCC
 This compiler doesn't seem to have been updated to support C++17.  If you
 really still need to use it you'll have to use Xapian 1.4.x.
 
+IBM's xlC
+---------
+
+This compiler doesn't seem to have been updated to support C++17.  If you
+really still need to use it you'll have to use Xapian 1.4.x.
+
+Note that IBM Open XL C/C++ is a different compiler.  It's based on clang
+and so should support newer C++ standards.
+
 Sun C++ Compiler
 ----------------
 

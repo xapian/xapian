@@ -129,6 +129,14 @@ HP's aCC
 
 This compiler doesn't seem to have been updated to support C++17.
 
+IBM's xlC
+---------
+
+This compiler doesn't seem to have been updated to support C++17.
+
+Note that IBM Open XL C/C++ is a different compiler.  It's based on clang
+and so should support newer C++ standards.
+
 Sun C++ Compiler
 ----------------
 

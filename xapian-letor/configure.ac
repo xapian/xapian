@@ -142,8 +142,10 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 XO_REQUIRE([2.0.0])
 
-dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
-dnl also needs to be used when compiling user code.
+dnl With xlC on AIX, -D_LARGE_FILES changed the ABI of std::string, so it
+dnl also needed to be used when compiling user code.  We no longer support
+dnl using xlC because it lacks C++17 support, but this may still be needed
+dnl somewhere.
 abi_affecting_cxxflags=
 if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
   abi_affecting_cxxflags=-D_LARGE_FILES
