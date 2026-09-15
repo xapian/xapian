@@ -2256,7 +2256,7 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
         if (ch >= MULTIWAY(13))
             pack_uint(result, parameter);
     } else {
-        result += ch;
+        result += char(ch);
     }
 
     QueryVector::const_iterator i;
