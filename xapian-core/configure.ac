@@ -439,22 +439,26 @@ if test $xo_cv_link___builtin_exp10 = yes ; then
   AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the '__builtin_exp10' function.])
 fi
 
-dnl See if <typeinfo> can be used in the testsuite - at least for GCC,
-dnl compilation of the test code below fails if RTTI isn't being generated
-dnl (g++ -fno-rtti).
+dnl See if the test harness can use RTTI to report the exact type of exceptions
+dnl derived from std::exception.
+dnl
+dnl If the user explicitly turns off support (e.g. with `CXXFLAGS=-fno-rtti`
+dnl for g++), or the compiler doesn't enable it by default, then the test code
+dnl below should fail to compile or link.
 AC_MSG_CHECKING([if RTTI is supported])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <exception>
-#include <typeinfo>]],
-        [[
-        int f();
-        try {
-            return f();
-        } catch (std::exception & e) {
-            return typeid(e).name()[0];
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+        #include <exception>
+        #include <string>
+        #include <typeinfo>
+        int main(int argc, char** argv) {
+          try {
+            return int(std::string(argv[0]).find(char(argc)));
+          } catch (std::exception& e) {
+            return int(typeid(e).name()[0]);
+          }
         }]])],
     [AC_MSG_RESULT([yes])
-    AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI])],
+    AC_DEFINE([USE_RTTI], [1], [Define if the test harness can use RTTI])],
     [AC_MSG_RESULT([no])])
 
 dnl We need to specify the argument types for builtin functions, or else
