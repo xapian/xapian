@@ -126,14 +126,14 @@ string serialise_double(double v)
             '\xff', '\xf8', '\x00', '\x00', '\x00', '\x00', '\x00', '\x00'
         };
         if (isinf(v)) {
-            return string(v > 0 ? pos_inf : neg_inf, 8);
+            return string(signbit(v) ? neg_inf : pos_inf, 8);
         }
-        return string(v > 0 ? pos_nan : neg_nan, 8);
+        return string(signbit(v) ? neg_nan : pos_nan, 8);
     }
 
     uint64_t result = 0;
 
-    bool negative = (v < 0.0);
+    bool negative = signbit(v);
     if (negative) {
         v = -v;
         result |= uint64_t(1) << 63;
