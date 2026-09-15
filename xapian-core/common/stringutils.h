@@ -170,10 +170,6 @@ namespace Xapian {
 // welcome!)
 static_assert('\x20' == ' ', "character set isn't a superset of ASCII");
 
-// Add explicit conversion to bool to prevent compiler warning from "aCC +w":
-// Warning (suggestion) 818: [...] # Type `int' is larger than type `bool',
-// truncation in value may result.
-
 inline unsigned char C_tab_(char ch) {
     const unsigned char * C_tab = Xapian::Internal::get_constinfo_()->C_tab;
     return C_tab[static_cast<unsigned char>(ch)];
