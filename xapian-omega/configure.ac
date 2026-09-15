@@ -660,8 +660,15 @@ AH_BOTTOM(
 #ifdef __clang__
 # if __clang_major__ >= 12
 #  define UNSIGNED_OVERFLOW_OK(...) \
-    ([&]() __attribute__((no_sanitize("unsigned-integer-overflow",\
+    ([&]() __attribute__((no_sanitize("implicit-conversion",\
+                                      "unsigned-integer-overflow",\
                                       "unsigned-shift-base"))) {\
+        return (__VA_ARGS__);\
+    }())
+# elif __clang_major__ >= 8
+#  define UNSIGNED_OVERFLOW_OK(...) \
+    ([&]() __attribute__((no_sanitize("implicit-conversion",\
+                                      "unsigned-integer-overflow"))) {\
         return (__VA_ARGS__);\
     }())
 # else

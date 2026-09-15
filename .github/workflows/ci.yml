@@ -187,23 +187,16 @@ jobs:
         # extra sanitiser checks compared to GCC.
         export CC='ccache clang-20'
         export CXX='ccache clang++-20'
-        # The following aren't undefined behaviour checks, but they catch
-        # things we don't expect our code to typically do (and we've annotated
-        # any places which intentionally do these things):
+        # The following enable checks for things which aren't undefined
+        # behaviour, but which we don't expect our code to typically do (and
+        # we've annotated any places which intentionally do these things):
         #
-        # * float-divide-by-zero
-        # * implicit-integer-sign-change (Added in clang 8.0.0)
+        # * implicit-conversion Added in clang 8.0.0)
+        # * integer (Added in clang 8.0.0)
         # * nullability
         # * unsigned-integer-overflow
         # * unsigned-shift-base (Added in clang 12.0)
-        #
-        # It would be nice to be able to use the (new in clang 20.1) option
-        # -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const
-        # and then use e.g. `-1u` instead of `UNSIGNED_OVERFLOW_OK(-1)` but MSVC
-        # warns about `-1u`.  We could suppress that warning, but it seems to be
-        # for negating any unsigned value, and in general we want to avoid that
-        # (the `-1u` pattern is an exception).
-        export CXXFLAGS='-fsanitize=address,undefined,local-bounds,float-divide-by-zero,implicit-integer-sign-change,nullability,unsigned-integer-overflow,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-undefined-ignore-overflow-pattern=negated-unsigned-const -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
+        export CXXFLAGS='-fsanitize=address,undefined,float-divide-by-zero,local-bounds,vptr,implicit-conversion,integer,nullability,unsigned-shift-base -fsanitize-address-use-after-scope -fsanitize-recover=all -g -O2 -fno-omit-frame-pointer'
         pushd xapian-core
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config

@@ -1599,14 +1599,14 @@ typedef long long off_t_redefinition_typedef;
 #ifdef __clang__
 # if __clang_major__ >= 12
 #  define UNSIGNED_OVERFLOW_OK(...) \
-    ([&]() __attribute__((no_sanitize("implicit-integer-sign-change",\
+    ([&]() __attribute__((no_sanitize("implicit-conversion",\
                                       "unsigned-integer-overflow",\
                                       "unsigned-shift-base"))) {\
         return (__VA_ARGS__);\
     }())
 # elif __clang_major__ >= 8
 #  define UNSIGNED_OVERFLOW_OK(...) \
-    ([&]() __attribute__((no_sanitize("implicit-integer-sign-change",\
+    ([&]() __attribute__((no_sanitize("implicit-conversion",\
                                       "unsigned-integer-overflow"))) {\
         return (__VA_ARGS__);\
     }())

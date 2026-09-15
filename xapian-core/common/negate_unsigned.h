@@ -30,7 +30,7 @@
 template<typename T>
 #ifdef __clang__
 # if __clang_major__ >= 8
-[[clang::no_sanitize("implicit-integer-sign-change",
+[[clang::no_sanitize("implicit-conversion",
                      "unsigned-integer-overflow")]]
 # else
 [[clang::no_sanitize("unsigned-integer-overflow")]]
