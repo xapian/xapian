@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+ * Copyright (C) 2008-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include "str.h"
+#include "stringutils.h"
 #include "unicode/description_append.h"
 
 #include <cerrno>
@@ -287,16 +288,16 @@ DatabaseReplica::Internal::update_stub_database() const
     stub_path += "/XAPIANDB";
     string tmp_path = stub_path;
     tmp_path += ".tmp";
-    {
-        ofstream stub(tmp_path.c_str());
-        stub << REPLICA_STUB_BANNER
-                "auto replica_" << live_id << endl;
-    }
-    if (!io_tmp_rename(tmp_path, stub_path)) {
-        string msg("Failed to update stub db file for replica: ");
-        msg += path;
-        throw Xapian::DatabaseOpeningError(msg, errno);
-    }
+
+    string content;
+    content.reserve(CONST_STRLEN(REPLICA_STUB_BANNER) +
+                    CONST_STRLEN("auto replica_") + 1 + 1);
+    content = REPLICA_STUB_BANNER;
+    content += "auto replica_";
+    content += char('0' + live_id);
+    content += '\n';
+
+    io_update_file_atomically(stub_path, content, tmp_path);
 }
 
 DatabaseReplica::Internal::Internal(const string & path_)

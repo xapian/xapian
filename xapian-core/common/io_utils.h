@@ -229,4 +229,23 @@ bool io_unlink(const std::string & filename);
  */
 bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
 
+/** Update a file atomically.
+ *
+ *  If update fails the temporary file is removed.
+ *
+ *  @param file         Filename of the file to update.
+ *  @param content      New contents of the file.
+ *  @param tmp_file     Filename to use for the temporary file, which must be
+ *                      on the same partition as @a file.
+ *  @param flags        Xapian::DB_NO_SYNC, Xapian::DB_FULL_SYNC or 0.  Pass
+ *                      0 to call fdatasync()/fsync() or similar on the new
+ *                      file.  (Default: 0)
+ *
+ *  @exception On failure throws Xapian::DatabaseError.
+ */
+void io_update_file_atomically(const std::string& file,
+                               std::string_view content,
+                               const std::string& tmp_file,
+                               int flags = 0);
+
 #endif // XAPIAN_INCLUDED_IO_UTILS_H

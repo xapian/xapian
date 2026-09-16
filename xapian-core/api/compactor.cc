@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003-2024 Olly Betts
+/* Copyright (C) 2003-2026 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 #include <xapian/compactor.h>
 
 #include <algorithm>
-#include <fstream>
 #include <string_view>
 #include <vector>
 
@@ -42,9 +41,11 @@
 #include "backends/postlist.h"
 #include "debuglog.h"
 #include "omassert.h"
+#include "fd.h"
 #include "filetests.h"
 #include "fileutils.h"
 #include "io_utils.h"
+#include "posixy_wrapper.h"
 #include "stringutils.h"
 #include "str.h"
 
@@ -434,21 +435,22 @@ Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
     }
 
     if (compact_to_stub) {
-        string new_stub_file = destdir;
-        new_stub_file += "/new_stub.tmp";
-        {
-            ofstream new_stub(new_stub_file.c_str());
-            size_t slash = destdir.find_last_of(DIR_SEPS);
-            new_stub << "auto " << destdir.substr(slash + 1) << '\n';
-        }
-        if (!io_tmp_rename(new_stub_file, stub_file)) {
-            string msg = "Cannot rename '";
-            msg += new_stub_file;
-            msg += "' to '";
-            msg += stub_file;
-            msg += '\'';
-            throw Xapian::DatabaseError(msg, errno);
-        }
+        // If there's no separator, find_last_of() returns string::npos
+        // which is size_t(-1) so adding 1 gives 0, i.e. the start of the
+        // string.
+        auto leaf =
+            UNSIGNED_OVERFLOW_OK(destdir.find_last_of(DIR_SEPS) + 1);
+
+        string content;
+        content.reserve(CONST_STRLEN("auto ") + (destdir.size() - leaf) + 1);
+        content = "auto ";
+        content.append(destdir, leaf);
+        content += '\n';
+
+        io_update_file_atomically(stub_file,
+                                  content,
+                                  destdir + "/new_stub.tmp",
+                                  flags);
     }
 }
 

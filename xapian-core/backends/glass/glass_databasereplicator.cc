@@ -143,27 +143,9 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
     }
 
     // Write size bytes from start of buf to new version file.
-    string tmpfile = db_dir;
-    tmpfile += "/v.rtmp";
-    int fd = posixy_open(tmpfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
-    if (fd == -1) {
-        string msg = "Failed to open ";
-        msg += tmpfile;
-        throw DatabaseError(msg, errno);
-    }
-    {
-        FD closer(fd);
-        io_write(fd, buf.data(), size);
-        io_sync(fd);
-    }
-    string version_file = db_dir;
-    version_file += "/iamglass";
-    if (!io_tmp_rename(tmpfile, version_file)) {
-        string msg("Couldn't create new version file ");
-        msg += version_file;
-        throw DatabaseError(msg, errno);
-    }
-
+    io_update_file_atomically(db_dir + "/iamglass",
+                              string_view(buf.data(), size),
+                              db_dir + "/v.rtmp");
     buf.erase(0, size);
 }
 

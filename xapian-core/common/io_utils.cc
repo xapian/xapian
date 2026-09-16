@@ -31,8 +31,10 @@
 #include <limits>
 #include <string>
 
+#include <xapian/constants.h>
 #include <xapian/error.h>
 
+#include "fd.h"
 #include "omassert.h"
 #include "str.h"
 
@@ -630,4 +632,42 @@ retry:
         }
     }
     return true;
+}
+
+void
+io_update_file_atomically(const std::string& file,
+                          std::string_view content,
+                          const std::string& tmp_file,
+                          int flags)
+{
+    FD fd{posixy_open(tmp_file.c_str(),
+                      O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC,
+                      0666)};
+    io_write(fd, content);
+    if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+        ((flags & Xapian::DB_FULL_SYNC) ?
+         !io_full_sync(fd) :
+         !io_sync(fd))) {
+        int e = errno;
+        (void)fd.close();
+        (void)posixy_unlink(tmp_file.c_str());
+        std::string msg = tmp_file;
+        msg += ": syncing data failed";
+        throw Xapian::DatabaseError(msg, e);
+    }
+    if (fd.close() < 0) {
+        int e = errno;
+        (void)posixy_unlink(tmp_file.c_str());
+        std::string msg = tmp_file;
+        msg += ": close() failed";
+        throw Xapian::DatabaseError(msg, e);
+    }
+    if (!io_tmp_rename(tmp_file, file)) {
+        std::string msg = "Cannot rename '";
+        msg += tmp_file;
+        msg += "' to '";
+        msg += file;
+        msg += '\'';
+        throw Xapian::DatabaseError(msg, errno);
+    }
 }
