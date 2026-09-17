@@ -329,6 +329,8 @@ io_pread(int fd, char * p, size_t n, off_t o, size_t min)
                                      &overlapped,
                                      &c,
                                      TRUE)) {
+                if (GetLastError() == ERROR_HANDLE_EOF)
+                    throw Xapian::DatabaseCorruptError("EOF reading database");
                 throw Xapian::DatabaseError("Error reading database",
                                             -int(GetLastError()));
             }
@@ -437,7 +439,16 @@ io_pwrite(int fd, const char * p, size_t n, off_t o)
 
 [[noreturn]]
 static void
-throw_block_error(const char * s, off_t b, int e = 0)
+throw_block_error(const char * s, off_t b)
+{
+    std::string m = s;
+    m += str(b);
+    throw Xapian::DatabaseCorruptError(m);
+}
+
+[[noreturn]]
+static void
+throw_block_error(const char * s, off_t b, int e)
 {
     std::string m = s;
     m += str(b);
@@ -504,6 +515,8 @@ io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
                                  &overlapped,
                                  &c,
                                  TRUE)) {
+            if (GetLastError() == ERROR_HANDLE_EOF)
+                throw_block_error("EOF reading block ", b);
             throw_block_error("Error reading block ", b, -int(GetLastError()));
         }
     }
