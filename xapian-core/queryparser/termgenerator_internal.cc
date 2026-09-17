@@ -323,9 +323,15 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     auto prefixed_stemmed_size = prefixed_stemmed_term.size();
 
     parse_terms(itor, break_flags, with_positions,
-        [=, THIS_ &prefixed_term, &prefixed_stemmed_term](const string& term,
-                                                          bool positional,
-                                                          size_t) {
+        [=, &prefixed_term, &prefixed_stemmed_term
+#if __cplusplus >= 201907L
+// C++20 no longer supports implicit capture of `this` by a lambda, but before
+// C++20 explicit `this` capture was not allowed when the default capture was
+// `=`.  We get a warning about this from clang with `-std=gnu++17`.  GCC also
+// warns but not with the compile flags we use by default.
+        , this
+#endif
+        ](const string & term, bool positional, size_t) {
             if (term.size() > max_word_length) return true;
 
             if (current_stop_mode == TermGenerator::STOP_ALL &&
