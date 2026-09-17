@@ -314,7 +314,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
         check_equal_dbs(masterpath, replicapath);
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
@@ -419,7 +419,7 @@ DEFINE_TESTCASE(replicate2, replicas) {
         // TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
         // check_equal_dbs(masterpath, replica2path);
 
-        // We need this inner scope to we close the replicas before we remove
+        // We need this inner scope so we close the replicas before we remove
         // the temporary directory on Windows.
     }
 
@@ -515,7 +515,7 @@ DEFINE_TESTCASE(replicate3, replicas) {
         orig.commit();
         TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, true), 2);
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
@@ -613,7 +613,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
         check_equal_dbs(masterpath, replicapath);
         TEST(!file_exists(masterpath + "/changes3"));
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
@@ -744,7 +744,7 @@ DEFINE_TESTCASE(replicate5, replicas) {
         TEST(file_exists(masterpath + "/changes4"));
         TEST(file_exists(masterpath + "/changes5"));
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
@@ -810,7 +810,7 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
         check_equal_dbs(masterpath, replicapath);
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
@@ -892,7 +892,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 
         check_equal_dbs(masterpath, replicapath);
 
-        // We need this inner scope to we close the replica before we remove
+        // We need this inner scope so we close the replica before we remove
         // the temporary directory on Windows.
     }
 
