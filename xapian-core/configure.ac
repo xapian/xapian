@@ -1621,6 +1621,14 @@ typedef long long off_t_redefinition_typedef;
 # define UNSIGNED_OVERFLOW_OK(...) (__VA_ARGS__)
 #endif
 
+#if __cplusplus >= 201907L
+// C++20 no longer supports implicit capture of `this` by a lambda, but C++17
+// and earlier don't allow `this` to be explicitly listed for capture.
+# define THIS_ this,
+#else
+# define THIS_
+#endif
+
 /* Signal we're building the library so it's OK to include headers such as
  * xapian/query.h directly.
  */
