@@ -644,10 +644,7 @@ io_update_file_atomically(const std::string& file,
                       O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC,
                       0666)};
     io_write(fd, content);
-    if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-        ((flags & Xapian::DB_FULL_SYNC) ?
-         !io_full_sync(fd) :
-         !io_sync(fd))) {
+    if (!io_sync(fd, flags)) {
         int e = errno;
         (void)fd.close();
         (void)posixy_unlink(tmp_file.c_str());

@@ -74,7 +74,8 @@ GlassDatabaseReplicator::commit() const
     for (size_t i = 0; i != Glass::MAX_; ++i) {
         int fd = fds[i];
         if (fd >= 0) {
-            io_sync(fd);
+            // FIXME Support DB_NO_SYNC and DB_FULL_SYNC flags?
+            io_sync(fd, 0);
 #if 0 // FIXME: close or keep open?
             close(fd);
             fds[i] = -1;

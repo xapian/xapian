@@ -323,8 +323,8 @@ class BufferedFile {
         }
     }
 
-    void sync() {
-        io_sync(common->fd);
+    void sync(int flags) {
+        io_sync(common->fd, flags);
     }
 
     void rewind(off_t start) {
@@ -662,7 +662,7 @@ class HoneyTable {
     void commit(honey_revision_number_t, Honey::RootInfo* root_info);
 
     bool sync() {
-        store.sync();
+        store.sync(flags);
         return true;
     }
 

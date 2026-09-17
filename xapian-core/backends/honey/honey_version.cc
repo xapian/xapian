@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016,2017,2018 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -408,19 +408,13 @@ HoneyVersion::sync(const string& tmpfile,
     Assert(new_rev > rev || rev == 0);
 
     if (single_file()) {
-        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-            ((flags & Xapian::DB_FULL_SYNC) ?
-              !io_full_sync(fd) :
-              !io_sync(fd))) {
+        if (!io_sync(fd, flags)) {
             // FIXME what to do?
         }
     } else {
         int fd_to_close = fd;
         fd = -1;
-        if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-            ((flags & Xapian::DB_FULL_SYNC) ?
-              !io_full_sync(fd_to_close) :
-              !io_sync(fd_to_close))) {
+        if (!io_sync(fd_to_close, flags)) {
             int save_errno = errno;
             (void)close(fd_to_close);
             if (!tmpfile.empty())

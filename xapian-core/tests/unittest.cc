@@ -959,18 +959,18 @@ try {
         io_read_block(fd, &out[0], BLOCK_SIZE, 128);
         TEST(buf == out);
 
-        // Call io_sync() and check it claims to work.  Checking it actually has
-        // any effect is much harder to do.
-        TEST(io_sync(fd));
+        // Call io_sync() with no special flags and check it claims to work.
+        // Checking it actually has any effect is much harder to do.
+        TEST(io_sync(fd, 0));
 
         io_write_block(fd, buf.data(), BLOCK_SIZE, 129);
         out.resize(BLOCK_SIZE);
         io_read_block(fd, &out[0], BLOCK_SIZE, 129);
         TEST(buf == out);
 
-        // Call io_full_sync() and check it claims to work.  Checking it actually
-        // has any effect is much harder to do.
-        TEST(io_full_sync(fd));
+        // Check that Xapian::DB_FULL_SYNC at least claims to work.  Checking
+        // it actually has any effect is much harder to do.
+        TEST(io_sync(fd, Xapian::DB_FULL_SYNC));
 
         if constexpr (sizeof(off_t) <= 4) {
             SKIP_TEST("Skipping rest of testcase - no Large File Support");
@@ -1004,6 +1004,9 @@ try {
         }
         TEST(fstat(fd, &statbuf) == 0);
         TEST_EQUAL(statbuf.st_size, high_offset + BLOCK_SIZE);
+
+        // io_sync(fd, Xapian::DB_NO_SYNC) should do nothing and return true.
+        TEST(io_sync(fd, Xapian::DB_NO_SYNC));
 
         close(fd);
 

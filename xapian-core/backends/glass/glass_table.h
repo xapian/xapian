@@ -539,9 +539,7 @@ class GlassTable {
     void commit(glass_revision_number_t revision, RootInfo * root_info);
 
     bool sync() {
-        return (flags & Xapian::DB_NO_SYNC) ||
-               handle < 0 ||
-               io_sync(handle);
+        return handle < 0 || io_sync(handle, flags);
     }
 
     /** Cancel any outstanding changes.

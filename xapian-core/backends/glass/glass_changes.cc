@@ -122,7 +122,7 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     string changes_tmp = changes_stem;
     changes_tmp += "tmp";
 
-    if (!(flags & Xapian::DB_NO_SYNC) && !io_sync(changes_fd)) {
+    if (!io_sync(changes_fd, flags)) {
         int saved_errno = errno;
         (void)::close(changes_fd);
         changes_fd = -1;

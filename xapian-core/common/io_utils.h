@@ -32,6 +32,8 @@
 #include <string>
 #include <string_view>
 
+#include <xapian/constants.h>
+
 /** Open a block-based file for reading.
  *
  *  @param filename  The path of the file to open.
@@ -103,25 +105,14 @@ inline int io_open_stream_wr(const std::string& filename, bool anew)
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.
  *
+ *  @param fd       The file descriptor to operator on
+ *  @param flags    Xapian::DB_NO_SYNC and/or Xapian::DB_FULL_SYNC flags or 0.
+ *
  *  Returns false if this could not be done.
  */
-inline bool io_sync(int fd)
-{
-#if defined HAVE_FDATASYNC
-    // If we have it, prefer fdatasync() over fsync() as the former avoids
-    // updating the access time so is probably a little more efficient.
-    return fdatasync(fd) == 0;
-#elif defined HAVE_FSYNC
-    return fsync(fd) == 0;
-#elif defined __WIN32__
-    return _commit(fd) == 0;
-#else
-# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
-#endif
-}
+inline bool io_sync(int fd, int flags) {
+    if ((flags & Xapian::DB_NO_SYNC)) return true;
 
-inline bool io_full_sync(int fd)
-{
 #ifdef F_FULLFSYNC
     /* Only supported on macOS (at the time of writing at least).
      *
@@ -133,10 +124,21 @@ inline bool io_full_sync(int fd)
      * a failure means that the file system doesn't support this operation and
      * therefore it's best to fallback to fdatasync()/fsync().
      */
-    if (fcntl(fd, F_FULLFSYNC, 0) == 0)
+    if ((flags & Xapian::DB_FULL_SYNC) && fcntl(fd, F_FULLFSYNC, 0) == 0)
         return true;
 #endif
-    return io_sync(fd);
+
+#if defined HAVE_FDATASYNC
+    // If we have it, prefer fdatasync() over fsync() as the former avoids
+    // updating the access time so is probably a little more efficient.
+    return fdatasync(fd) == 0;
+#elif defined HAVE_FSYNC
+    return fsync(fd) == 0;
+#elif defined __WIN32__
+    return _commit(fd) == 0;
+#else
+# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
+#endif
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
