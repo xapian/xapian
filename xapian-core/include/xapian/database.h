@@ -144,9 +144,24 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
     /** Open a single-file Database.
      *
-     *  This method opens a single-file Database given a file descriptor open
-     *  on it.  Xapian looks starting at the current file offset, allowing a
-     *  single file database to be easily embedded within another file.
+     *  This constructor opens a single-file Database given a file descriptor
+     *  @a fd open on it.  Xapian looks starting at the current file offset of
+     *  @a fd, allowing a single file database to be easily embedded within
+     *  another file.
+     *
+     *  Xapian takes ownership of @a fd and will close it when the database is
+     *  closed.  If the caller wants to keep using the file descriptor, we
+     *  recommend calling dup() to create a duplicate file descriptor to pass
+     *  to Xapian.  There's one wrinkle to be aware of though - dup() creates a
+     *  new file descriptor which shares its file offset with the file
+     *  descriptor passed in.  Xapian >= 2.1.1 will call lseek() just once on
+     *  @a fd to read the current file offset, and then use pread() to read
+     *  data from specified offsets, so on platforms which implement pread()
+     *  with POSIX semantics (which should be true of all modern Unix-like
+     *  platforms), the caller can freely use of the file position.  Older
+     *  Xapian releases would use and update the file offset during opening the
+     *  database, but after than only a call to Database::reopen() would touch
+     *  it.
      *
      *  @param fd       File descriptor for the file.  Xapian takes ownership
      *                  of this and will close it when the database is closed.

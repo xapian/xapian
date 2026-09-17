@@ -1,7 +1,7 @@
 /** @file
  * @brief Inspect the contents of a honey table for development or debugging.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018,2023 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2017,2018,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,6 +230,7 @@ main(int argc, char** argv)
     };
 
     string table_name;
+    off_t offset = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, "t:", long_opts, 0)) != -1) {
@@ -298,7 +299,7 @@ main(int argc, char** argv)
     if (single_file_fd < 0) {
         version_file_ptr = new HoneyVersion(db_path);
     } else {
-        version_file_ptr = new HoneyVersion(single_file_fd);
+        version_file_ptr = new HoneyVersion(single_file_fd, offset);
     }
     HoneyVersion& version_file = *version_file_ptr;
 
@@ -336,7 +337,6 @@ open_different_table:
             table_path += '.';
             table_ptr = new HoneyTable("", table_path, true);
         } else {
-            auto offset = version_file.get_offset();
             table_ptr = new HoneyTable("", single_file_fd, offset, true);
         }
         HoneyTable& table = *table_ptr;

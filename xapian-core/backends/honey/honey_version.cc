@@ -91,17 +91,6 @@ static const char HONEY_VERSION_MAGIC[HONEY_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((HONEY_FORMAT_VERSION >> 8) & 0xff), char(HONEY_FORMAT_VERSION & 0xff)
 };
 
-HoneyVersion::HoneyVersion(int fd_)
-    : fd(fd_), db_dir()
-{
-    offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset < 0)) {
-        string msg = "lseek failed on file descriptor ";
-        msg += str(fd);
-        throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-}
-
 HoneyVersion::~HoneyVersion()
 {
     // Either this is a single-file database, or this fd is from opening a new
@@ -117,11 +106,6 @@ HoneyVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-        if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
-            string msg = "Failed to rewind file descriptor ";
-            msg += str(fd);
-            throw Xapian::DatabaseOpeningError(msg, errno);
-        }
         fd_in = fd;
     } else {
         string filename = db_dir;
@@ -141,7 +125,7 @@ HoneyVersion::read()
     char buf[256];
 
     const char* p = buf;
-    const char* end = p + io_read(fd_in, buf, sizeof(buf), 33);
+    const char* end = p + io_pread(fd_in, buf, sizeof(buf), offset, 33);
 
     if (memcmp(buf, HONEY_VERSION_MAGIC, HONEY_VERSION_MAGIC_LEN) != 0)
         throw Xapian::DatabaseCorruptError("Rev file magic incorrect");

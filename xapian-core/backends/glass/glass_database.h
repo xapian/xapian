@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2024 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -231,7 +231,7 @@ class GlassDatabase : public Xapian::Database::Internal {
                            int flags = Xapian::DB_READONLY_,
                            unsigned int block_size = 0u);
 
-    explicit GlassDatabase(int fd);
+    GlassDatabase(int fd, off_t offset);
 
     ~GlassDatabase();
 

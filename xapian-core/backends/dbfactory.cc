@@ -1,7 +1,7 @@
 /** @file
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002-2024 Olly Betts
+/* Copyright 2002-2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -208,7 +208,7 @@ Database::Database(string_view path, int flags)
             case BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
                 // Single file glass format.
-                internal = new GlassDatabase(fd);
+                internal = new GlassDatabase(fd, off_t{0});
                 return;
 #else
                 throw FeatureUnavailableError("Glass backend disabled");
@@ -216,7 +216,7 @@ Database::Database(string_view path, int flags)
             case BACKEND_HONEY:
 #ifdef XAPIAN_HAS_HONEY_BACKEND
                 // Single file honey format.
-                internal = new HoneyDatabase(fd);
+                internal = new HoneyDatabase(fd, off_t{0});
                 return;
 #else
                 throw FeatureUnavailableError("Honey backend disabled");
@@ -298,10 +298,17 @@ database_factory(int fd, int flags)
     if (rare(fd < 0))
         throw InvalidArgumentError("fd < 0", EBADF);
 
+    off_t offset = lseek(fd, 0, SEEK_CUR);
+    if (rare(offset < 0)) {
+        string msg = "lseek failed on file descriptor ";
+        msg += str(fd);
+        throw Xapian::DatabaseOpeningError(msg, errno);
+    }
+
 #if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
     int type = flags & DB_BACKEND_MASK_;
     if (type == 0) {
-        switch (test_if_single_file_db(fd)) {
+        switch (test_if_single_file_db(fd, offset)) {
           case BACKEND_GLASS:
             type = DB_BACKEND_GLASS;
             break;
@@ -313,11 +320,11 @@ database_factory(int fd, int flags)
     switch (type) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
         case DB_BACKEND_GLASS:
-            return new GlassDatabase(fd);
+            return new GlassDatabase(fd, offset);
 #endif
 #ifdef XAPIAN_HAS_HONEY_BACKEND
         case DB_BACKEND_HONEY:
-            return new HoneyDatabase(fd);
+            return new HoneyDatabase(fd, offset);
 #endif
     }
 #endif

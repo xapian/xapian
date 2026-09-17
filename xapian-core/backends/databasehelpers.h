@@ -1,7 +1,7 @@
 /** @file
  * @brief Helper functions for database handling
  */
-/* Copyright 2002-2024 Olly Betts
+/* Copyright 2002-2026 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,8 +36,9 @@
 
 /** Probe if a file descriptor is a single-file database.
  *
- *  This function looks for a single-file database at the current file offset
- *  of @a fd, restoring the file offset afterwards.
+ *  This function looks for a single-file database at file position
+ *  @a offset of file descriptor @a fd.  If the platform supports pread()
+ *  or similar then the current position of @a fd is not changed.
  *
  *  @param fd      The file descriptor to check
  *
@@ -47,7 +48,7 @@
  *           * BACKEND_HONEY : honey single file
  */
 int
-test_if_single_file_db(int fd);
+test_if_single_file_db(int fd, off_t offset);
 
 /** Probe if a path is a single-file database.
  *

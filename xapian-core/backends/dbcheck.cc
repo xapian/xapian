@@ -1,7 +1,7 @@
 /** @file
  * @brief Check the consistency of a database or table.
  */
-/* Copyright 2007-2024 Olly Betts
+/* Copyright 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -357,7 +357,7 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
  *  Closes the fd.
  */
 static size_t
-check_db_fd(int fd, int opts, std::ostream* out, int backend)
+check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
 {
     if (backend == BACKEND_UNKNOWN) {
         // FIXME: Actually probe.
@@ -370,7 +370,7 @@ check_db_fd(int fd, int opts, std::ostream* out, int backend)
         // Check a single-file glass database.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
         // GlassVersion's destructor will close fd.
-        GlassVersion version_file(fd);
+        GlassVersion version_file(fd, offset);
         version_file.read();
 
         Xapian::docid doccount = version_file.get_doccount();
@@ -386,7 +386,7 @@ check_db_fd(int fd, int opts, std::ostream* out, int backend)
 
         // Check all the tables.
         for (auto t : glass_tables) {
-            errors += check_glass_table(t.name, fd, version_file.get_offset(),
+            errors += check_glass_table(t.name, fd, offset,
                                         version_file, opts, doclens,
                                         out);
         }
@@ -462,7 +462,13 @@ Database::check_(const string_view* path_ptr,
     }
 
     if (path_ptr == NULL) {
-        return check_db_fd(fd, opts, out, BACKEND_UNKNOWN);
+        off_t offset = lseek(fd, 0, SEEK_CUR);
+        if (rare(offset < 0)) {
+            string msg = "lseek failed on file descriptor ";
+            msg += str(fd);
+            throw Xapian::DatabaseOpeningError(msg, errno);
+        }
+        return check_db_fd(fd, offset, opts, out, BACKEND_UNKNOWN);
     }
 
     if (path_ptr->empty()) {
@@ -479,7 +485,7 @@ Database::check_(const string_view* path_ptr,
         if (S_ISREG(sb.st_mode)) {
             int backend = test_if_single_file_db(sb, filename, &fd);
             if (backend != BACKEND_UNKNOWN) {
-                return check_db_fd(fd, opts, out, backend);
+                return check_db_fd(fd, off_t{0}, opts, out, backend);
             }
             // Could be a single table or a stub database file.  Look at the
             // extension to determine the type.

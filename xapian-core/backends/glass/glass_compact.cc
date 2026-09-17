@@ -1,7 +1,7 @@
 /** @file
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004-2024 Olly Betts
+/* Copyright (C) 2004-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -842,14 +842,22 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     unique_ptr<GlassVersion> version_file_out;
+    off_t file_offset = 0;
     if (single_file) {
         if (destdir) {
             fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
             if (fd < 0) {
                 throw Xapian::DatabaseCreateError("open() failed", errno);
             }
+        } else {
+            file_offset = lseek(fd, 0, SEEK_CUR);
+            if (rare(file_offset < 0)) {
+                string msg = "lseek failed on file descriptor ";
+                msg += str(fd);
+                throw Xapian::DatabaseOpeningError(msg, errno);
+            }
         }
-        version_file_out.reset(new GlassVersion(fd));
+        version_file_out.reset(new GlassVersion(fd, file_offset));
     } else {
         fd = -1;
         version_file_out.reset(new GlassVersion(destdir));
@@ -979,8 +987,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
         GlassTable * out;
         if (single_file) {
-            out = new GlassTable(t->name, fd, version_file_out->get_offset(),
-                                 false, false);
+            out = new GlassTable(t->name, fd, file_offset, false, false);
         } else {
             out = new GlassTable(t->name, dest, false, t->lazy);
         }
@@ -1102,7 +1109,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     if (single_file) {
-        if (lseek(fd, version_file_out->get_offset(), SEEK_SET) < 0) {
+        if (lseek(fd, file_offset, SEEK_SET) < 0) {
             throw Xapian::DatabaseError("lseek() failed", errno);
         }
     }

@@ -80,21 +80,6 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
-GlassVersion::GlassVersion(int fd_)
-    : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
-      doccount(0), total_doclen(0), last_docid(0),
-      doclen_lbound(0), doclen_ubound(0),
-      wdf_ubound(0), spelling_wordfreq_ubound(0),
-      oldest_changeset(0)
-{
-    offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset < 0)) {
-        string msg = "lseek failed on file descriptor ";
-        msg += str(fd);
-        throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-}
-
 GlassVersion::~GlassVersion()
 {
     // Either this is a single-file database, or this fd is from opening a new
@@ -110,11 +95,6 @@ GlassVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (single_file()) {
-        if (rare(lseek(fd, offset, SEEK_SET) < 0)) {
-            string msg = "Failed to rewind file descriptor ";
-            msg += str(fd);
-            throw Xapian::DatabaseOpeningError(msg, errno);
-        }
         fd_in = fd;
     } else {
         string filename = db_dir;
@@ -133,8 +113,8 @@ GlassVersion::read()
 
     char buf[256];
 
-    const char * p = buf;
-    const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
+    const char* p = buf;
+    const char* end = p + io_pread(fd_in, buf, sizeof(buf), offset, 33);
 
     if (memcmp(buf, GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_LEN) != 0)
         throw Xapian::DatabaseCorruptError("Rev file magic incorrect");

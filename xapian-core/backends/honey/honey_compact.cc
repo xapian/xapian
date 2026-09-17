@@ -2253,14 +2253,22 @@ HoneyDatabase::compact(Xapian::Compactor* compactor,
     }
 
     unique_ptr<HoneyVersion> version_file_out;
+    off_t file_offset = 0;
     if (single_file) {
         if (destdir) {
             fd = open(destdir, O_RDWR|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
             if (fd < 0) {
                 throw Xapian::DatabaseCreateError("open() failed", errno);
             }
+        } else {
+            file_offset = lseek(fd, 0, SEEK_CUR);
+            if (rare(file_offset < 0)) {
+                string msg = "lseek failed on file descriptor ";
+                msg += str(fd);
+                throw Xapian::DatabaseOpeningError(msg, errno);
+            }
         }
-        version_file_out.reset(new HoneyVersion(fd));
+        version_file_out.reset(new HoneyVersion(fd, file_offset));
     } else {
         fd = -1;
         version_file_out.reset(new HoneyVersion(destdir));
@@ -2446,18 +2454,16 @@ if (source_backend == Xapian::DB_BACKEND_GLASS) {
         HoneyTable* out;
         off_t table_start_offset = -1;
         if (single_file) {
+            table_start_offset = lseek(fd, 0, SEEK_CUR);
+            if (table_start_offset < 0)
+                throw Xapian::DatabaseError("lseek() failed", errno);
             if (&t == tables) {
                 // Start first table HONEY_VERSION_MAX_SIZE bytes in to allow
                 // space for version file.  It's tricky to exactly know the
                 // size of the version file beforehand.
-                table_start_offset = lseek(fd, HONEY_VERSION_MAX_SIZE, SEEK_CUR);
-                if (table_start_offset < 0)
-                    throw Xapian::DatabaseError("lseek() failed", errno);
-            } else {
-                table_start_offset = lseek(fd, 0, SEEK_CUR);
+                table_start_offset += HONEY_VERSION_MAX_SIZE;
             }
-            out = new HoneyTable(t.name, fd, version_file_out->get_offset(),
-                                 false, false);
+            out = new HoneyTable(t.name, fd, table_start_offset, false, false);
         } else {
             out = new HoneyTable(t.name, dest, false, t.lazy);
         }

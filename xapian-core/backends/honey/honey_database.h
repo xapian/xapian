@@ -1,7 +1,7 @@
 /** @file
  * @brief Database using honey backend
  */
-/* Copyright 2004,2006,2007,2008,2009,2011,2014,2015,2016,2017,2024 Olly Betts
+/* Copyright 2004-2026 Olly Betts
  * Copyright 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -91,7 +91,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
     HoneyDatabase(std::string_view path_, int flags = Xapian::DB_READONLY_);
 
     explicit
-    HoneyDatabase(int fd, int flags = Xapian::DB_READONLY_);
+    HoneyDatabase(int fd, off_t offset, int flags = Xapian::DB_READONLY_);
 
     ~HoneyDatabase();
 

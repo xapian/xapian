@@ -1,7 +1,7 @@
 /** @file
  * @brief Honey backend database class
  */
-/* Copyright 2015,2017,2018,2022,2024 Olly Betts
+/* Copyright 2015,2017,2018,2022,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,18 +76,17 @@ HoneyDatabase::HoneyDatabase(std::string_view path_, int flags)
     termlist_table.open(flags, version_file.get_root(Honey::TERMLIST), rev);
 }
 
-HoneyDatabase::HoneyDatabase(int fd, int flags)
+HoneyDatabase::HoneyDatabase(int fd, off_t offset, int flags)
     : Xapian::Database::Internal(TRANSACTION_READONLY),
-      version_file(fd),
-      docdata_table(fd, version_file.get_offset(), true),
-      postlist_table(fd, version_file.get_offset(), true),
-      position_table(fd, version_file.get_offset(), true),
-      spelling_table(fd, version_file.get_offset(), true),
-      synonym_table(fd, version_file.get_offset(), true),
+      version_file(fd, offset),
+      docdata_table(fd, offset, true),
+      postlist_table(fd, offset, true),
+      position_table(fd, offset, true),
+      spelling_table(fd, offset, true),
+      synonym_table(fd, offset, true),
       // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true, so
       // opening to read we always allow the termlist to be missing.
-      termlist_table(fd, version_file.get_offset(), true,
-                     (flags & Xapian::DB_NO_TERMLIST)),
+      termlist_table(fd, offset, true, (flags & Xapian::DB_NO_TERMLIST)),
       value_manager(postlist_table, termlist_table)
 {
     version_file.read();

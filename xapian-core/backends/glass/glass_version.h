@@ -1,7 +1,7 @@
 /** @file
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ using Glass::RootInfo;
  *  each table.
  */
 class GlassVersion {
-    glass_revision_number_t rev;
+    glass_revision_number_t rev = 0;
 
     RootInfo root[Glass::MAX_];
     RootInfo old_root[Glass::MAX_];
@@ -110,42 +110,42 @@ class GlassVersion {
      *  For a single-file database (when db_dir.empty()), this holds the fd of
      *  that file for use in read().
      */
-    int fd;
+    int fd = -1;
 
     /** Offset into the file at which the version data starts.
      *
      *  Will be 0, except for an embedded multi-file database.
      */
-    off_t offset;
+    off_t offset = 0;
 
     /// The database directory.
     std::string db_dir;
 
-    GlassChanges * changes;
+    GlassChanges* changes = nullptr;
 
     /// The number of documents in the database.
-    Xapian::doccount doccount;
+    Xapian::doccount doccount = 0;
 
     /// The total of the lengths of all documents in the database.
-    Xapian::totallength total_doclen;
+    Xapian::totallength total_doclen = 0;
 
     /// Greatest document id ever used in this database.
-    Xapian::docid last_docid;
+    Xapian::docid last_docid = 0;
 
     /// A lower bound on the smallest document length in this database.
-    Xapian::termcount doclen_lbound;
+    Xapian::termcount doclen_lbound = 0;
 
     /// An upper bound on the greatest document length in this database.
-    Xapian::termcount doclen_ubound;
+    Xapian::termcount doclen_ubound = 0;
 
     /// An upper bound on the greatest wdf in this database.
-    Xapian::termcount wdf_ubound;
+    Xapian::termcount wdf_ubound = 0;
 
     /// An upper bound on the spelling wordfreq in this database.
-    Xapian::termcount spelling_wordfreq_ubound;
+    Xapian::termcount spelling_wordfreq_ubound = 0;
 
     /// Oldest changeset removed when max_changesets is set
-    mutable glass_revision_number_t oldest_changeset;
+    mutable glass_revision_number_t oldest_changeset = 0;
 
     /// The serialised database stats.
     std::string serialised_stats;
@@ -158,13 +158,10 @@ class GlassVersion {
 
   public:
     explicit GlassVersion(std::string_view db_dir_)
-        : rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
-          doccount(0), total_doclen(0), last_docid(0),
-          doclen_lbound(0), doclen_ubound(0),
-          wdf_ubound(0), spelling_wordfreq_ubound(0),
-          oldest_changeset(0) { }
+        : db_dir(db_dir_) { }
 
-    explicit GlassVersion(int fd_);
+    GlassVersion(int fd_, off_t offset_)
+        : fd(fd_), offset(offset_) { }
 
     ~GlassVersion();
 
@@ -279,8 +276,6 @@ class GlassVersion {
     void merge_stats(const GlassVersion & o);
 
     bool single_file() const { return db_dir.empty(); }
-
-    off_t get_offset() const { return offset; }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_VERSION_H

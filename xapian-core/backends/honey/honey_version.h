@@ -1,7 +1,7 @@
 /** @file
  * @brief HoneyVersion class
  */
-/* Copyright (C) 2006-2024 Olly Betts
+/* Copyright (C) 2006-2026 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -93,7 +93,7 @@ class HoneyVersion {
      *  For a single-file database (when db_dir.empty()), this holds the fd of
      *  that file for use in read().
      */
-    int fd;
+    int fd = -1;
 
     /** Offset into the file at which the version data starts.
      *
@@ -149,9 +149,10 @@ class HoneyVersion {
 
   public:
     explicit HoneyVersion(std::string_view db_dir_)
-        : fd(-1), db_dir(db_dir_) { }
+        : db_dir(db_dir_) { }
 
-    explicit HoneyVersion(int fd_);
+    HoneyVersion(int fd_, off_t offset_)
+        : fd(fd_), offset(offset_) { }
 
     ~HoneyVersion();
 

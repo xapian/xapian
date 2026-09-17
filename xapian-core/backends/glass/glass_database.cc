@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002-2024 Olly Betts
+ * Copyright 2002-2026 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -164,22 +164,22 @@ GlassDatabase::GlassDatabase(string_view glass_dir, int flags,
     open_tables(flags);
 }
 
-GlassDatabase::GlassDatabase(int fd)
+GlassDatabase::GlassDatabase(int fd, off_t offset)
         : Xapian::Database::Internal(TRANSACTION_READONLY),
           db_dir(),
           readonly(true),
-          version_file(fd),
-          postlist_table(fd, version_file.get_offset(), readonly),
-          position_table(fd, version_file.get_offset(), readonly),
-          termlist_table(fd, version_file.get_offset(), readonly, true),
+          version_file(fd, offset),
+          postlist_table(fd, offset, readonly),
+          position_table(fd, offset, readonly),
+          termlist_table(fd, offset, readonly, true),
           value_manager(&postlist_table, &termlist_table),
-          synonym_table(fd, version_file.get_offset(), readonly),
-          spelling_table(fd, version_file.get_offset(), readonly),
-          docdata_table(fd, version_file.get_offset(), readonly),
+          synonym_table(fd, offset, readonly),
+          spelling_table(fd, offset, readonly),
+          docdata_table(fd, offset, readonly),
           lock(),
           changes(string())
 {
-    LOGCALL_CTOR(DB, "GlassDatabase", fd);
+    LOGCALL_CTOR(DB, "GlassDatabase", fd | offset);
     open_tables(Xapian::DB_READONLY_);
 }
 
