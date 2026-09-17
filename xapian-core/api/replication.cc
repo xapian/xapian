@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/version.h"
 
+#include "backends/databasehelpers.h"
 #include "backends/databaseinternal.h"
 #include "backends/databasereplicator.h"
 #include "debuglog.h"
@@ -47,7 +48,6 @@
 #include "unicode/description_append.h"
 
 #include <cerrno>
-#include <fstream>
 #include <memory>
 #include <string>
 
@@ -64,6 +64,13 @@ static void
 throw_connection_closed_unexpectedly()
 {
     throw Xapian::NetworkError("Connection closed unexpectedly");
+}
+
+[[noreturn]]
+static void
+throw_db_open(const char* m)
+{
+    throw Xapian::DatabaseOpeningError(m);
 }
 
 void
@@ -324,7 +331,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
             throw DatabaseOpeningError("Couldn't create directory '" + path + "'", errno);
         }
         if (!dir_exists(path)) {
-            throw DatabaseOpeningError("Replica path must be a directory");
+            throw_db_open("Replica path must be a directory");
         }
         string stub_path = path;
         stub_path += "/XAPIANDB";
@@ -337,14 +344,47 @@ DatabaseReplica::Internal::Internal(const string & path_)
             // that the replica had all files truncated to size 0.
             live_db_corrupt = true;
         }
-        // FIXME: simplify all this?
-        ifstream stub(stub_path.c_str());
-        string line;
-        while (getline(stub, line)) {
-            if (!line.empty() && line[0] != '#') {
-                live_id = line[line.size() - 1] - '0';
-                break;
-            }
+
+        bool bad = false;
+        live_id = -1;
+        read_stub_file(stub_path,
+                       [THIS_ &bad](string_view entry_path) {
+                           if (live_id >= 0) {
+                               // More than one `auto`.
+                               bad = true;
+                           } else {
+                               if (!entry_path.empty()) {
+                                   live_id = entry_path.back() - '0';
+                               }
+                               if (live_id < 0 || live_id > 1) {
+                                   throw_db_open("Replica stub file `auto` "
+                                                 "path not expected format");
+                               }
+                           }
+                       },
+                       [&bad](string_view) {
+                           // glass
+                           bad = true;
+                       },
+                       [&bad](string_view) {
+                           // honey
+                           bad = true;
+                       },
+                       [&bad](string_view, string_view) {
+                           // remoteprog
+                           bad = true;
+                       },
+                       [&bad](string_view, unsigned) {
+                           // remotetcp
+                           bad = true;
+                       },
+                       [&bad]() {
+                           // inmemory
+                           bad = true;
+                       });
+        if (bad) {
+            throw_db_open("Replica stub file must contain one entry which "
+                          "must be `auto`");
         }
     }
 #endif
