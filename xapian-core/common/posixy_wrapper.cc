@@ -2,7 +2,7 @@
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2012,2018,2023,2025 Olly Betts
+ * Copyright (C) 2007,2012,2018,2023,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,8 +230,18 @@ posixy_open(const char *filename, int flags)
 int
 posixy_rename(const char *from, const char *to)
 {
-    if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
+    // MoveFileExA() fails if `to` is open but ReplaceFileA() works
+    // in that case.
+    if (ReplaceFileA(to, from, NULL, 0, 0, 0) != 0) {
         return 0;
+    }
+
+    if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+        // ReplaceFileA() fails unless `to` already exists, so we
+        // need to fall back to MoveFileExA().
+        if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
+            return 0;
+        }
     }
 
     return posixy_set_errno_from_getlasterror();
