@@ -493,8 +493,6 @@ static const double test_sortableserialise_numbers[] = {
     exp2(1022),
     DBL_MAX,
     HUGE_VAL,
-
-    64 // Magic number which we stop at.
 };
 
 // Test serialisation and unserialisation of various numbers.
@@ -505,8 +503,7 @@ static void test_sortableserialise1()
     double prevnum = 0;
     string prevstr;
     bool started = false;
-    for (const double *p = test_sortableserialise_numbers; *p != 64; ++p) {
-        double num = *p;
+    for (double num : test_sortableserialise_numbers) {
         tout << "Number: " << num << '\n';
         string str = Xapian::sortable_serialise(num);
         tout << "String: " << str << '\n';
