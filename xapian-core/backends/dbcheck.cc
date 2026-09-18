@@ -500,7 +500,7 @@ Database::check_(const string_view* path_ptr,
                 return check_stub(fd, filename, opts, out);
             }
 
-            ::close(fd);
+            if (fd >= 0) ::close(fd);
             return check_db_table(filename, opts, out, backend);
         }
 
