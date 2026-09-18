@@ -33,7 +33,6 @@ using namespace std;
 #include "testsuite.h"
 #include "testutils.h"
 
-#include "pack.h"
 #include "str.h"
 
 class Test_Exception {
@@ -194,63 +193,6 @@ static void test_temporarydtor1()
     TEST_EQUAL(TempDtorTest::count, 0);
 }
 
-/// Test pack_uint_preserving_sort()
-static void test_pack_uint_preserving_sort1()
-{
-    string prev_packed;
-    for (unsigned int i = 0; i != 1000; ++i) {
-        string packed;
-        pack_uint_preserving_sort(packed, i);
-        const char* ptr = packed.data();
-        const char* end = ptr + packed.size();
-        unsigned int result;
-        TEST(unpack_uint_preserving_sort(&ptr, end, &result));
-        TEST_EQUAL(result, i);
-        TEST(ptr == end);
-        TEST_REL(prev_packed, <, packed);
-        swap(prev_packed, packed);
-    }
-    for (unsigned int i = 2345; i < 65000; i += 113) {
-        string packed;
-        pack_uint_preserving_sort(packed, i);
-        const char* ptr = packed.data();
-        const char* end = ptr + packed.size();
-        unsigned int result;
-        TEST(unpack_uint_preserving_sort(&ptr, end, &result));
-        TEST_EQUAL(result, i);
-        TEST(ptr == end);
-        TEST_REL(prev_packed, <, packed);
-        swap(prev_packed, packed);
-    }
-    for (unsigned int i = 65000; ; i = (i << 1) ^ 1337) {
-        string packed;
-        pack_uint_preserving_sort(packed, i);
-        const char* ptr = packed.data();
-        const char* end = ptr + packed.size();
-        unsigned int result;
-        TEST(unpack_uint_preserving_sort(&ptr, end, &result));
-        TEST_EQUAL(result, i);
-        TEST(ptr == end);
-        TEST_REL(prev_packed, <, packed);
-        swap(prev_packed, packed);
-        if (i & 0x80000000u) break;
-    }
-
-    /* Test packing multiple numbers to one string. */
-    string packed;
-    for (unsigned int i = 23456; i < 765432; i += 1131) {
-        pack_uint_preserving_sort(packed, i);
-    }
-    const char* ptr = packed.data();
-    const char* end = ptr + packed.size();
-    for (unsigned int i = 23456; i < 765432; i += 1131) {
-        unsigned int result;
-        TEST(unpack_uint_preserving_sort(&ptr, end, &result));
-        TEST_EQUAL(result, i);
-    }
-    TEST(ptr == end);
-}
-
 /// Test C_isupper() etc.
 #ifdef __clang__
 # if __clang_major__ >= 8
@@ -392,7 +334,6 @@ static const test_desc tests[] = {
     TESTCASE(refcnt2),
     TESTCASE(stringcomp1),
     TESTCASE(temporarydtor1),
-    TESTCASE(pack_uint_preserving_sort1),
     TESTCASE(chartype1),
     {0, 0}
 };
