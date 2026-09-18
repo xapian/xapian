@@ -230,7 +230,7 @@ posixy_open(const char *filename, int flags)
 int
 posixy_rename(const char *from, const char *to)
 {
-    if (MoveFileEx(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
+    if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
         return 0;
     }
 
