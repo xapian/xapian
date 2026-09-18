@@ -166,8 +166,8 @@ posixy_unlink(const char * filename)
     // this isn't necessary, at least on NTFS, so we don't currently do
     // this.
 
-    /* We must use DeleteFile as this can delete files that are open. */
-    if (DeleteFile(filename) != 0) {
+    // We must use DeleteFileA as this can delete files that are open.
+    if (DeleteFileA(filename) != 0) {
         return 0;
     }
 
