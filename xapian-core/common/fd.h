@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrapper class around a file descriptor to avoid leaks
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -50,6 +50,12 @@ class FD {
     }
 
     operator int() const { return fd; }
+
+    int release() {
+        int fd_to_release = fd;
+        fd = -1;
+        return fd_to_release;
+    }
 
     int close() {
         // Don't check for -1 here, so that close(FD) sets errno as close(int)
