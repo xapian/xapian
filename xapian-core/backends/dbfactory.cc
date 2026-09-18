@@ -60,9 +60,9 @@ using namespace std;
 namespace Xapian {
 
 static void
-open_stub(Database& db, string_view file)
+open_stub(Database& db, int fd, string_view file)
 {
-    read_stub_file(file,
+    read_stub_file(fd, file,
                    [&db](string_view path) {
                        db.add_database(Database(path));
                    },
@@ -114,7 +114,7 @@ open_stub(Database& db, string_view file)
 static void
 open_stub(WritableDatabase& db, string_view file, int flags)
 {
-    read_stub_file(file,
+    read_stub_file(-1, file,
                    [&db, flags](string_view path) {
                        db.add_database(WritableDatabase(path, flags));
                    },
@@ -176,7 +176,7 @@ Database::Database(string_view path, int flags)
             throw FeatureUnavailableError("Honey backend disabled");
 #endif
         case DB_BACKEND_STUB:
-            open_stub(*this, path);
+            open_stub(*this, -1, path);
             return;
         case DB_BACKEND_INMEMORY:
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
@@ -202,7 +202,6 @@ Database::Database(string_view path, int flags)
     if (S_ISREG(statbuf.st_mode)) {
         // Could be a stub database file, or a single file glass database.
 
-        // Initialise to avoid bogus warning from GCC 4.9.2 with -Os.
         int fd = -1;
         switch (test_if_single_file_db(statbuf, filename, &fd)) {
             case BACKEND_GLASS:
@@ -223,7 +222,7 @@ Database::Database(string_view path, int flags)
 #endif
         }
 
-        open_stub(*this, path);
+        open_stub(*this, fd, path);
         return;
     }
 
@@ -253,7 +252,7 @@ Database::Database(string_view path, int flags)
     filename.resize(path.size());
     filename += "/XAPIANDB";
     if (usual(file_exists(filename))) {
-        open_stub(*this, filename);
+        open_stub(*this, -1, filename);
         return;
     }
 

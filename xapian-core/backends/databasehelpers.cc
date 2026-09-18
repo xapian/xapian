@@ -80,6 +80,7 @@ test_if_single_file_db(const struct stat& sb,
                        int* fd_ptr)
 {
     Assert(fd_ptr);
+    *fd_ptr = -1;
 #if defined XAPIAN_HAS_GLASS_BACKEND || \
     defined XAPIAN_HAS_HONEY_BACKEND
     if (!S_ISREG(sb.st_mode)) return BACKEND_UNKNOWN;
@@ -91,13 +92,8 @@ test_if_single_file_db(const struct stat& sb,
         return BACKEND_UNKNOWN;
     int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
     if (fd != -1) {
-        int result = test_if_single_file_db(fd, off_t{0});
-        if (result != BACKEND_UNKNOWN) {
-            *fd_ptr = fd;
-        } else {
-            ::close(fd);
-        }
-        return result;
+        *fd_ptr = fd;
+        return test_if_single_file_db(fd, off_t{0});
     }
 #else
     (void)sb;

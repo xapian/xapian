@@ -347,7 +347,7 @@ DatabaseReplica::Internal::Internal(const string & path_)
 
         bool bad = false;
         live_id = -1;
-        read_stub_file(stub_path,
+        read_stub_file(-1, stub_path,
                        [this, &bad](string_view entry_path) {
                            if (live_id >= 0) {
                                // More than one `auto`.

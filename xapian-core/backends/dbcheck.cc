@@ -41,6 +41,7 @@
 
 #include "backends.h"
 #include "databasehelpers.h"
+#include "fd.h"
 #include "filetests.h"
 #include "omassert.h"
 #include "stringutils.h"
@@ -357,8 +358,9 @@ check_db_table(string_view filename, int opts, std::ostream* out, int backend)
  *  Closes the fd.
  */
 static size_t
-check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
+check_db_fd(int fd_, off_t offset, int opts, std::ostream* out, int backend)
 {
+    FD fd(fd_);
     if (backend == BACKEND_UNKNOWN) {
         // FIXME: Actually probe.
         backend = BACKEND_GLASS;
@@ -370,7 +372,8 @@ check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
         // Check a single-file glass database.
 #ifdef XAPIAN_HAS_GLASS_BACKEND
         // GlassVersion's destructor will close fd.
-        GlassVersion version_file(fd, offset);
+        int raw_fd = fd.release();
+        GlassVersion version_file(raw_fd, offset);
         version_file.read();
 
         Xapian::docid doccount = version_file.get_doccount();
@@ -386,7 +389,7 @@ check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
 
         // Check all the tables.
         for (auto t : glass_tables) {
-            errors += check_glass_table(t.name, fd, offset,
+            errors += check_glass_table(t.name, raw_fd, offset,
                                         version_file, opts, doclens,
                                         out);
         }
@@ -394,7 +397,6 @@ check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
 #else
         (void)opts;
         (void)out;
-        ::close(fd);
         throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #endif
       }
@@ -402,12 +404,10 @@ check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
 #ifdef XAPIAN_HAS_HONEY_BACKEND
         (void)opts;
         (void)out;
-        ::close(fd);
         throw Xapian::UnimplementedError("Honey database checking not implemented");
 #else
         (void)opts;
         (void)out;
-        ::close(fd);
         throw Xapian::FeatureUnavailableError("Honey database support isn't enabled");
 #endif
       default:
@@ -419,10 +419,10 @@ check_db_fd(int fd, off_t offset, int opts, std::ostream* out, int backend)
 namespace Xapian {
 
 static size_t
-check_stub(const string& stub_path, int opts, std::ostream* out)
+check_stub(int fd, const string& stub_path, int opts, std::ostream* out)
 {
     size_t errors = 0;
-    read_stub_file(stub_path,
+    read_stub_file(fd, stub_path,
                    [&errors, opts, out](string_view path) {
                        errors += Database::check(path, opts, out);
                    },
@@ -464,6 +464,7 @@ Database::check_(const string_view* path_ptr,
     if (path_ptr == NULL) {
         off_t offset = lseek(fd, 0, SEEK_CUR);
         if (rare(offset < 0)) {
+            ::close(fd);
             string msg = "lseek failed on file descriptor ";
             msg += str(fd);
             throw Xapian::DatabaseOpeningError(msg, errno);
@@ -496,9 +497,10 @@ Database::check_(const string_view* path_ptr,
             } else if (endswith(filename, "." HONEY_TABLE_EXTENSION)) {
                 backend = BACKEND_HONEY;
             } else {
-                return check_stub(filename, opts, out);
+                return check_stub(fd, filename, opts, out);
             }
 
+            ::close(fd);
             return check_db_table(filename, opts, out, backend);
         }
 
