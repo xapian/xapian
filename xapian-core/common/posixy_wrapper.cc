@@ -158,6 +158,14 @@ posixy_set_errno_from_getlasterror()
 int
 posixy_unlink(const char * filename)
 {
+    // Some places recommend renaming the file to a randomly generated
+    // name and setting its hidden flag, then deleting it.  Some also
+    // suggest moving it to a higher level directory on the same volume
+    // to not block removal of the directory.  However it seems on
+    // modern OS versions ("the most recent version" as of 2019-06-18)
+    // this isn't necessary, at least on NTFS, so we don't currently do
+    // this.
+
     /* We must use DeleteFile as this can delete files that are open. */
     if (DeleteFile(filename) != 0) {
         return 0;
