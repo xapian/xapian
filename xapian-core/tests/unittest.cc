@@ -912,25 +912,59 @@ static void test_muloverflows1()
     TEST(mul_overflows(ULONG_MAX, ULONG_MAX, res));
 }
 
+template<typename U, typename T>
+inline static void
+test_parse_unsigned(const char* s, T expect)
+{
+    U val;
+    TEST(parse_unsigned(s, val));
+    TEST_EQUAL(val, expect);
+
+    // We want to test the variant which takes a length.  Copy the string into
+    // a freshly allocated block so if the implementation reads beyond the
+    // length it can reliably be detected by valgrind and sanitisers.
+    size_t len = strlen(s);
+    unique_ptr<char[]> block(new char[len]);
+    memcpy(block.get(), s, len);
+    U val2;
+    TEST(parse_unsigned(block.get(), len, val2));
+    TEST_EQUAL(val2, expect);
+}
+
+template<typename U>
+inline static void
+test_parse_unsigned_fails(const char* s)
+{
+    U val;
+    TEST(!parse_unsigned(s, val));
+
+    // We want to test the variant which takes a length.  Copy the string into
+    // a freshly allocated block so if the implementation reads beyond the
+    // length it can reliably be detected by valgrind and sanitisers.
+    size_t len = strlen(s);
+    unique_ptr<char[]> block(new char[len]);
+    memcpy(block.get(), s, len);
+    U val2;
+    TEST(!parse_unsigned(block.get(), len, val2));
+}
+
 template<typename U>
 inline static void parseunsigned_helper() {
-    U val;
     constexpr U max_val = numeric_limits<U>::max();
     tout << "Testing with parseunsigned_helper\n";
-    TEST(parse_unsigned("0", val));
-    TEST_EQUAL(val, 0);
-    TEST(parse_unsigned("99", val));
-    TEST_EQUAL(val, 99);
-    TEST(parse_unsigned(str(max_val).c_str(), val));
-    TEST_EQUAL(val, max_val);
-    TEST(!parse_unsigned("", val));
-    TEST(!parse_unsigned("-1", val));
-    TEST(!parse_unsigned("abc", val));
-    TEST(!parse_unsigned("0a", val));
+
+    test_parse_unsigned<U>("0", 0u);
+    test_parse_unsigned<U>("99", 99u);
+    test_parse_unsigned<U>(str(max_val).c_str(), max_val);
+
+    test_parse_unsigned_fails<U>("");
+    test_parse_unsigned_fails<U>("-1");
+    test_parse_unsigned_fails<U>("abc");
+    test_parse_unsigned_fails<U>("0a");
     // Only test if we can construct a value one larger easily.
     constexpr auto max_ull = numeric_limits<unsigned long long>::max();
     if constexpr (max_val != max_ull) {
-        TEST(!parse_unsigned(str(max_val + 1ull).c_str(), val));
+        test_parse_unsigned_fails<U>(str(max_val + 1ull).c_str());
     }
 }
 
@@ -943,31 +977,63 @@ static void test_parseunsigned1()
     parseunsigned_helper<unsigned long long>();
 }
 
+template<typename S, typename T>
+inline static void
+test_parse_signed(const char* s, T expect)
+{
+    S val;
+    TEST(parse_signed(s, val));
+    TEST_EQUAL(val, expect);
+
+    // We want to test the variant which takes a length.  Copy the string into
+    // a freshly allocated block so if the implementation reads beyond the
+    // length it can reliably be detected by valgrind and sanitisers.
+    size_t len = strlen(s);
+    unique_ptr<char[]> block(new char[len]);
+    memcpy(block.get(), s, len);
+    S val2;
+    TEST(parse_signed(block.get(), len, val2));
+    TEST_EQUAL(val2, expect);
+}
+
+template<typename S>
+inline static void
+test_parse_signed_fails(const char* s)
+{
+    S val;
+    TEST(!parse_signed(s, val));
+
+    // We want to test the variant which takes a length.  Copy the string into
+    // a freshly allocated block so if the implementation reads beyond the
+    // length it can reliably be detected by valgrind and sanitisers.
+    size_t len = strlen(s);
+    unique_ptr<char[]> block(new char[len]);
+    memcpy(block.get(), s, len);
+    S val2;
+    TEST(!parse_signed(block.get(), len, val2));
+}
+
 template<typename S>
 inline static void parsesigned_helper() {
-    S val;
     const S max_val = numeric_limits<S>::max();
     const S min_val = numeric_limits<S>::min();
+
     tout << "Testing with parsesigned_helper\n";
-    TEST(parse_signed("0", val));
-    TEST_EQUAL(val, 0);
-    TEST(parse_signed("99", val));
-    TEST_EQUAL(val, 99);
-    TEST(parse_signed("-99", val));
-    TEST_EQUAL(val, -99);
-    TEST(parse_signed(str(max_val).c_str(), val));
-    TEST_EQUAL(val, max_val);
-    TEST(parse_signed(str(min_val).c_str(), val));
-    TEST_EQUAL(val, min_val);
-    TEST(!parse_signed("", val));
-    TEST(!parse_signed("abc", val));
-    TEST(!parse_signed("0a", val));
-    TEST(!parse_signed("-99a", val));
-    TEST(!parse_signed("-a99", val));
-    TEST(!parse_signed("--99", val));
+    test_parse_signed<S>("0", 0);
+    test_parse_signed<S>("99", 99);
+    test_parse_signed<S>("-99", -99);
+    test_parse_signed<S>(str(max_val).c_str(), max_val);
+    test_parse_signed<S>(str(min_val).c_str(), min_val);
+
+    test_parse_signed_fails<S>("");
+    test_parse_signed_fails<S>("abc");
+    test_parse_signed_fails<S>("0a");
+    test_parse_signed_fails<S>("-99a");
+    test_parse_signed_fails<S>("-a99");
+    test_parse_signed_fails<S>("--99");
 
     unsigned long long one_too_large = max_val + 1ull;
-    TEST(!parse_signed(str(one_too_large).c_str(), val));
+    test_parse_signed_fails<S>(str(one_too_large).c_str());
 
     // We need to use an unsigned long long here so this works when S is
     // long long.  The somewhat contorted way we calculate this is to
@@ -978,7 +1044,7 @@ inline static void parsesigned_helper() {
     // of such warnings is useful.
     unsigned long long one_too_small_negated =
         static_cast<unsigned long long>(-(min_val + 1)) + 2ull;
-    TEST(!parse_signed(("-" + str(one_too_small_negated)).c_str(), val));
+    test_parse_signed_fails<S>(("-" + str(one_too_small_negated)).c_str());
 }
 
 static void test_parsesigned1()
