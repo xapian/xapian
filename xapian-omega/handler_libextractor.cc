@@ -2,7 +2,7 @@
  * @brief Extract metadata using libextractor.
  */
 /* Copyright (C) 2020 Parth Kapadia
- * Copyright (C) 2022,2023 Olly Betts
+ * Copyright (C) 2022,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,8 +57,12 @@ process_metadata(void*,
             return 0;
     }
 
-    // "data_len is strlen (data)+1"!
-    --data_len;
+    // The documentation says that "data_len is strlen (data)+1".  However
+    // this is not always true, at least for extractor 1.19 and sometimes
+    // data_len is actually strlen(data):
+    //
+    // https://bugs.gnunet.org/view.php?id=11812
+    if (data_len && data[data_len - 1] == '\0') --data_len;
 
     switch (type) {
         case EXTRACTOR_METATYPE_BOOK_TITLE:
