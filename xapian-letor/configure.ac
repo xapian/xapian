@@ -191,13 +191,19 @@ xo_fn_unknown_option_check() {
   dnl means we would think the option is supported, use it, and end up
   dnl with a warning or note diagnostic every time we use the option.
   dnl
+  dnl Things can be even worse in maintainer-mode as the option may only warn
+  dnl at configure time, but then at build time that warning may be promoted to
+  dnl an error by -Werror, -WX or similar.
+  dnl
   dnl Check compiler stderr for known strings:
   dnl * MSVC: Command line warning D9002 : ignoring unknown option '...'
   dnl * MSVC: LINK : warning LNK4044: unrecognized option '...'; ignored
+  dnl * clang-cl: unknown argument ignored in clang-cl: '-fno-math-errno' [-Wunknown-argument]
   dnl * icc strings cribbed from automake's depend.m4
   dnl * AIX: ld: 0706-027 The -B symbolic-functions flag is ignored.
   $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
       $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unknown[- ]argument' conftest.err >/dev/null 2>&1 ||
       $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
       $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
       $GREP 'flag is ignored' conftest.err >/dev/null 2>&1 ||
