@@ -89,6 +89,12 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 XO_REQUIRE([2.0.0])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [msvc=yes])
+
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"

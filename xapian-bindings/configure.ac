@@ -59,6 +59,12 @@ esac
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [msvc=yes])
+
 dnl Probe for any options needed to enable C++17 support.
 AX_CXX_COMPILE_STDCXX([17])
 
