@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include <cerrno>
+#include <string>
 
 #ifdef __CYGWIN__
 # include "posixy_wrapper.h"
@@ -65,8 +66,13 @@ posixy_unlink(const char * filename)
 int
 posixy_set_errno_from_getlasterror()
 {
+    return posixy_set_errno_from_error(GetLastError());
+}
+
+static int
+posixy_set_errno_from_error(unsigned long winerr)
+{
     int e;
-    unsigned long winerr = GetLastError();
     switch (winerr) {
         case ERROR_FILENAME_EXCED_RANGE:
         case ERROR_FILE_NOT_FOUND:
@@ -244,15 +250,30 @@ posixy_rename(const char *from, const char *to)
         return 0;
     }
 
-    if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+    unsigned long error = GetLastError();
+    if (error == ERROR_DIRECTORY) {
+        // There seems to be a bug in Wine's ReplaceFileW() function (which
+        // ReplaceFileA() calls) and it returns ERROR_DIRECTORY if `to` is
+        // just a leafname.  We can avoid this by prepending `.\` to it.
+        if (strchr('/', to) == NULL && strchr('\\', to) == NULL) {
+            std::string wine_to = ".\\"s + to;
+            if (ReplaceFileA(wine_to.c_str(), from, NULL, 0, 0, 0) != 0) {
+                return 0;
+            }
+            error = GetLastError();
+        }
+    }
+
+    if (error == ERROR_FILE_NOT_FOUND) {
         // ReplaceFileA() fails unless `to` already exists, so we
         // need to fall back to MoveFileExA().
         if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
             return 0;
         }
+        error = GetLastError();
     }
 
-    return posixy_set_errno_from_getlasterror();
+    return posixy_set_errno_from_error(error);
 }
 
 #endif // __WIN32__
