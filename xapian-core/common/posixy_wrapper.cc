@@ -255,8 +255,8 @@ posixy_rename(const char *from, const char *to)
         // There seems to be a bug in Wine's ReplaceFileW() function (which
         // ReplaceFileA() calls) and it returns ERROR_DIRECTORY if `to` is
         // just a leafname.  We can avoid this by prepending `.\` to it.
-        if (strchr('/', to) == NULL && strchr('\\', to) == NULL) {
-            std::string wine_to = ".\\"s + to;
+        if (strchr(to, '/') == NULL && strchr(to, '\\') == NULL) {
+            std::string wine_to = std::string(".\\") + to;
             if (ReplaceFileA(wine_to.c_str(), from, NULL, 0, 0, 0) != 0) {
                 return 0;
             }
