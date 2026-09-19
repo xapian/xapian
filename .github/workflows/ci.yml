@@ -2578,6 +2578,10 @@ jobs:
         pushd xapian-letor
         tar --strip-components=1 -xf xapian-letor-*.tar.xz
         popd
+    - name: Set up Visual Studio shell
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x64
     - name: Build zlib
       shell: bash
       run: |
