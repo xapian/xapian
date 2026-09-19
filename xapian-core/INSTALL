@@ -215,10 +215,9 @@ To build Xapian, first run configure from the MSYS2 shell like so::
   ./configure CC=cl CXX="$PWD/compile cl" AR=lib LD=link NM=dumpbin
 
 If you want a `.pdb` file (which contains debugging information), add `-Zi` to
-`CXXFLAGS` (which defaults of `-O2` so you need to also specify that if you
-want an optimised build), i.e.:
+`CXXFLAGS`, i.e.::
 
-  ./configure CC=cl CXX="$PWD/compile cl" AR=lib LD=link NM=dumpbin CXXFLAGS="-O2 -Zi"
+  ./configure CC=cl CXX="$PWD/compile cl" AR=lib LD=link NM=dumpbin CXXFLAGS=-Zi
 
 Then build using GNU make::
 
