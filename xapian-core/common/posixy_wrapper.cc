@@ -244,36 +244,23 @@ posixy_open(const char *filename, int flags)
 int
 posixy_rename(const char *from, const char *to)
 {
+    if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
+        return 0;
+    }
+
     // MoveFileExA() fails if `to` is open but ReplaceFileA() works
-    // in that case.
+    // in that case.  We try MoveFileExA() first as two of the
+    // error cases of ReplaceFileA() document that there's no file
+    // with the replacement name any more so it's clearly not an
+    // atomic replacement.
+    //
+    // Note that the order of the filenames really is swapped here vs
+    // MoveFileExA().
     if (ReplaceFileA(to, from, NULL, 0, 0, 0) != 0) {
         return 0;
     }
 
-    unsigned long error = GetLastError();
-    if (error == ERROR_DIRECTORY) {
-        // There seems to be a bug in Wine's ReplaceFileW() function (which
-        // ReplaceFileA() calls) and it returns ERROR_DIRECTORY if `to` is
-        // just a leafname.  We can avoid this by prepending `.\` to it.
-        if (strchr(to, '/') == NULL && strchr(to, '\\') == NULL) {
-            std::string wine_to = std::string(".\\") + to;
-            if (ReplaceFileA(wine_to.c_str(), from, NULL, 0, 0, 0) != 0) {
-                return 0;
-            }
-            error = GetLastError();
-        }
-    }
-
-    if (error == ERROR_FILE_NOT_FOUND) {
-        // ReplaceFileA() fails unless `to` already exists, so we
-        // need to fall back to MoveFileExA().
-        if (MoveFileExA(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
-            return 0;
-        }
-        error = GetLastError();
-    }
-
-    return posixy_set_errno_from_error(error);
+    return posixy_set_errno_from_getlasterror();
 }
 
 #endif // __WIN32__
