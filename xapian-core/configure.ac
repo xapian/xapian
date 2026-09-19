@@ -287,6 +287,17 @@ CC=$CXX
 AC_SYS_LARGEFILE
 CC=$save_CC
 
+dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+case "$CC $CPPFLAGS $CFLAGS" in
+  *-nologo*) ;;
+  *)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+    ]])], [], [CC="$CC -nologo"])
+esac
+
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -311,6 +322,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #error MSVC
 #endif
 ]])], [msvc=no], [msvc=yes])
+
+dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+if test yes = "$msvc"; then
+  case "$CXX $CPPFLAGS $CXXFLAGS" in
+    *-nologo*) ;;
+    *) CXX="$CXX -nologo" ;;
+  esac
+fi
 
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=

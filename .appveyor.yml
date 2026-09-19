@@ -41,8 +41,8 @@ install:
   - cd ..
   - ps: |
       $env:AR="lib"
-      $env:CC="cl -nologo"
-      $env:CXX="c:/projects/xapian/xapian-core/compile cl -nologo"
+      $env:CC="cl"
+      $env:CXX="c:/projects/xapian/xapian-core/compile cl"
       $env:CPPFLAGS="-Ic:/projects/xapian/zlib"
       $env:LD="link"
       $env:LDFLAGS="-Lc:/projects/xapian/zlib"

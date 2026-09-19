@@ -65,6 +65,14 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #endif
 ]])], [msvc=no], [msvc=yes])
 
+dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+if test yes = "$msvc"; then
+  case "$CXX $CPPFLAGS $CXXFLAGS" in
+    *-nologo*) ;;
+    *) CXX="$CXX -nologo" ;;
+  esac
+fi
+
 dnl Probe for any options needed to enable C++17 support.
 AX_CXX_COMPILE_STDCXX([17])
 

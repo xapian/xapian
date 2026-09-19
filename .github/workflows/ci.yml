@@ -2170,8 +2170,8 @@ jobs:
     - name: configure
       run: |
         export AR=lib
-        export CC="cl -nologo"
-        export CXX="$PWD/xapian-core/compile cl -nologo"
+        export CC="cl"
+        export CXX="$PWD/xapian-core/compile cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2278,8 +2278,8 @@ jobs:
     - name: configure
       run: |
         export AR=lib
-        export CC="cl -nologo"
-        export CXX="$PWD/xapian-core/compile cl -nologo"
+        export CC="cl"
+        export CXX="$PWD/xapian-core/compile cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2389,8 +2389,8 @@ jobs:
     - name: configure
       run: |
         export AR=lib
-        export CC="cl -nologo"
-        export CXX="$PWD/xapian-core/compile cl -nologo"
+        export CC="cl"
+        export CXX="$PWD/xapian-core/compile cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2497,8 +2497,8 @@ jobs:
     - name: configure
       run: |
         export AR=lib
-        export CC="cl -nologo"
-        export CXX="$PWD/xapian-core/compile cl -nologo"
+        export CC="cl"
+        export CXX="$PWD/xapian-core/compile cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
