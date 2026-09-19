@@ -63,12 +63,6 @@ posixy_unlink(const char * filename)
 #include "safefcntl.h"
 #include "safewindows.h"
 
-int
-posixy_set_errno_from_getlasterror()
-{
-    return posixy_set_errno_from_error(GetLastError());
-}
-
 static int
 posixy_set_errno_from_error(unsigned long winerr)
 {
@@ -159,6 +153,12 @@ posixy_set_errno_from_error(unsigned long winerr)
     }
     errno = e;
     return -1;
+}
+
+int
+posixy_set_errno_from_getlasterror()
+{
+    return posixy_set_errno_from_error(GetLastError());
 }
 
 int
