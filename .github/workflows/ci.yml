@@ -1425,7 +1425,7 @@ jobs:
             tesseract
         pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on arm64 macos-26 (but worked on
-        # x86_64 macos-12 and macos-13).  Last checked 2025-12-17.
+        # x86_64 macos-12 and macos-13).  Last checked 2026-09-20.
         #
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
@@ -1531,7 +1531,7 @@ jobs:
             tesseract
         pip3 install --user --break-system-packages Sphinx
         # mono-mdk: "make check" fails on arm64 macos-15 (but worked on
-        # x86_64 macos-12 and macos-13).  Last checked 2025-12-17.
+        # x86_64 macos-12 and macos-13).  Last checked 2026-09-20.
         #
         # libeatmydata doesn't currently actually do anything on macOS:
         # https://github.com/stewartsmith/libeatmydata/issues/34
