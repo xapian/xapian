@@ -241,7 +241,7 @@ jobs:
           **/*.log
 
   GLIBCXX_DEBUG:
-    runs-on: 'ubuntu-24.04'
+    runs-on: 'ubuntu-26.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -271,18 +271,20 @@ jobs:
     - name: Install package dependencies
       run: |
         sudo apt-get update
+        # libcrypt-dev needed for crypt.h included by Perl headers.
         sudo apt-get install \
             python3-sphinx \
             libpcre2-dev \
             libmagic-dev \
-            lua5.4 \
-            liblua5.4-dev \
+            lua5.5 \
+            liblua5.5-dev \
             mono-devel \
             python3-dev \
-            tcl \
-            tcl-dev \
+            tcl9.0 \
+            tcl9.0-dev \
             libicu-dev \
             pkg-config \
+            libcrypt-dev \
             libpoppler-glib-dev \
             libglib2.0-dev \
             libe-book-dev \
