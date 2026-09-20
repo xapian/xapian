@@ -1410,7 +1410,8 @@ elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   AM_CXXFLAGS="$AM_CXXFLAGS -W2"
 
-  WERROR=-WX
+  dnl FIXME: Only for clang-cl
+  WERROR='-WX -Wno-error=unused-command-line-argument'
 fi
 
 AC_MSG_CHECKING([for option to turn warnings into errors])
