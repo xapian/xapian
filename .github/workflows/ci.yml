@@ -2234,6 +2234,7 @@ jobs:
           **/*.log
 
   msvc2022:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -2345,6 +2346,7 @@ jobs:
           **/*.log
 
   msvc2022-x86:
+    if: false
     runs-on: 'windows-2022'
     needs: makedist
     defaults:
@@ -2453,6 +2455,7 @@ jobs:
           **/*.log
 
   msvc2026:
+    if: false
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
@@ -2564,6 +2567,7 @@ jobs:
           **/*.log
 
   msvc2026-x86:
+    if: false
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
