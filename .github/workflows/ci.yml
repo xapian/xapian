@@ -3137,7 +3137,7 @@ jobs:
 
   checkpatch:
     name: 'Automated run of xapian-check-patch'
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-slim'
     steps:
     - name: Check out repository code
       uses: actions/checkout@v6
