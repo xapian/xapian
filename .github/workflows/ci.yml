@@ -2651,6 +2651,7 @@ jobs:
           **/*.log
 
   clang-cl:
+    if: false # Not yet working.
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
