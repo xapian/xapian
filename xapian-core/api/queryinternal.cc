@@ -298,8 +298,8 @@ done_skip_to:
     for (auto pl : pls) {
         // FIXME: LocalSubMatch::open_lazy_post_list() above returns a
         // PostList* that actually points to a LeafPostList.  It would be
-        // better to find a way to be more type-safe here and avoid need to
-        // cast back.
+        // better to be more type-safe here by finding a way to avoid
+        // needing to cast back.
         qopt->register_lazy_postlist_for_stats(static_cast<LeafPostList*>(pl),
                                                termfreqs);
         add_termfreqs(termfreqs);
@@ -890,9 +890,9 @@ AndContext::postlist(TermFreqs* termfreqs)
         not_ctx.reset();
     }
 
-    // Sort the positional filters to try to apply them in an efficient order.
-    // FIXME: We need to figure out what that is!  Try applying lowest cf/tf
-    // first?
+    // FIXME: Sort the positional filters to try to apply them in an efficient
+    // order.  However we need to figure out what that is!  Try applying lowest
+    // cf/tf first?
 
     // Apply any positional filters.
     for (const PosFilter& filter : pos_filters) {
