@@ -2740,7 +2740,20 @@ jobs:
         popd
     - name: configure
       run: |
+        echo help
         clang-cl -help||true
+        echo 'int main(){return 0;}' > foo.cc
+        echo compile
+        clang-cl -std:c++20 -W2 -EHsc -WX -g -c -showIncludes foo.cc -o foo.obj || true
+        echo link
+        clang-cl -std:c++20 -W2 -EHsc -WX -g -o foo.exe foo.obj || true
+        echo ===
+        rm -f foo.obj foo.exe
+        echo compile
+        /d/a/xapian/xapian/xapian-core/compile clang-cl -std:c++20 -W2 -EHsc -WX -g -c -showIncludes foo.cc -o foo.obj || true
+        echo link
+        /d/a/xapian/xapian/xapian-core/compile clang-cl -std:c++20 -W2 -EHsc -WX -g -o foo.exe foo.obj || true
+        echo ===
         export AR=lib
         export CC="clang-cl"
         export CXX="clang-cl"
