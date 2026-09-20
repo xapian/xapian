@@ -2740,6 +2740,7 @@ jobs:
         popd
     - name: configure
       run: |
+        clang-cl -help||true
         export AR=lib
         export CC="clang-cl"
         export CXX="clang-cl"
