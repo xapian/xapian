@@ -2262,7 +2262,7 @@ jobs:
         rm /usr/bin/link.exe || true
         mkdir zlib
         pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
         # Don't build zlib with -MD as it seems this flag needs to be used
         # consistently across the build.  Don't use -Zi -Fd"zlib" as
         # ccache/sccache don't seem to be able to handle that.
@@ -2373,7 +2373,7 @@ jobs:
         rm /usr/bin/link.exe || true
         mkdir zlib
         pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
         # Don't build zlib with -MD as it seems this flag needs to be used
         # consistently across the build.  Don't use -Zi -Fd"zlib" as
         # ccache/sccache don't seem to be able to handle that.
@@ -2481,7 +2481,7 @@ jobs:
         rm /usr/bin/link.exe || true
         mkdir zlib
         pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
         # Don't build zlib with -MD as it seems this flag needs to be used
         # consistently across the build.  Don't use -Zi -Fd"zlib" as
         # ccache/sccache don't seem to be able to handle that.
@@ -2592,7 +2592,7 @@ jobs:
         rm /usr/bin/link.exe || true
         mkdir zlib
         pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
         # Don't build zlib with -MD as it seems this flag needs to be used
         # consistently across the build.  Don't use -Zi -Fd"zlib" as
         # ccache/sccache don't seem to be able to handle that.
@@ -2700,7 +2700,7 @@ jobs:
         rm /usr/bin/link.exe || true
         mkdir zlib
         pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.2.13.tar.gz|tar --strip-components=1 -zxf -
+        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
         # Don't build zlib with -MD as it seems this flag needs to be used
         # consistently across the build.  Don't use -Zi -Fd"zlib" as
         # ccache/sccache don't seem to be able to handle that.
