@@ -1118,13 +1118,15 @@ Query::Internal::unserialise(const char ** p, const char * end,
                 return new Xapian::Internal::QueryValueGE(slot, begin);
             }
 
-            // OP_VALUE_RANGE
             string end_;
             if (!unpack_string(p, end, end_)) {
                 unpack_throw_serialisation_error(*p);
             }
-            if (begin.empty()) // FIXME: is this right?
+            if (begin.empty()) {
+                // OP_VALUE_LE
                 return new Xapian::Internal::QueryValueLE(slot, end_);
+            }
+            // OP_VALUE_RANGE
             return new Xapian::Internal::QueryValueRange(slot, begin, end_);
         }
         case 0: {
