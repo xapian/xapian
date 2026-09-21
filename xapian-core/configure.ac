@@ -324,12 +324,26 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 ]])], [msvc=no], [msvc=yes])
 
 dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+AM_LDFLAGS=
 if test yes = "$msvc"; then
   case "$CXX $CPPFLAGS $CXXFLAGS" in
     *-nologo*) ;;
     *) CXX="$CXX -nologo" ;;
   esac
+
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef __clang__
+#error clang
+#endif
+  ]])], [], [
+    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
+    dnl about -EHsc not having any effect (which is promoted to an error
+    dnl in maintainer-mode).  The least terrible solution seems to be to
+    dnl suppress this warning when linking.
+    AM_LDFLAGS=-Wno-unused-command-line-argument
+  ])
 fi
+AC_SUBST([AM_LDFLAGS])
 
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=

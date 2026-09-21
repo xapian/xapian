@@ -140,19 +140,19 @@ collated_apitest_sources = \
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = $(NO_INSTALL)
+apitest_LDFLAGS = $(NO_INSTALL) $(AM_LDFLAGS)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
-stemtest_LDFLAGS = $(NO_INSTALL)
+stemtest_LDFLAGS = $(NO_INSTALL) $(AM_LDFLAGS)
 stemtest_LDADD = ../libgetopt.la ../$(libxapian_la) $(ZLIB_LIBS)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
-internaltest_LDFLAGS = $(NO_INSTALL)
+internaltest_LDFLAGS = $(NO_INSTALL) $(AM_LDFLAGS)
 internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 unittest_SOURCES = unittest.cc $(utestharness_sources)
-unittest_LDFLAGS = $(NO_INSTALL)
+unittest_LDFLAGS = $(NO_INSTALL) $(AM_LDFLAGS)
 unittest_LDADD = ../libgetopt.la $(XAPIAN_LIBS)
 
 BUILT_SOURCES =

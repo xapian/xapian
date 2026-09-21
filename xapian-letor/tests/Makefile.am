@@ -45,7 +45,7 @@ collated_apitest_sources = \
 apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = $(NO_INSTALL) $(XAPIAN_LDFLAGS)
+apitest_LDFLAGS = $(NO_INSTALL) $(AM_LDFLAGS) $(XAPIAN_LDFLAGS)
 apitest_LDADD = ../libgetopt.la $(XAPIAN_LIBS) ../libxapianletor.la
 
 BUILT_SOURCES =
