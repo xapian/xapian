@@ -217,7 +217,7 @@ xo_fn_unknown_option_check() {
   dnl * AIX: ld: 0706-027 The -B symbolic-functions flag is ignored.
   $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
       $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
-      $GREP 'unknown[- ]argument' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unknown.argument' conftest.err >/dev/null 2>&1 ||
       $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
       $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
       $GREP 'flag is ignored' conftest.err >/dev/null 2>&1 ||
