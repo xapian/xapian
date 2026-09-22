@@ -135,17 +135,6 @@ CC=$CXX
 AC_SYS_LARGEFILE
 CC=$save_CC
 
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-case "$CC $CPPFLAGS $CFLAGS" in
-  *-nologo*) ;;
-  *)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef _MSC_VER
-#error MSVC
-#endif
-    ]])], [], [CC="$CC -nologo"])
-esac
-
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -169,32 +158,32 @@ AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #endif
 ]])], [win32=no], [win32=yes])
 
+dnl msvc can be yes, no, or clang (for clang-cl).
+AM_LDFLAGS=
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER
 #error MSVC
 #endif
-]])], [msvc=no], [msvc=yes])
-
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-AM_LDFLAGS=
-if test yes = "$msvc"; then
-  case "$CXX $CPPFLAGS $CXXFLAGS" in
-    *-nologo*) ;;
-    *) CXX="$CXX -nologo" ;;
-  esac
-
+]])], [msvc=no], [
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef __clang__
 #error clang
 #endif
-  ]])], [], [
+  ]])], [msvc=yes], [
     dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
     dnl about -EHsc not having any effect (which is promoted to an error
     dnl in maintainer-mode).  The least terrible solution seems to be to
     dnl suppress this warning when linking.
     AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
   ])
-fi
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
 AC_SUBST([AM_LDFLAGS])
 
 XAPIANLETOR_LDFLAGS=
@@ -622,7 +611,7 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([no])
     fi
   fi
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   AM_CXXFLAGS="$AM_CXXFLAGS -W2"
 
@@ -650,7 +639,7 @@ case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-      if test yes = "$msvc"; then
+      if test no != "$msvc"; then
         dnl MSVC defaults to SSE2.
         AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
       fi
@@ -662,7 +651,7 @@ case $host_cpu in
         dnl We can unconditionally use -mtune=generic as it was added in GCC
         dnl 4.2, and supported at least as far back as clang 3.0.
         AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
-      elif test yes = "$msvc"; then
+      elif test no != "$msvc"; then
         AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
         if test sse = "$enable_sse"; then
           dnl MSVC defaults to SSE2.
@@ -696,7 +685,7 @@ if test "$GXX" = yes; then
     AC_DEFINE([FORTIFY_SOURCE_OK], [1], [Define to 1 if '-D_FORTIFY_SOURCE=2' link test passes])],
     [AC_MSG_RESULT([no])])
   CPPFLAGS=$save_CPPFLAGS
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
   AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
 fi

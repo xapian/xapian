@@ -82,17 +82,6 @@ CC=$CXX
 AC_SYS_LARGEFILE
 CC=$save_CC
 
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-case "$CC $CPPFLAGS $CFLAGS" in
-  *-nologo*) ;;
-  *)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef _MSC_VER
-#error MSVC
-#endif
-    ]])], [], [CC="$CC -nologo"])
-esac
-
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -100,32 +89,32 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 XO_REQUIRE([2.0.0])
 
+dnl msvc can be yes, no, or clang (for clang-cl).
+AM_LDFLAGS=
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER
 #error MSVC
 #endif
-]])], [msvc=no], [msvc=yes])
-
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-AM_LDFLAGS=
-if test yes = "$msvc"; then
-  case "$CXX $CPPFLAGS $CXXFLAGS" in
-    *-nologo*) ;;
-    *) CXX="$CXX -nologo" ;;
-  esac
-
+]])], [msvc=no], [
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef __clang__
 #error clang
 #endif
-  ]])], [], [
+  ]])], [msvc=yes], [
     dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
     dnl about -EHsc not having any effect (which is promoted to an error
     dnl in maintainer-mode).  The least terrible solution seems to be to
     dnl suppress this warning when linking.
     AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
   ])
-fi
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
 AC_SUBST([AM_LDFLAGS])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
@@ -605,7 +594,7 @@ if test yes = "$GXX"; then
       ;;
   esac
   rm -f conftest.cc
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   dnl AM_CXXFLAGS="$AM_CXXFLAGS -W4"
 
@@ -641,7 +630,7 @@ if test "$GXX" = yes; then
     AC_DEFINE([FORTIFY_SOURCE_OK], [1], [Define to 1 if '-D_FORTIFY_SOURCE=2' link test passes])],
     [AC_MSG_RESULT([no])])
   CPPFLAGS=$save_CPPFLAGS
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
   AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
 fi

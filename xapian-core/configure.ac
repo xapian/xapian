@@ -287,17 +287,6 @@ CC=$CXX
 AC_SYS_LARGEFILE
 CC=$save_CC
 
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-case "$CC $CPPFLAGS $CFLAGS" in
-  *-nologo*) ;;
-  *)
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef _MSC_VER
-#error MSVC
-#endif
-    ]])], [], [CC="$CC -nologo"])
-esac
-
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
@@ -317,32 +306,32 @@ AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #endif
 ]])], [win32=no], [win32=yes])
 
+dnl msvc can be yes, no, or clang (for clang-cl).
+AM_LDFLAGS=
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER
 #error MSVC
 #endif
-]])], [msvc=no], [msvc=yes])
-
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-AM_LDFLAGS=
-if test yes = "$msvc"; then
-  case "$CXX $CPPFLAGS $CXXFLAGS" in
-    *-nologo*) ;;
-    *) CXX="$CXX -nologo" ;;
-  esac
-
+]])], [msvc=no], [
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef __clang__
 #error clang
 #endif
-  ]])], [], [
+  ]])], [msvc=yes], [
     dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
     dnl about -EHsc not having any effect (which is promoted to an error
     dnl in maintainer-mode).  The least terrible solution seems to be to
     dnl suppress this warning when linking.
     AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
   ])
-fi
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
 AC_SUBST([AM_LDFLAGS])
 
 XAPIAN_LDFLAGS=
@@ -1394,7 +1383,7 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([no])
     fi
   fi
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   AM_CXXFLAGS="$AM_CXXFLAGS -W2"
 
@@ -1422,7 +1411,7 @@ case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
-      if test yes = "$msvc"; then
+      if test no != "$msvc"; then
         dnl MSVC defaults to SSE2.
         AM_CXXFLAGS="$AM_CXXFLAGS -arch:IA32"
       fi
@@ -1434,7 +1423,7 @@ case $host_cpu in
         dnl We can unconditionally use -mtune=generic as it was added in GCC
         dnl 4.2, and supported at least as far back as clang 3.0.
         AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
-      elif test yes = "$msvc"; then
+      elif test no != "$msvc"; then
         AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
         if test sse = "$enable_sse"; then
           dnl MSVC defaults to SSE2.
@@ -1468,7 +1457,7 @@ if test "$GXX" = yes; then
     AC_DEFINE([FORTIFY_SOURCE_OK], [1], [Define to 1 if '-D_FORTIFY_SOURCE=2' link test passes])],
     [AC_MSG_RESULT([no])])
   CPPFLAGS=$save_CPPFLAGS
-elif test yes = "$msvc"; then
+elif test no != "$msvc"; then
   dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
   AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
 fi
@@ -1788,8 +1777,10 @@ cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TOTALLENGTH_TYPE="`echo "unsigned $INT64_T"
 dnl Make revision numbers in the API 64 bit for future-proofing.
 cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|$SED 's/ /____/g'`
 
-dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create checks
-dnl for some ABI-incompatible configurations in the generated version.h.
+dnl For GCC (and compilers which pretend to be GCC), MSVC and clang-cl, we
+dnl create checks for some ABI-incompatible configurations in the generated
+dnl version.h.
+dnl
 dnl Such configurations may be specified via $CXXFLAGS so we should use this
 dnl when generating version.h.  For these compilers, CXXCPP="$CXX -E" so it
 dnl should understand all compiler options.
@@ -1798,7 +1789,7 @@ dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
 dnl external cpp which doesn't understand all options which might be in
 dnl $CXXFLAGS.
 case $GXX$msvc in
-  *yes*)
+  *yes*|*clang*)
     cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS" ;;
   *)
     cxxcpp_flags="$cxxcpp_flags $CPPFLAGS" ;;

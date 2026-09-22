@@ -59,19 +59,31 @@ esac
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
+dnl msvc can be yes, no, or clang (for clang-cl).
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER
 #error MSVC
 #endif
-]])], [msvc=no], [msvc=yes])
-
-dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-if test yes = "$msvc"; then
-  case "$CXX $CPPFLAGS $CXXFLAGS" in
-    *-nologo*) ;;
-    *) CXX="$CXX -nologo" ;;
-  esac
-fi
+]])], [msvc=no], [
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef __clang__
+#error clang
+#endif
+  ]])], [msvc=yes], [
+    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
+    dnl about -EHsc not having any effect (which is promoted to an error
+    dnl in maintainer-mode).  The least terrible solution seems to be to
+    dnl suppress this warning when linking.
+    AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
+  ])
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
 
 dnl Probe for any options needed to enable C++17 support.
 AX_CXX_COMPILE_STDCXX([17])
@@ -1117,7 +1129,7 @@ AC_SUBST(SWIG_CXXFLAGS)
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
-if test yes = "$msvc"; then
+if test no != "$msvc"; then
   dnl Standard C++ stack unwinding; assume extern "C" functions never throw.
   AM_CXXFLAGS="$AM_CXXFLAGS -EHsc"
 fi
