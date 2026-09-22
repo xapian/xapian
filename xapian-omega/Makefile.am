@@ -194,8 +194,6 @@ TESTS =	atomparsertest$(EXEEXT)\
 	htmlparsertest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
-	omegatest.pl\
-	omindextest\
 	sdbntest$(EXEEXT)\
 	sourcetest\
 	urlenctest$(EXEEXT)\
