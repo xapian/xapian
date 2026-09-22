@@ -127,7 +127,6 @@ if test yes = "$msvc"; then
   ])
 fi
 AC_SUBST([AM_LDFLAGS])
-fi
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
