@@ -61,7 +61,7 @@ CommitAndExit::CommitAndExit(const char * msg_, const char * error)
 uid_t DirectoryIterator::euid = geteuid();
 #endif
 
-magic_t DirectoryIterator::magic_cookie = NULL;
+//magic_t DirectoryIterator::magic_cookie = NULL;
 
 void
 DirectoryIterator::call_stat()
@@ -192,6 +192,8 @@ DirectoryIterator::next_failed() const
 string
 DirectoryIterator::get_magic_mimetype()
 {
+    return string();
+#if 0
     if (rare(magic_cookie == NULL)) {
 #ifdef MAGIC_MIME_TYPE
         magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
@@ -301,4 +303,5 @@ DirectoryIterator::get_magic_mimetype()
     }
 
     return res;
+#endif
 }

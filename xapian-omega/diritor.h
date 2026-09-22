@@ -40,7 +40,7 @@
 #include <pwd.h> // For getpwuid().
 #endif
 
-#include <magic.h>
+//#include <magic.h>
 #include <zlib.h>
 
 #include "loadfile.h"
@@ -66,7 +66,7 @@ class DirectoryIterator {
     static uid_t euid;
 #endif
 
-    static magic_t magic_cookie;
+//    static magic_t magic_cookie;
 
     std::string path;
     std::string::size_type path_len;

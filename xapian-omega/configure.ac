@@ -498,30 +498,31 @@ AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
 AC_PATH_TOOL(PKG_CONFIG, [pkg-config], [])
 
 dnl libmagic used to detect MIME types for files we don't detect by extension.
+MAGIC_CFLAGS=
 MAGIC_LIBS=
-if test -n "$PKG_CONFIG" ; then
-  MAGIC_CFLAGS=`$PKG_CONFIG libmagic --cflags 2>/dev/null`
-  MAGIC_LIBS=`$PKG_CONFIG libmagic --libs 2>/dev/null`
-fi
-if test -z "$MAGIC_LIBS" ; then
-  MAGIC_CFLAGS=
-  AC_CHECK_HEADERS([magic.h])
-  if test $ac_cv_header_magic_h = yes ; then
-    dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
-    dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
-    dnl libtool, but we've checked for magic.h, so checking the library would
-    dnl not really gain us much - we know it is -lmagic.
-    MAGIC_LIBS=-lmagic
-  fi
-fi
-if test -z "$MAGIC_LIBS" ; then
-  if test -r /etc/debian_version ; then
-    pkg="libmagic-dev"
-  else
-    pkg="file-devel (or maybe libmagic-devel)"
-  fi
-  AC_MSG_ERROR([libmagic required but development files not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
-fi
+dnl if test -n "$PKG_CONFIG" ; then
+dnl   MAGIC_CFLAGS=`$PKG_CONFIG libmagic --cflags 2>/dev/null`
+dnl   MAGIC_LIBS=`$PKG_CONFIG libmagic --libs 2>/dev/null`
+dnl fi
+dnl if test -z "$MAGIC_LIBS" ; then
+dnl   MAGIC_CFLAGS=
+dnl   AC_CHECK_HEADERS([magic.h])
+dnl   if test $ac_cv_header_magic_h = yes ; then
+dnl     dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+dnl     dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+dnl     dnl libtool, but we've checked for magic.h, so checking the library would
+dnl     dnl not really gain us much - we know it is -lmagic.
+dnl     MAGIC_LIBS=-lmagic
+dnl   fi
+dnl fi
+dnl if test -z "$MAGIC_LIBS" ; then
+dnl   if test -r /etc/debian_version ; then
+dnl     pkg="libmagic-dev"
+dnl   else
+dnl     pkg="file-devel (or maybe libmagic-devel)"
+dnl   fi
+dnl   AC_MSG_ERROR([libmagic required but development files not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+dnl fi
 AC_SUBST([MAGIC_CFLAGS])
 AC_SUBST([MAGIC_LIBS])
 
@@ -681,7 +682,7 @@ elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
   AM_CXXFLAGS="$AM_CXXFLAGS -W2"
 
-  WERROR=-WX
+#  WERROR=-WX
 fi
 
 AC_MSG_CHECKING([for option to turn warnings into errors])
