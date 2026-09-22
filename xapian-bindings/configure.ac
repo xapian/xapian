@@ -142,18 +142,6 @@ fi
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
-if test x"-g" = x"$CXXFLAGS" ; then
-  dnl Autotools defaults CXXFLAGS to `-g` if the compiler isn't detected as GCC
-  dnl and passing it `-g` doesn't result in an error.  However some compilers
-  dnl react to `-g` with a warning which is emitted for every file compiled.
-  dnl In maintainer mode that may be promoted to an error by -Werror, -WX or
-  dnl similar.  We only check this if CXXFLAGS is exactly `-g`, which avoids
-  dnl checking for GCC (and clang which pretends to be GCC) or if CXXFLAGS is
-  dnl explicitly specified.
-  CXXFLAGS=
-  XAPIAN_TEST_CXXFLAGS([-g], [CXXFLAGS])
-fi
-
 dnl msvc can be yes, no, or clang (for clang-cl).
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER

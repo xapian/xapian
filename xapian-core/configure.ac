@@ -395,6 +395,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef _MSC_VER
 #error MSVC
 #endif
+]])], [msvc=no], [
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
 #ifdef __clang__
 #error clang
