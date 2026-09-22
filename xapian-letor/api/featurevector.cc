@@ -91,16 +91,16 @@ FeatureVector::set_fvals(const std::vector<double> & fvals)
 }
 
 void
-FeatureVector::set_feature_value(int index, double value)
+FeatureVector::set_feature_value(size_t index, double value)
 {
     LOGCALL_VOID(API, "FeatureVector::set_feature_value", index | value);
-    internal->fvals_[index] = value;
+    internal->fvals_.at(index) = value;
 }
 
-int
+size_t
 FeatureVector::get_fcount() const
 {
-    LOGCALL(API, int, "FeatureVector::get_fcount", NO_ARGS);
+    LOGCALL(API, size_t, "FeatureVector::get_fcount", NO_ARGS);
     return internal->fvals_.size();
 }
 
@@ -133,8 +133,8 @@ FeatureVector::get_did() const
 }
 
 double
-FeatureVector::get_feature_value(int index) const
+FeatureVector::get_feature_value(size_t index) const
 {
     LOGCALL(API, double, "FeatureVector::get_feature_value", index);
-    return internal->fvals_[index];
+    return internal->fvals_.at(index);
 }

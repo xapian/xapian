@@ -4,7 +4,7 @@
 /* Copyright (c) 2007, 2008 Yung-chung Lin (henearkrxern@gmail.com)
  * Copyright (c) 2011 Richard Boulton (richard@tartarus.org)
  * Copyright (c) 2011 Brandon Schaefer (brandontschaefer@gmail.com)
- * Copyright (c) 2011,2018,2019,2023 Olly Betts
+ * Copyright (c) 2011,2018,2019,2023,2026 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -170,7 +170,7 @@ NgramIterator::operator++()
         if (it != Xapian::Utf8Iterator()) {
             unsigned ch = *it;
             if (is_unbroken_wordchar(ch)) {
-                offset = current_token.size();
+                offset = unsigned(current_token.size());
                 Xapian::Unicode::append_utf8(current_token, ch);
                 ++it;
             } else {

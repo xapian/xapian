@@ -45,7 +45,7 @@ Xapian::termpos
 InMemoryPositionList::get_position() const
 {
     AssertRel(index, <, positions.size());
-    return positions[index];
+    return positions[Xapian::termpos(index)];
 }
 
 bool

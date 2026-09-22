@@ -562,11 +562,11 @@ PostlistChunkWriter::flush(GlassTable *table)
                     report_read_error(keypos);
             }
             bool wrong_is_last_chunk;
-            string::size_type start_of_chunk_header = tagpos - tag.data();
+            unsigned start_of_chunk_header = unsigned(tagpos - tag.data());
             Xapian::docid last_did_in_chunk =
                 read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
                                     &wrong_is_last_chunk);
-            string::size_type end_of_chunk_header = tagpos - tag.data();
+            unsigned end_of_chunk_header = unsigned(tagpos - tag.data());
 
             // write new is_last flag
             write_start_of_chunk(tag,

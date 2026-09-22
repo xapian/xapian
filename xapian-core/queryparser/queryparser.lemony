@@ -26,6 +26,7 @@
 #include "queryparser_internal.h"
 
 #include "api/queryinternal.h"
+#include "clamp_cast.h"
 #include "omassert.h"
 #include "overflow.h"
 #include "str.h"
@@ -1663,10 +1664,13 @@ handle_token:
                         if (corrected_query.empty()) corrected_query = qs;
                         size_t term_end_index = it.raw() - qs.data();
                         size_t n = term_end_index - term_start_index;
-                        size_t pos = UNSIGNED_OVERFLOW_OK(term_start_index + correction_offset);
+                        size_t pos = UNSIGNED_OVERFLOW_OK(
+                                term_start_index + correction_offset
+                            );
                         corrected_query.replace(pos, n, suggest);
-                        UNSIGNED_OVERFLOW_OK(correction_offset += suggest.size());
-                        UNSIGNED_OVERFLOW_OK(correction_offset -= n);
+                        correction_offset = int(UNSIGNED_OVERFLOW_OK(
+                                size_t(correction_offset) + suggest.size() - n
+                            ));
                     }
                     break;
                 }
@@ -1934,9 +1938,10 @@ reprocess:
             }
             Query q_original_terms;
             if (default_op_is_positional) {
+                auto w = clamp_cast<Xapian::termcount>(subqs2.size() + 9);
                 q_original_terms = Query(default_op,
                                          subqs2.begin(), subqs2.end(),
-                                         subqs2.size() + 9);
+                                         w);
             } else {
                 q_original_terms = Query(default_op,
                                          subqs2.begin(), subqs2.end());
@@ -1979,8 +1984,8 @@ reprocess:
     Query * q = NULL;
     if (!subqs.empty()) {
         if (default_op_is_positional) {
-            q = new Query(default_op, subqs.begin(), subqs.end(),
-                             subqs.size() + 9);
+            auto w = clamp_cast<Xapian::termcount>(subqs.size() + 9);
+            q = new Query(default_op, subqs.begin(), subqs.end(), w);
         } else {
             q = new Query(default_op, subqs.begin(), subqs.end());
         }

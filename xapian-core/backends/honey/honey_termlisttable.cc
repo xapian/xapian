@@ -55,7 +55,7 @@ HoneyTermListTable::set_termlist(Xapian::docid did,
         Xapian::TermIterator t = doc.termlist_begin();
         string prev_term = *t;
 
-        tag += prev_term.size();
+        tag += static_cast<unsigned char>(prev_term.size());
         pack_uint(tag, t.get_wdf());
         tag += prev_term;
 

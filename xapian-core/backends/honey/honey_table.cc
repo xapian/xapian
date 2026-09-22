@@ -195,7 +195,7 @@ HoneyTable::read_key(std::string& key,
     }
 #endif
 
-    int r;
+    unsigned r;
     {
         // FIXME: rework to take advantage of buffering that's happening anyway?
         char* p = buf;
@@ -204,7 +204,7 @@ HoneyTable::read_key(std::string& key,
             *p++ = char(ch2);
             if (ch2 < 128) break;
         }
-        r = p - buf;
+        r = unsigned(p - buf);
     }
     const char* p = buf;
     const char* end = p + r;
@@ -355,7 +355,7 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
             if (ptr != 0) {
                 last_key = index_key;
                 char buf[8];
-                int r;
+                unsigned r;
                 {
                     // FIXME: rework to take advantage of buffering that's happening anyway?
                     char* p = buf;
@@ -364,7 +364,7 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
                         *p++ = char(ch2);
                         if (ch2 < 128) break;
                     }
-                    r = p - buf;
+                    r = unsigned(p - buf);
                 }
                 const char* p = buf;
                 const char* end = p + r;

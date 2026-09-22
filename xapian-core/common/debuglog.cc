@@ -1,7 +1,7 @@
 /** @file
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2011,2012,2014,2015,2019 Olly Betts
+/* Copyright (C) 2008,2011,2012,2014,2015,2019,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,7 +136,14 @@ DebugLogger::log_line(debuglog_categories category, const string& msg)
     const char* p = line.data();
     size_t to_do = line.size();
     while (to_do) {
-        ssize_t n = write(fd, p, to_do);
+#ifndef __WIN32__
+        auto write_size = to_do;
+#else
+        // Microsoft's write() takes `unsigned` for the length, so write at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned write_size = unsigned(std::min(to_do, size_t(1U << 31)));
+#endif
+        ssize_t n = write(fd, p, write_size);
         if (n < 0) {
             // Retry if interrupted by a signal.
             if (errno == EINTR) continue;

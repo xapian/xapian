@@ -35,7 +35,7 @@
 
 using namespace std;
 
-static const int JUNKSIZE = 2 * 1048576;
+static const unsigned JUNKSIZE = 2 * 1048576;
 
 static string language;
 
@@ -56,8 +56,8 @@ test_stemrandom()
     srand(seed);
 
     string word;
-    int stemmed_size = 0;
-    for (int c = JUNKSIZE; c; --c) {
+    size_t stemmed_size = 0;
+    for (unsigned c = JUNKSIZE; c; --c) {
         char ch = wordchars[(rand() >> 8) % sizeof wordchars];
         if (ch) {
             word += ch;
@@ -88,8 +88,8 @@ test_stemjunk()
     srand(seed);
 
     string word;
-    int stemmed_size = 0;
-    for (int c = JUNKSIZE; c; --c) {
+    size_t stemmed_size = 0;
+    for (unsigned c = JUNKSIZE; c; --c) {
         char ch = char(rand() >> 8);
         if (ch) {
             word += ch;

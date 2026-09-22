@@ -1,7 +1,7 @@
 /** @file
  * @brief A TermList in a honey database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2018,2024 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2018,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,10 +135,11 @@ HoneyTermList::next()
     current_wdf = 0;
 
     if (!current_term.empty()) {
-        size_t reuse = static_cast<unsigned char>(*pos++);
+        auto reuse = static_cast<unsigned char>(*pos++);
         if (reuse > current_term.size()) {
-            current_wdf = reuse / (current_term.size() + 1);
-            reuse = reuse % (current_term.size() + 1);
+            auto out_of = current_term.size() + 1;
+            current_wdf = Xapian::termcount(reuse / out_of);
+            reuse = reuse % out_of;
         }
         current_term.resize(reuse);
     }

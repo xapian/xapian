@@ -28,6 +28,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <algorithm>
 #include <limits>
 #include <string>
 
@@ -244,7 +245,14 @@ io_read(int fd, char * p, size_t n, size_t min)
 {
     size_t total = 0;
     while (n) {
-        ssize_t c = read(fd, p, n);
+#ifndef __WIN32__
+        auto read_size = n;
+#else
+        // Microsoft's read() takes `unsigned` for the length, so read at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned read_size = unsigned(std::min(n, size_t(1U << 31)));
+#endif
+        ssize_t c = read(fd, p, read_size);
         if (c <= 0) {
             if (c == 0) {
                 if (total >= min) break;
@@ -265,7 +273,14 @@ void
 io_write(int fd, const char * p, size_t n)
 {
     while (n) {
-        ssize_t c = write(fd, p, n);
+#ifndef __WIN32__
+        auto write_size = n;
+#else
+        // Microsoft's write() takes `unsigned` for the length, so write at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned write_size = unsigned(std::min(n, size_t(1U << 31)));
+#endif
+        ssize_t c = write(fd, p, write_size);
         if (c < 0) {
             if (errno == EINTR) continue;
             throw Xapian::DatabaseError("Error writing to file", errno);

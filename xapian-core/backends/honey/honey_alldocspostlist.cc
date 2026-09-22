@@ -243,7 +243,10 @@ DocLenChunkReader::update(HoneyCursor* cursor)
     width /= 8;
     if ((len - 1) % width != 0)
         throw Xapian::DatabaseCorruptError("Doclen data chunk has junk at end");
-    Xapian::docid first_did = last_did - (len - 1) / width + 1;
+    auto did_delta = (len - 1) / width;
+    if (did_delta > last_did)
+        throw Xapian::DatabaseCorruptError("Chunk wider than last_did");
+    Xapian::docid first_did = last_did - Xapian::docid(did_delta) + 1;
 
     did = first_did;
     if (!read_doclen(p)) {

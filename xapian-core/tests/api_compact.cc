@@ -640,7 +640,14 @@ DEFINE_TESTCASE(compacttofd2, compact) {
     char buf[8192];
     size_t n = sizeof(buf);
     while (n) {
-        ssize_t c = read(fd, buf, n);
+#ifndef __WIN32__
+        auto read_size = n;
+#else
+        // Microsoft's read() takes `unsigned` for the length, so read at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned read_size = unsigned(std::min(n, size_t(1U << 31)));
+#endif
+        ssize_t c = read(fd, buf, read_size);
         TEST(c > 0);
         for (const char * p = buf; p != buf + c; ++p) {
             TEST(*p == 0);

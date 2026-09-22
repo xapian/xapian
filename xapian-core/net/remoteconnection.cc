@@ -42,6 +42,7 @@
 # include <type_traits>
 #endif
 
+#include "clamp_cast.h"
 #include "debuglog.h"
 #include "fd.h"
 #include "filetests.h"
@@ -308,7 +309,9 @@ RemoteConnection::send_message(char type, string_view message, double end_time)
     size_t count = 0;
     while (true) {
         DWORD n;
-        BOOL ok = WriteFile(hout, str->data() + count, str->size() - count, &n, &overlapped);
+        BOOL ok = WriteFile(hout, str->data() + count,
+                            clamp_cast<DWORD>(str->size() - count),
+                            &n, &overlapped);
         if (!ok) {
             int errcode = GetLastError();
             if (errcode != ERROR_IO_PENDING)
@@ -446,7 +449,8 @@ RemoteConnection::send_file(char type, int fd, double end_time)
     size_t count = 0;
     while (true) {
         DWORD n;
-        BOOL ok = WriteFile(hout, buf + count, c - count, &n, &overlapped);
+        BOOL ok = WriteFile(hout, buf + count, clamp_cast<DWORD>(c - count),
+                            &n, &overlapped);
         if (!ok) {
             int errcode = GetLastError();
             if (errcode != ERROR_IO_PENDING)
@@ -636,7 +640,7 @@ RemoteConnection::get_message_chunked(double end_time)
     // handle partial reads.
     uint_least64_t len = static_cast<unsigned char>(buffer[1]);
     if (len < 128) {
-        chunked_data_left = len;
+        chunked_data_left = size_t(len);
         char type = buffer[0];
         buffer.erase(0, 2);
         RETURN(type);
@@ -652,7 +656,10 @@ RemoteConnection::get_message_chunked(double end_time)
     if (!unpack_uint(&p, p_end, &len)) {
         RETURN(-1);
     }
-    chunked_data_left = len;
+    if (rare(size_t(len) != len)) {
+        RETURN(-1);
+    }
+    chunked_data_left = size_t(len);
     size_t header_len = (p - buffer.data());
     unsigned char type = buffer[0];
     buffer.erase(0, header_len);
@@ -689,7 +696,14 @@ static void
 write_all(int fd, const char * p, size_t n)
 {
     while (n) {
-        ssize_t c = write(fd, p, n);
+#ifndef __WIN32__
+        auto write_size = n;
+#else
+        // Microsoft's write() takes `unsigned` for the length, so write at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned write_size = unsigned(std::min(n, size_t(1U << 31)));
+#endif
+        ssize_t c = write(fd, p, write_size);
         if (c < 0) {
             if (errno == EINTR) continue;
             throw Xapian::NetworkError("Error writing to file", errno);

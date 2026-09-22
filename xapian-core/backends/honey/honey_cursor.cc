@@ -79,7 +79,7 @@ bool
 HoneyCursor::next_from_index()
 {
     char buf[8];
-    int r;
+    unsigned r;
     {
         // FIXME: rework to take advantage of buffering that's happening
         // anyway?
@@ -89,7 +89,7 @@ HoneyCursor::next_from_index()
             *p++ = char(ch2);
             if (ch2 < 128) break;
         }
-        r = p - buf;
+        r = unsigned(p - buf);
     }
     const char* p = buf;
     const char* end = p + r;

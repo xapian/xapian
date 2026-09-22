@@ -158,24 +158,24 @@ SimplifiedDBN::train(const vector<Session> &sessions)
 
         vector<int> clicks = get_click_list(session.get_clicks());
 
-        int last_clicked_pos = clicks.size() - 1;
+        auto last_clicked_pos = clicks.size() - 1;
 
         for (size_t j = 0; j < clicks.size(); ++j)
             if (clicks[j] != 0)
                 last_clicked_pos = j;
 
         // Initialise some values.
-        for (int k = 0; k <= last_clicked_pos; ++k) {
+        for (size_t k = 0; k <= last_clicked_pos; ++k) {
             doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][0] = 1.0;
             doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][1] = 1.0;
             doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][0] = 1.0;
             doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][1] = 1.0;
         }
 
-        for (int k = 0; k <= last_clicked_pos; ++k) {
+        for (size_t k = 0; k <= last_clicked_pos; ++k) {
             if (clicks[k] != 0) {
                 doc_rel_fractions[qid][docids[k]][PARAM_ATTR_PROB][1] += 1;
-                if (int(k) == last_clicked_pos)
+                if (k == last_clicked_pos)
                     doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][1] += 1;
                 else
                     doc_rel_fractions[qid][docids[k]][PARAM_SAT_PROB][0] += 1;

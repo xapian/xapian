@@ -248,15 +248,19 @@ class PostlistCursor<const GlassTable&> : private GlassCursor {
                 }
             }
 
-            Xapian::docid new_chunk_firstdid = did;
+            // Both of these should be true since we start with size 1, and add
+            // 4 bytes at least once.
             AssertEq(chunk.size() % 4, 1);
-            // If the maximum possible docid is used then this will overflow to
-            // 0.  If this happens, we must be on the final chunk, and the only
-            // further uses of did are in the lines which immediately follow.
-            UNSIGNED_OVERFLOW_OK(did += chunk.size() / 4);
-            // In the overflow case, this will overflow back again.
-            Xapian::docid new_chunk_lastdid = UNSIGNED_OVERFLOW_OK(did - 1);
-            did += gap_size;
+            Assert(chunk.size() > 1);
+
+            Xapian::docid new_chunk_firstdid = did;
+            if (add_overflows(did, chunk.size() / 4 - 1, did)) {
+                throw Xapian::DatabaseCorruptError("doclen chunk wraps");
+            }
+            Xapian::docid new_chunk_lastdid = did;
+            if (gap_size) {
+                did += gap_size + 1;
+            }
 
             // Only encode document lengths using a whole number of bytes for
             // now.  We could allow arbitrary bit widths, but it complicates
@@ -648,7 +652,10 @@ class PostlistCursor<const HoneyTable&> : private HoneyCursor {
                 // before the division and integer division will round down to
                 // give us the result we want.
                 unsigned width = static_cast<unsigned char>(tag[0]) / 8;
-                firstdid = chunk_lastdid - (tag.size() - 2) / width;
+                auto entries = (tag.size() - 2) / width;
+                if (sub_overflows(chunk_lastdid, entries, firstdid)) {
+                    throw Xapian::DatabaseCorruptError("doclen chunk wraps");
+                }
                 // Normalise so all doclen chunk keys are the same.
                 key.assign(KEY_DOCLEN_PREFIX, 2);
                 return true;
@@ -981,9 +988,13 @@ merge_postlists(Xapian::Compactor* compactor,
                 tag.append(cur->tag, 1, copy_size);
                 cur->tag.erase(1, copy_size);
                 copy_size /= byte_width;
-                cur->firstdid += copy_size;
+                if (add_overflows(cur->firstdid, copy_size, cur->firstdid)) {
+                    throw Xapian::DatabaseCorruptError("doclen chunk wraps");
+                }
                 chunk_lastdid += gap_size;
-                chunk_lastdid += copy_size;
+                if (add_overflows(chunk_lastdid, copy_size, chunk_lastdid)) {
+                    throw Xapian::DatabaseCorruptError("doclen chunk wraps");
+                }
                 break;
             }
 
@@ -2125,12 +2136,13 @@ next_without_next:
                         Xapian::termcount current_wdf = 0;
 
                         if (!current_term.empty()) {
-                            size_t reuse = static_cast<unsigned char>(*pos++);
+                            auto reuse = static_cast<unsigned char>(*pos++);
                             newtag += char(reuse);
 
                             if (reuse > current_term.size()) {
-                                current_wdf = reuse / (current_term.size() + 1);
-                                reuse = reuse % (current_term.size() + 1);
+                                auto out_of = current_term.size() + 1;
+                                current_wdf = Xapian::termcount(reuse / out_of);
+                                reuse = reuse % out_of;
                             }
                             current_term.resize(reuse);
 

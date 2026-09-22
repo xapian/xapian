@@ -1,7 +1,7 @@
 /** @file
  * @brief Return docs containing terms forming a particular phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include "debuglog.h"
 #include "backends/positionlist.h"
 #include "omassert.h"
+#include "overflow.h"
 #include "str.h"
 
 #include <algorithm>
@@ -93,7 +94,10 @@ PhrasePostList::test_doc()
                 goto reject;
             }
             pos = poslists[i]->get_position();
-            b = pos + (terms.size() - i);
+            if (rare(add_overflows(pos, terms.size() - i, b))) {
+                // A match would require a termpos larger than the type max.
+                break;
+            }
         } while (b - base <= window);
         // Advance the start of the window to the first position it could match
         // in given the current position of term i.

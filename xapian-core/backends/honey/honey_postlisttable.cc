@@ -1,7 +1,7 @@
 /** @file
  * @brief Subclass of HoneyTable which holds postlists.
  */
-/* Copyright (C) 2007-2024 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 
 #include <memory>
 #include <string_view>
+
+#include "overflow.h"
 
 using namespace Honey;
 using namespace std;
@@ -98,7 +100,11 @@ HoneyPostListTable::get_used_docid_range(Xapian::doccount doccount,
         }
         cursor->read_tag();
         unsigned width = static_cast<unsigned char>(cursor->current_tag[0]) / 8;
-        first = last_in_first_chunk - (cursor->current_tag.size() - 2) / width;
+        if (sub_overflows(last_in_first_chunk,
+                          (cursor->current_tag.size() - 2) / width,
+                          first)) {
+            throw Xapian::DatabaseCorruptError("doclen chunk wraps");
+        }
     }
 
     // We know the last docid is at least first - 1 + doccount, so seek

@@ -244,7 +244,11 @@ InMemoryTermList::InMemoryTermList(intrusive_ptr<const InMemoryDatabase> db_,
                                    Xapian::docid did_,
                                    const InMemoryDoc & doc,
                                    Xapian::termcount len)
-        : pos(doc.terms.begin()), end(doc.terms.end()), terms(doc.terms.size()),
+        : pos(doc.terms.begin()), end(doc.terms.end()),
+          // `terms` is only used for get_approx_size() so clamping is OK
+          // in the really unlikely case of there being too many terms to
+          // fit in Xapian::termcount.
+          terms(clamp_cast<Xapian::termcount>(doc.terms.size())),
           started(false), db(db_), did(did_), document_length(len)
 {
     LOGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
@@ -612,8 +616,9 @@ InMemoryDatabase::get_unique_terms(Xapian::docid did) const
     // get_unique_terms() really ought to only count terms with wdf > 0, but
     // that's expensive to calculate on demand, so for now let's just ensure
     // unique_terms <= doclen.
-    Xapian::termcount terms = termlists[did - 1].terms.size();
-    return std::min(terms, Xapian::termcount(doclengths[did - 1]));
+    auto size = termlists[did - 1].terms.size();
+    auto doclen = doclengths[did - 1];
+    return Xapian::termcount(size < doclen ? size : doclen);
 }
 
 Xapian::termcount

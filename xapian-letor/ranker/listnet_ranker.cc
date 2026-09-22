@@ -129,7 +129,7 @@ ListNETRanker::train(const vector<vector<Xapian::FeatureVector>>& training_data)
     LOGCALL_VOID(API, "ListNETRanker::train", training_data);
     if (training_data.empty() || training_data[0].empty())
         throw InvalidArgumentError("Cannot train: no training data");
-    int feature_cnt = training_data[0][0].get_fcount();
+    size_t feature_cnt = training_data[0][0].get_fcount();
 
     // initialize the parameters for neural network
     vector<double> new_parameters(feature_cnt, 0.0);

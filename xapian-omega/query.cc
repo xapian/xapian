@@ -37,6 +37,7 @@
 #include <cassert>
 #include <cctype>
 #include <cerrno>
+#include <climits>
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>
@@ -1257,7 +1258,11 @@ static ssize_t
 write_all(int fd, const char * buf, size_t count)
 {
     while (count) {
+#ifdef __WIN32__
+        ssize_t r = write(fd, buf, int(min(count, size_t(INT_MAX))));
+#else
         ssize_t r = write(fd, buf, count);
+#endif
         if (rare(r < 0)) {
             if (errno == EINTR) continue;
             return r;
@@ -2187,6 +2192,12 @@ eval(const string& fmt, vector<string>& param)
             }
             case CMD_lookup: {
                 if (!vet_filename(args[0])) break;
+
+                // CDB files are limited to 4GB, so a key > 4GB
+                // isn't possible.
+                if (rare(args[1].length() > UINT_MAX)) break;
+                unsigned arg1_len = unsigned(args[1].length());
+
                 string cdbfile = cdb_dir + args[0];
                 int fd = open(cdbfile.c_str(), O_RDONLY);
                 if (fd == -1) break;
@@ -2197,8 +2208,8 @@ eval(const string& fmt, vector<string>& param)
                     break;
                 }
 
-                if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
-                    size_t datalen = cdb_datalen(&cdb);
+                if (cdb_find(&cdb, args[1].data(), arg1_len) > 0) {
+                    auto datalen = cdb_datalen(&cdb);
                     const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
                     if (dat) {
                         value.assign(static_cast<const char *>(dat), datalen);
@@ -2294,7 +2305,7 @@ eval(const string& fmt, vector<string>& param)
                 break;
             case CMD_nice: {
                 string::const_iterator i = args[0].begin();
-                int len = args[0].length();
+                auto len = args[0].length();
                 while (len) {
                     value += *i++;
                     if (--len && len % 3 == 0) value += option["thousand"];
@@ -2618,7 +2629,7 @@ eval(const string& fmt, vector<string>& param)
                     throw "Document id of the subid command should be > 0";
                 }
                 // This is the docid in the single shard.
-                Xapian::docid shard_did = (id - 1) / subdbs.size() + 1;
+                auto shard_did = Xapian::docid((id - 1) / subdbs.size() + 1);
                 // We now need to map this back to the docid in the collection
                 // of shards specified by the DB parameter value which $subdb
                 // returns.

@@ -98,13 +98,13 @@ class MyPostingSource : public Xapian::PostingSource {
     double get_weight() const override { return i->second; }
 
     Xapian::doccount get_termfreq_min() const override {
-        return weights.size();
+        return Xapian::doccount(weights.size());
     }
     Xapian::doccount get_termfreq_est() const override {
-        return weights.size();
+        return Xapian::doccount(weights.size());
     }
     Xapian::doccount get_termfreq_max() const override {
-        return weights.size();
+        return Xapian::doccount(weights.size());
     }
 
     void next(double /*wt*/) override {

@@ -411,23 +411,24 @@ HoneySpellingTermList::next()
     } else if (usual(!current_term.empty())) {
         keep = data[p++] ^ MAGIC_XOR_VALUE;
     }
-    size_t add;
+    unsigned add;
     if (p == data.size() ||
         (add = data[p] ^ MAGIC_XOR_VALUE) >= data.size() - p) {
         throw Xapian::DatabaseCorruptError("Bad spelling data (too little "
                                            "left)");
     }
+    ++p;
     if (rare(keep + tail > current_term.size())) {
         // The initial part to keep overlaps with the tail part which is an
         // unusual case requiring special handling.
         string tail_string(current_term, current_term.size() - tail);
-        current_term.replace(keep, string::npos, data.data() + p + 1, add);
+        current_term.replace(keep, string::npos, data.data() + p, add);
         current_term += tail_string;
     } else {
         current_term.replace(keep, current_term.size() - tail - keep,
-                             data.data() + p + 1, add);
+                             data.data() + p, add);
     }
-    p += add + 1;
+    p += add;
 
     return NULL;
 }

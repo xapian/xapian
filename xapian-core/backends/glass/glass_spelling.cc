@@ -408,7 +408,7 @@ GlassSpellingTermList::next()
     if (!current_term.empty()) {
         current_term.resize(uint8_t(data[p++]) ^ MAGIC_XOR_VALUE);
     }
-    size_t add;
+    unsigned add;
     if (p == data.size() ||
         (add = uint8_t(data[p]) ^ MAGIC_XOR_VALUE) >= data.size() - p)
         throw Xapian::DatabaseCorruptError("Bad spelling termlist");
