@@ -1813,10 +1813,7 @@ case $GXX$msvc in
   *yes*|*clang*)
     cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS" ;;
   *)
-    dnl Use -nologo here too for MSVC to avoid spam in configure output.
-    case $CXXFLAGS in *-nologo*) cxxcpp_flags="$cxxcpp_flags -nologo" ;; esac
-    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"
-    ;;
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS" ;;
 esac
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
@@ -1824,6 +1821,7 @@ dnl where we'll always have GNU sed, and other sed's will just interpret
 dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
+echo "$CXXCPP|$cxxcpp_flags"
 $CXXCPP $cxxcpp_flags\
         -DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
         -DMAJOR_VERSION="\"$MAJOR_VERSION\""\
