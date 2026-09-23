@@ -679,7 +679,7 @@ if test yes = "$GXX"; then
   rm -f conftest.cc
 elif test no != "$msvc"; then
   dnl -W1 is command-line default, -W3 IDE default, -W4 highest numbered level.
-  dnl AM_CXXFLAGS="$AM_CXXFLAGS -W4"
+  AM_CXXFLAGS="$AM_CXXFLAGS -W2"
 
   WERROR=-WX
 fi
