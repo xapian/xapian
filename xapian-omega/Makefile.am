@@ -248,7 +248,7 @@ noinst_HEADERS +=\
 	common/stringutils.h\
 	common/wordaccess.h
 
-AM_LDFLAGS = $(NO_UNDEFINED)
+AM_LDFLAGS = $(NO_UNDEFINED) @AM_LDFLAGS@
 
 # We want to compile transform.cc with PCRE2_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
