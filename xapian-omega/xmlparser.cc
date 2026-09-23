@@ -271,7 +271,7 @@ XmlParser::parse(string_view text)
                 // Default charset for XML is UTF-8.
                 charset = "utf-8";
 
-                string_view decl(p + 6, decl_end - (p + 6));
+                string_view decl(&p[6], decl_end - (p + 6));
                 size_t enc = decl.find("encoding");
                 if (enc == decl.npos) break;
 
