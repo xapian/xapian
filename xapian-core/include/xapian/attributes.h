@@ -38,7 +38,7 @@
 // current versions pretend to be GCC 4.2.
 #  if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8) || \
       defined __clang__
-#   define XAPIAN_NONNULL(LIST) __attribute__((__nonnull__ LIST))
+#   define XAPIAN_NONNULL(...) __attribute__((__nonnull__ __VA_ARGS__))
 #  endif
 # endif
 
@@ -81,7 +81,7 @@
  *  appear to be documented.  For confirmation see:
  *  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79961
  */
-# define XAPIAN_NONNULL(LIST)
+# define XAPIAN_NONNULL(...)
 #endif
 
 #endif // XAPIAN_INCLUDED_ATTRIBUTES_H

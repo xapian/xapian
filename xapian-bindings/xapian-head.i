@@ -77,15 +77,7 @@ using namespace std;
 #define XAPIAN_VISIBILITY_INTERNAL
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
-
-// This works around buggy behaviour in SWIG's preprocessor, and only works
-// because we currently only use XAPIAN_NONNULL() with an empty argument:
-//
-// https://github.com/swig/swig/pull/1111
-//
-// The correct version is:
-// #define XAPIAN_NONNULL(L)
-#define XAPIAN_NONNULL()
+#define XAPIAN_NONNULL(...)
 
 // Ignore these which SWIG seems to add pointless type entries for due them
 // being used in the SWIG typemap for std::pair.

@@ -693,8 +693,6 @@ fi
 AH_BOTTOM(
 [/* Disable stupid MSVC warnings. */
 #ifdef _MSC_VER
-/* Passing an empty parameter to a single parameter macro. */
-# pragma warning(disable:4003)
 /* Assignment in conditional expression; other compilers suppress with extra parentheses but not MSVC. */
 # pragma warning(disable:4706)
 /* A "performance" warning for converting int to bool. */
