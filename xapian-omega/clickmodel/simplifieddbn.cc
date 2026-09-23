@@ -2,6 +2,7 @@
  * @brief SimplifiedDBN class - the Simplified DBN click model.
  */
 /* Copyright (C) 2017 Vivek Pal
+ * Copyright (C) 2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -114,9 +115,8 @@ SimplifiedDBN::build_sessions(const string &logfile)
         while (ss >> std::ws) {
             string column_element;
             if (ss.peek() == '"') {
-                int pos = ss.tellg();
-                ss.seekg(pos + 1);
                 char ch;
+                (void)ss.get(ch);
                 while (ss.get(ch)) {
                     if (ch == '"')
                         break;
@@ -124,8 +124,8 @@ SimplifiedDBN::build_sessions(const string &logfile)
                 }
             } else {
                 if (ss.peek() == ',') {
-                    int pos = ss.tellg();
-                    ss.seekg(pos + 1);
+                    char ch;
+                    (void)ss.get(ch);
                 }
                 getline(ss, column_element, ',');
             }
