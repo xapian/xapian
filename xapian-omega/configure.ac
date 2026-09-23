@@ -724,6 +724,14 @@ AH_BOTTOM(
 # pragma warning(disable:4800)
 #endif
 
+/* POSIX get to deprecate POSIX things, not Microsoft. */
+# ifndef _CRT_NONSTDC_NO_WARNINGS
+#  define _CRT_NONSTDC_NO_WARNINGS
+# endif
+# ifndef _CRT_SECURE_NO_WARNINGS
+#  define _CRT_SECURE_NO_WARNINGS
+# endif
+
 /* MSVC defines _WIN32 but not __WIN32__. */
 #if !defined __WIN32__ && defined _WIN32
 # define __WIN32__
