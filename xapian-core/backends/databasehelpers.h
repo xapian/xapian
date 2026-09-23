@@ -109,14 +109,20 @@ read_stub_file(int fd_,
     }
 
     // Stub files should be small so read the whole file into memory and then
-    // iterate through it.
-    file_size_type len = file_size(fd);
-    if (len == 0) {
+    // iterate through it.  We fail with EFBIG if the file is >= 1MB, which is
+    // unfeasibly large for a stub file.
+    file_size_type file_len = file_size(fd);
+    if (rare(file_len >= size_t(1024 * 1024))) {
+        errno = EFBIG;
+        file_len = 0;
+    }
+    if (file_len == 0) {
         // Check errno to distinguish error from empty file.
         if (errno)
             throw Xapian::DatabaseError("Error reading from stub file", errno);
         return;
     }
+    size_t len = size_t(file_len);
 
     std::unique_ptr<char[]> data(new char[len]);
     len = io_pread(fd, data.get(), len, 0);
