@@ -1087,7 +1087,7 @@ CMD_MACRO // special tag for macro evaluation
 };
 
 struct func_attrib {
-    int tag;
+    unsigned tag;
     int minargs, maxargs, evalargs;
     char ensure;
 };
@@ -1591,8 +1591,13 @@ eval(const string& fmt, vector<string>& param)
                 break;
             }
             case CMD_def: {
+                auto new_tag = CMD_MACRO + macros.size();
+                if (rare(unsigned(new_tag) != new_tag)) {
+                    // Well over 4 billion macros have been defined!
+                    throw "Too many macros";
+                }
                 func_attrib *fa = new func_attrib;
-                fa->tag = CMD_MACRO + macros.size();
+                fa->tag = unsigned(new_tag);
                 fa->minargs = 0;
                 fa->maxargs = 9;
                 fa->evalargs = N; // FIXME: or 0?
@@ -2886,9 +2891,12 @@ eval(const string& fmt, vector<string>& param)
                 break;
             default: {
                 args.insert(args.begin(), param[0]);
-                int macro_no = func->second->tag - CMD_MACRO;
-                assert(macro_no >= 0 && unsigned(macro_no) < macros.size());
-                // throw "Unknown function '" + var + "'";
+                unsigned macro_no = func->second->tag - CMD_MACRO;
+                if (rare(macro_no >= macros.size())) {
+                    // Should never happen but prevent invalid reads, etc
+                    // if it somehow does.
+                    throw "Macro table invalid";
+                }
                 value = eval(macros[macro_no], args);
                 break;
             }

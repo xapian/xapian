@@ -50,7 +50,11 @@ class SubDB {
     const std::string& get_name() const { return name; }
 
     Xapian::docid map_docid(Xapian::docid did) const {
-        return (did - 1) * out_of + index + 1;
+        // Overflow should be impossible here because `did` is the subdb id
+        // which has been mapped from the docid in the full database, and
+        // out_of <= the number of shards in the full database, so the
+        // result must be <= the docid in the full database.
+        return Xapian::docid((did - 1) * out_of + index + 1);
     }
 };
 

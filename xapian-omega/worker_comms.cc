@@ -34,7 +34,7 @@ read_string(FILE* f, string& s)
     if (ch < 0) return false;
     size_t len = ch;
     if (len >= 253) {
-        unsigned i = len - 251;
+        size_t i = len - 251;
         len = 0;
         for ( ; i; --i) {
             ch = GETC(f);

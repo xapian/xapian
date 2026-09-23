@@ -83,12 +83,12 @@ class DateRangeLimit {
 
     bool is_set() const { return tm.tm_sec >= 0; }
 
-    DateRangeLimit operator-(int span) {
+    DateRangeLimit operator-(time_t span) {
         if (!is_set()) return *this;
         return DateRangeLimit(timegm(&tm) - span);
     }
 
-    DateRangeLimit operator+(int span) {
+    DateRangeLimit operator+(time_t span) {
         if (!is_set()) return *this;
         return DateRangeLimit(timegm(&tm) + span);
     }

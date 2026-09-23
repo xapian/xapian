@@ -321,7 +321,7 @@ parse_index_script(const string &filename)
     string line;
     size_t line_no = 0;
     // Line number where we saw a `unique` action, or 0 if we haven't.
-    int unique_line_no = 0;
+    size_t unique_line_no = 0;
     // Offset into line unique_line_no where the `unique` action was.
     size_t unique_pos = 0;
     while (getline(script, line)) {
