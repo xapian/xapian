@@ -1,7 +1,7 @@
 /** @file
  * @brief determine how much free physical memory there is.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,6 @@
  *  Returns the amount of free physical memory, in bytes, or -1 if this isn't
  *  known.
  */
-long get_free_physical_memory();
+long long get_free_physical_memory();
 
 #endif // OMEGA_INCLUDED_FREEMEM_H

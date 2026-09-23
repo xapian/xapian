@@ -1,7 +1,7 @@
 /** @file
  * @brief Run an external filter and capture its output in a std::string.
  */
-/* Copyright (C) 2003-2024 Olly Betts
+/* Copyright (C) 2003-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@
 # include <signal.h>
 #endif
 
+#include "clamp_cast.h"
 #include "closefrom.h"
 #include "freemem.h"
 #include "setenv.h"
@@ -301,10 +302,10 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
         // Limit process data to free physical memory.
-        long mem = get_free_physical_memory();
+        long long mem = get_free_physical_memory();
         if (mem > 0) {
             struct rlimit ram_limit = {
-                static_cast<rlim_t>(mem),
+                clamp_cast<rlim_t>(mem),
                 RLIM_INFINITY
             };
             // FIXME: setrlimit() is not listed in signal-safety(7) as safe to
@@ -637,10 +638,10 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
         // Limit process data to free physical memory.
-        long mem = get_free_physical_memory();
+        long long mem = get_free_physical_memory();
         if (mem > 0) {
             struct rlimit ram_limit = {
-                static_cast<rlim_t>(mem),
+                clamp_cast<rlim_t>(mem),
                 RLIM_INFINITY
             };
             // FIXME: setrlimit() is not listed in signal-safety(7) as safe to

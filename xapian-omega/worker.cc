@@ -35,6 +35,7 @@
 #include "safesysexits.h"
 #include <utility>
 
+#include "clamp_cast.h"
 #include "closefrom.h"
 #include "freemem.h"
 #include "handler.h"
@@ -110,10 +111,10 @@ Worker::start_worker_subprocess()
 #ifdef HAVE_SETRLIMIT
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA
         // Set a memory limit if it is possible
-        long mem = get_free_physical_memory();
+        long long mem = get_free_physical_memory();
         if (mem > 0) {
             struct rlimit ram_limit = {
-                static_cast<rlim_t>(mem),
+                clamp_cast<rlim_t>(mem),
                 RLIM_INFINITY
             };
 #ifdef RLIMIT_AS
