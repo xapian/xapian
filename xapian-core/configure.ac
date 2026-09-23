@@ -101,6 +101,9 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
+dnl Note whether CFLAGS was set.
+cflags_set=${CFLAGS+y}
+
 dnl See HACKING document for details of the reasons for required versions.
 AM_INIT_AUTOMAKE([1.13 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
 AC_CONFIG_SRCDIR([matcher/andpostlist.cc])
@@ -353,13 +356,21 @@ AC_LANG([C++])
 if test x"-g" = x"$CXXFLAGS" ; then
   dnl Autotools defaults CXXFLAGS to `-g` if the compiler isn't detected as GCC
   dnl and passing it `-g` doesn't result in an error.  However MSVC reacts to
-  dnl `-g` with a warning which is emitted for every file compiled.  In
+  dnl `-g` with a warning which is emitted for every C++ file compiled.  In
   dnl maintainer mode that may be promoted to an error by -Werror, -WX or
   dnl similar.  We only check this if CXXFLAGS is exactly `-g`, which avoids
   dnl checking for GCC (and clang which pretends to be GCC) or if CXXFLAGS is
   dnl explicitly specified.
   CXXFLAGS=
   XAPIAN_TEST_CXXFLAGS([-g], [CXXFLAGS])
+fi
+if test "$cflags_set:$CFLAGS" = ":-g" ; then
+  dnl Autotools defaults CFLAGS to `-g` if the compiler isn't detected as GCC
+  dnl and passing it `-g` doesn't result in an error.  However MSVC reacts to
+  dnl `-g` with a warning which is emitted for every C file compiled.  We only
+  dnl use the C compiler for build-time tools so turn off `-g` in this case.
+  dnl If you really want it, `./configure CFLAGS=-g` should work.
+  CFLAGS=
 fi
 
 dnl With xlC on AIX, -D_LARGE_FILES changed the ABI of std::string, so it

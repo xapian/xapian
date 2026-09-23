@@ -6,6 +6,9 @@ AC_PREREQ([2.63])
 
 AC_INIT([xapian-bindings], [2.1.0], [https://xapian.org/bugs])
 
+dnl Note whether CFLAGS was set.
+cflags_set=${CFLAGS+y}
+
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AM_INIT_AUTOMAKE([1.13 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
@@ -126,6 +129,14 @@ if test x"-g" = x"$CXXFLAGS" ; then
   dnl explicitly specified.
   CXXFLAGS=
   XAPIAN_TEST_CXXFLAGS([-g], [CXXFLAGS])
+fi
+if test "$cflags_set:$CFLAGS" = ":-g" ; then
+  dnl Autotools defaults CFLAGS to `-g` if the compiler isn't detected as GCC
+  dnl and passing it `-g` doesn't result in an error.  However MSVC reacts to
+  dnl `-g` with a warning which is emitted for every C file compiled.  We only
+  dnl use the C compiler for build-time tools so turn off `-g` in this case.
+  dnl If you really want it, `./configure CFLAGS=-g` should work.
+  CFLAGS=
 fi
 
 dnl Run tests using the C++ compiler.
