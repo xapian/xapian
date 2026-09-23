@@ -784,7 +784,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        env
         sudo apt-get update
         sudo apt-get install \
             clang \
@@ -861,7 +860,6 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
-        env
         sudo apt-get update
         sudo apt-get install \
             clang-11
