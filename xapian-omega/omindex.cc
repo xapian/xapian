@@ -205,7 +205,7 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
                              d.get_size(), d.get_mtime(),
                              SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
                 }
-            } catch (const FileNotFound & e) {
+            } catch (const FileNotFound&) {
                 skip("U" + url, file.substr(root.size()), "File removed during indexing",
                      d.get_size(), d.get_mtime(),
                      /*SKIP_VERBOSE_ONLY |*/ SKIP_SHOW_FILENAME);
