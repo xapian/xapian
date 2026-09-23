@@ -1,7 +1,7 @@
 /** @file
  * @brief Iterator through entries in a directory.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012,2013,2014,2015,2018,2019 Olly Betts
+/* Copyright (C) 2007-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,9 @@ class DirectoryIterator {
     struct dirent *entry;
     struct stat statbuf;
     bool statbuf_valid;
+#ifdef HAVE_LSTAT
     bool follow_symlinks;
+#endif
     int fd = -1;
 
     void call_stat();
@@ -96,7 +98,14 @@ class DirectoryIterator {
   public:
 
     explicit DirectoryIterator(bool follow_symlinks_)
-        : follow_symlinks(follow_symlinks_) { }
+#ifdef HAVE_LSTAT
+        : follow_symlinks(follow_symlinks_)
+#endif
+    {
+#ifndef HAVE_LSTAT
+        (void)follow_symlinks_;
+#endif
+    }
 
     ~DirectoryIterator() {
         if (dir) closedir(dir);
