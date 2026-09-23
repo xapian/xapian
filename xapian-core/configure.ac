@@ -109,6 +109,66 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_MACRO_DIRS([m4])
 
+xo_fn_unknown_option_check() {
+  dnl Some compilers don't error out on unknown options which unhelpfully
+  dnl means we would think the option is supported, use it, and end up
+  dnl with a warning or note diagnostic every time we use the option.
+  dnl
+  dnl Things can be even worse in maintainer-mode as the option may only warn
+  dnl at configure time, but then at build time that warning may be promoted to
+  dnl an error by -Werror, -WX or similar.
+  dnl
+  dnl Check compiler stderr for known strings:
+  dnl * MSVC: Command line warning D9002 : ignoring unknown option '...'
+  dnl * MSVC: LINK : warning LNK4044: unrecognized option '...'; ignored
+  dnl * clang-cl: unknown argument ignored in clang-cl: '-fno-math-errno' [-Wunknown-argument]
+  dnl * icc strings cribbed from automake's depend.m4
+  dnl * AIX: ld: 0706-027 The -B symbolic-functions flag is ignored.
+  $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'unknown.argument' conftest.err >/dev/null 2>&1 ||
+      $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
+      $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
+      $GREP 'flag is ignored' conftest.err >/dev/null 2>&1 ||
+      return 1
+  return 0
+}
+
+AC_DEFUN([XAPIAN_TEST_FLAGS_],
+  [
+  m4_define([cachevar],
+            [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
+  AC_CACHE_CHECK([for $CXX with $3 in $1], cachevar,
+    [
+    XTF_save_$1=${$1}
+    $1="${$1} $3"
+    $2([AC_LANG_PROGRAM([], [])],
+      [if xo_fn_unknown_option_check ; then
+         cachevar=no
+       else
+         cachevar=yes
+       fi],
+      [cachevar=no])
+    $1=$XTF_save_$1
+    ])
+  if test "$cachevar" = yes ; then
+    $4="${$4} $3"
+    $5
+  else :
+    $6
+  fi
+  ])
+
+dnl Test if compiling works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
+  [XAPIAN_TEST_FLAGS_([CXXFLAGS], [AC_COMPILE_IFELSE], [$1], [$2], [$3], [$4])])
+
+dnl Test if linking works with $1 added to LDFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_LDFLAGS],
+  [XAPIAN_TEST_FLAGS_([LDFLAGS], [AC_LINK_IFELSE], [$1], [$2], [$3], [$4])])
+
 AM_PROG_AR
 
 dnl Use libtool to manage our libraries.
@@ -290,6 +350,18 @@ CC=$save_CC
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
 
+if test x"-g" = x"$CXXFLAGS" ; then
+  dnl Autotools defaults CXXFLAGS to `-g` if the compiler isn't detected as GCC
+  dnl and passing it `-g` doesn't result in an error.  However MSVC reacts to
+  dnl `-g` with a warning which is emitted for every file compiled.  In
+  dnl maintainer mode that may be promoted to an error by -Werror, -WX or
+  dnl similar.  We only check this if CXXFLAGS is exactly `-g`, which avoids
+  dnl checking for GCC (and clang which pretends to be GCC) or if CXXFLAGS is
+  dnl explicitly specified.
+  CXXFLAGS=
+  XAPIAN_TEST_CXXFLAGS([-g], [CXXFLAGS])
+fi
+
 dnl With xlC on AIX, -D_LARGE_FILES changed the ABI of std::string, so it
 dnl also needed to be used when compiling user code.  We no longer support
 dnl using xlC because it lacks C++17 support, but this may still be needed
@@ -338,66 +410,6 @@ XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
 AC_SUBST([XAPIAN_LIBS])
-
-xo_fn_unknown_option_check() {
-  dnl Some compilers don't error out on unknown options which unhelpfully
-  dnl means we would think the option is supported, use it, and end up
-  dnl with a warning or note diagnostic every time we use the option.
-  dnl
-  dnl Things can be even worse in maintainer-mode as the option may only warn
-  dnl at configure time, but then at build time that warning may be promoted to
-  dnl an error by -Werror, -WX or similar.
-  dnl
-  dnl Check compiler stderr for known strings:
-  dnl * MSVC: Command line warning D9002 : ignoring unknown option '...'
-  dnl * MSVC: LINK : warning LNK4044: unrecognized option '...'; ignored
-  dnl * clang-cl: unknown argument ignored in clang-cl: '-fno-math-errno' [-Wunknown-argument]
-  dnl * icc strings cribbed from automake's depend.m4
-  dnl * AIX: ld: 0706-027 The -B symbolic-functions flag is ignored.
-  $GREP 'ignoring unknown option' conftest.err >/dev/null 2>&1 ||
-      $GREP 'unrecognized option' conftest.err >/dev/null 2>&1 ||
-      $GREP 'unknown.argument' conftest.err >/dev/null 2>&1 ||
-      $GREP 'ignoring option' conftest.err >/dev/null 2>&1 ||
-      $GREP 'not supported' conftest.err >/dev/null 2>&1 ||
-      $GREP 'flag is ignored' conftest.err >/dev/null 2>&1 ||
-      return 1
-  return 0
-}
-
-AC_DEFUN([XAPIAN_TEST_FLAGS_],
-  [
-  m4_define([cachevar],
-            [xo_cv_]m4_tolower(m4_bpatsubst([$1][_$3], [[^A-Za-z0-9]], [_])))
-  AC_CACHE_CHECK([for $CXX with $3 in $1], cachevar,
-    [
-    XTF_save_$1=${$1}
-    $1="${$1} $3"
-    $2([AC_LANG_PROGRAM([], [])],
-      [if xo_fn_unknown_option_check ; then
-         cachevar=no
-       else
-         cachevar=yes
-       fi],
-      [cachevar=no])
-    $1=$XTF_save_$1
-    ])
-  if test "$cachevar" = yes ; then
-    $4="${$4} $3"
-    $5
-  else :
-    $6
-  fi
-  ])
-
-dnl Test if compiling works with $1 added to CXXFLAGS; if it does, add $1 to
-dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
-AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
-  [XAPIAN_TEST_FLAGS_([CXXFLAGS], [AC_COMPILE_IFELSE], [$1], [$2], [$3], [$4])])
-
-dnl Test if linking works with $1 added to LDFLAGS; if it does, add $1 to
-dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
-AC_DEFUN([XAPIAN_TEST_LDFLAGS],
-  [XAPIAN_TEST_FLAGS_([LDFLAGS], [AC_LINK_IFELSE], [$1], [$2], [$3], [$4])])
 
 dnl Preserve the default CXXFLAGS.
 save_CXXFLAGS=$CXXFLAGS
