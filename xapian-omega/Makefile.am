@@ -222,6 +222,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
 noinst_HEADERS +=\
 	common/alignment_cast.h\
 	common/append_filename_arg.h\
+	common/clamp_cast.h\
 	common/closefrom.h\
 	common/gnu_getopt.h\
 	common/keyword.h\
