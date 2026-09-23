@@ -1827,7 +1827,7 @@ $CXXCPP $cxxcpp_flags\
         -DMINOR_VERSION="\"$MINOR_VERSION\""\
         -DREVISION="\"$REVISION\""\
         $dash_d_visibility\
-        $srcdir/include/xapian/version_h.cc|\
+        $srcdir/include/xapian/version_h.cc 2>&AS_MESSAGE_LOG_FD|\
         ${SED-sed} '0,/const char \* dummy/d;/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
         > include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
