@@ -1,7 +1,7 @@
 /** @file
  * @brief Track files we failed to index
  */
-/* Copyright (C) 2014,2015 Olly Betts
+/* Copyright (C) 2014,2015,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
 #ifndef OMEGA_INCLUDED_FAILED_H
 #define OMEGA_INCLUDED_FAILED_H
 
-#include <cstdlib>
 #include <sys/types.h>
 #include <string>
+#include <string_view>
 
+#include "parseint.h"
 #include "str.h"
 
 /** Maintain a "database of failure" in the user metadata.
@@ -53,16 +54,19 @@ class Failed {
     bool contains(const std::string & key, time_t& last_mod, off_t& size) {
         const std::string value = db.get_metadata(key);
         if (value.empty()) return false;
-        const char * p = value.c_str();
-        char * end;
-        long long v = strtoll(p, &end, 10);
-        if (*end != ',') return false;
-        // FIXME: check conversions.
-        last_mod = v;
-        p = end + 1;
-        v = strtoll(p, &end, 10);
-        size = v;
-        return true;
+        const char* p = value.c_str();
+        const char* comma = strchr(p, ',');
+        if constexpr (time_t(-1) < time_t(0)) {
+            // time_t is signed.
+            if (!parse_signed(p, comma - p, last_mod))
+                return false;
+        } else {
+            // time_t is unsigned.
+            if (!parse_unsigned(p, comma - p, last_mod))
+                return false;
+        }
+        p = comma + 1;
+        return parse_signed(p, size);
     }
 
     void del(const std::string & key) {
