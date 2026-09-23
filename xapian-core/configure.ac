@@ -1823,7 +1823,6 @@ dnl where we'll always have GNU sed, and other sed's will just interpret
 dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
-echo "$CXXCPP|$cxxcpp_flags"
 $CXXCPP $cxxcpp_flags\
         -DSTRING_VERSION="\"@@$MAIN_VERSION@@\""\
         -DMAJOR_VERSION="\"$MAJOR_VERSION\""\
