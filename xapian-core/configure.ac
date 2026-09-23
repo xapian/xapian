@@ -1813,7 +1813,10 @@ case $GXX$msvc in
   *yes*|*clang*)
     cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS" ;;
   *)
-    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS" ;;
+    dnl Use -nologo here too for MSVC to avoid spam in configure output.
+    case $CXXFLAGS in *-nologo*) cxxcpp_flags="$cxxcpp_flags -nologo" ;; esac
+    cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"
+    ;;
 esac
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
