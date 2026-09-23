@@ -419,8 +419,8 @@ esac
 swig_git_commit_hash=d598176759f5d199e288cf78413cfaa3bf84449f
 
 # Commit hashes to use for common in omega and letor respectively:
-omega_common_commit_hash=9e5b9558208005d8fd4fe53d4818421fc00ab6a2
-letor_common_commit_hash=9e5b9558208005d8fd4fe53d4818421fc00ab6a2
+omega_common_commit_hash=df6e8a33085fe6af16913e2017b0348b37403fe1
+letor_common_commit_hash=df6e8a33085fe6af16913e2017b0348b37403fe1
 
 gitdir=`git rev-parse --git-dir`
 
