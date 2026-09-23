@@ -65,7 +65,7 @@ coverage-check:
 	## Don't run under valgrind even if configure was run by hand.
 	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
 	rm -f xapian-core.lcov
-	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
+	lcov --capture -d . --quiet --rc 'branch_coverage=1' --no-external -o xapian-core.lcov
 	rm -rf lcov
 	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p '$(abs_builddir)' -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
