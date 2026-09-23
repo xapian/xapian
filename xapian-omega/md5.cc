@@ -25,6 +25,7 @@
  * + Renamed to .cc and compiled as C++.
  * + Changed MD5Context.in to uint32_t instead of unsigned char, and
  *   byteReverse to take "uint32_t *" instead of "unsigned char *".
+ * + MD5Update len parameter changed to "size_t" instead of "unsigned".
  */
 
 #include <config.h>
@@ -77,7 +78,7 @@ void MD5Init(struct MD5Context *ctx)
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
+void MD5Update(struct MD5Context *ctx, unsigned char const *buf, size_t len)
 {
     uint32_t t;
 
@@ -86,7 +87,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
     t = ctx->bits[0];
     if ((ctx->bits[0] = t + (uint32_t(len) << 3)) < t)
         ctx->bits[1]++;         /* Carry from low to high */
-    ctx->bits[1] += len >> 29;
+    ctx->bits[1] += uint32_t(len >> 29);
 
     t = (t >> 3) & 0x3f;        /* Bytes already in shsInfo->data */
 
