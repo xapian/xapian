@@ -1,7 +1,7 @@
 /** @file
  * @brief Implement strptime() using std::get_time()
  */
-/* Copyright 2019,2025 Olly Betts
+/* Copyright 2019,2025,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ strptime_using_std_get_time(const char* date_string,
     std::istringstream s(date_string);
     s >> std::get_time(tm, format);
     if (s.fail()) return NULL;
-    return const_cast<char*>(date_string + s.tellg());
+    return const_cast<char*>(date_string + size_t(s.tellg()));
 }
 
 #endif

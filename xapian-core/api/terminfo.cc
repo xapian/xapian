@@ -100,7 +100,7 @@ TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
             // entry.
             AssertRel(new_split, <=, numeric_limits<decltype(split)>::max());
         }
-        split = new_split;
+        split = static_cast<decltype(split)>(new_split);
         positions.push_back(termpos);
     }
     return false;

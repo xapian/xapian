@@ -189,7 +189,7 @@ class QueryBuilder {
     Xapian::Query make_query() {
         unsigned int steps = randint(maxsteps) + 1;
         while (steps-- != 0) {
-            QueryStep & step = options[randint(options.size())];
+            QueryStep & step = options[randint(unsigned(options.size()))];
             step(env);
         }
         return env.pop();

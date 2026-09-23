@@ -184,9 +184,10 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (j == 0) {
         for (c = DIR_START; c < dir_end; c += D2) {
             LeafItem item(p, c);
-            int o = item.get_address() - p;
-            if (o > int(block_size))
+            size_t o_ = item.get_address() - p;
+            if (o_ > block_size)
                 failure("item starts outside block", n, c);
+            int o = int(o_);
             if (o - dir_end < int(max_free))
                 failure("item overlaps directory", n, c);
 
@@ -201,9 +202,10 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     } else {
         for (c = DIR_START; c < dir_end; c += D2) {
             BItem item(p, c);
-            int o = item.get_address() - p;
-            if (o > int(block_size))
+            size_t o_ = item.get_address() - p;
+            if (o_ > block_size)
                 failure("item starts outside block", n, c);
+            int o = int(o_);
             if (o - dir_end < int(max_free))
                 failure("item overlaps directory", n, c);
 

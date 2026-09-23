@@ -109,7 +109,8 @@ load_file(const string& file_name, size_t max_to_read, int flags,
     output.reserve(n);
     while (n) {
         char blk[4096];
-        int c = read(fd, blk, min(n, sizeof(blk)));
+        unsigned read_size = unsigned(min(n, sizeof(blk)));
+        int c = read(fd, blk, read_size);
         if (c <= 0) {
             if (c == 0) break;
             if (errno == EINTR) continue;

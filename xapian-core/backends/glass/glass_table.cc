@@ -1351,17 +1351,18 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
     }
 
     // There are m items to add.
-    int m = (tag_size - first_L + L - 1) / L + 1;
+    auto m_ = (tag_size - first_L + L - 1) / L + 1;
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
-    if (m >= BYTE_PAIR_RANGE) {
+    if (m_ >= BYTE_PAIR_RANGE) {
         string message = "Btree tag entry of size ";
         message += str(tag_size);
         message += " is too large to store - "
              "increase the block size to raise this limit";
         throw Xapian::UnimplementedError(message);
     }
+    int m = int(m_);
 
     size_t o = 0;                     // Offset into the tag
     size_t residue = tag_size;        // Bytes of the tag remaining to add in
@@ -1373,7 +1374,7 @@ GlassTable::add(string_view key, string_view tag, bool already_compressed)
         size_t this_cd = (i == 1 ? cd - X2 : cd);
         Assert(this_cd + l <= block_size);
         Assert(o + l <= tag_size);
-        kt.set_tag(this_cd, tag_data + o, l, compressed, i, m);
+        kt.set_tag(int(this_cd), tag_data + o, int(l), compressed, i, m);
 
         o += l;
         residue -= l;

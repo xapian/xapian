@@ -130,11 +130,11 @@ ListMLERanker::train(const vector<vector<FeatureVector>>& training_data)
     LOGCALL_VOID(API, "ListMLERanker::train", training_data);
     if (training_data.empty() || training_data[0].empty())
         throw InvalidArgumentError("Cannot train: no training data");
-    int feature_cnt = training_data[0][0].get_fcount();
+    size_t feature_cnt = training_data[0][0].get_fcount();
 
     // Initialize the parameters for neural network
     vector<double> new_parameters;
-    for (int feature_num = 0; feature_num < feature_cnt; ++feature_num) {
+    for (size_t feature_num = 0; feature_num < feature_cnt; ++feature_num) {
         new_parameters.push_back(0.0);
     }
 

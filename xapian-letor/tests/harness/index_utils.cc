@@ -83,8 +83,8 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
         value0 += para;
         doc.add_value(0, value0);
 
-        for (Xapian::valueno i = min(para.length(), size_t(10)); i >= 1; --i) {
-            doc.add_value(i, para.substr(i, 1));
+        for (auto i = min(para.length(), size_t(10)); i >= 1; --i) {
+            doc.add_value(Xapian::valueno(i), para.substr(i, 1));
         }
         // Value 11 is useful for tests of sorting
         doc.add_value(11, Xapian::sortable_serialise(double(para.size())));

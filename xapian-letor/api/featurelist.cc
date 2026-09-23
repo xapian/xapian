@@ -75,8 +75,8 @@ void
 FeatureList::normalise(std::vector<FeatureVector>& fvec) const
 {
     LOGCALL_VOID(API, "FeatureList::normalise", fvec);
-    int num_features = fvec[0].get_fcount();
-    for (int j = 0; j < num_features; ++j) {
+    size_t num_features = fvec[0].get_fcount();
+    for (size_t j = 0; j < num_features; ++j) {
         // Find the maximum value of this feature.
         double max_fval = 0.0;
         for (const auto& v : fvec) {

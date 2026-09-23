@@ -67,7 +67,14 @@ static size_t do_read(int fd, char * p, size_t desired)
 {
     size_t total = 0;
     while (desired) {
-        ssize_t c = read(fd, p, desired);
+#ifndef __WIN32__
+        auto read_size = desired;
+#else
+        // Microsoft's read() takes `unsigned` for the length, so read at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned read_size = unsigned(std::min(desired, size_t(1U << 31)));
+#endif
+        ssize_t c = read(fd, p, read_size);
         if (c == 0) return total;
         if (c < 0) {
             if (errno == EINTR) continue;
@@ -83,7 +90,14 @@ static size_t do_read(int fd, char * p, size_t desired)
 static void do_write(int fd, const char * p, size_t n)
 {
     while (n) {
-        ssize_t c = write(fd, p, n);
+#ifndef __WIN32__
+        auto write_size = n;
+#else
+        // Microsoft's write() takes `unsigned` for the length, so write at
+        // most 2GB at a time - the size should rarely be that large.
+        unsigned write_size = unsigned(std::min(n, size_t(1U << 31)));
+#endif
+        ssize_t c = write(fd, p, write_size);
         if (c < 0) {
             if (errno == EINTR) continue;
             FAIL_TEST("Error writing to file");
@@ -113,7 +127,7 @@ truncated_copy(const string& srcpath,
     char buf[BUFSIZE];
     size_t total_bytes = 0;
     while (tocopy > 0) {
-        size_t thiscopy = tocopy > BUFSIZE ? BUFSIZE : tocopy;
+        size_t thiscopy = size_t(tocopy > BUFSIZE ? BUFSIZE : tocopy);
         size_t bytes = do_read(fdin, buf, thiscopy);
         if (thiscopy != bytes) {
             FAIL_TEST("Couldn't read desired number of bytes from changeset");

@@ -259,7 +259,7 @@ class LeafItem_wr : public LeafItem_base<uint8_t *> {
             throw Xapian::InvalidArgumentError(msg);
         }
 
-        set_key_len(key_len);
+        set_key_len(int(key_len));
         *p |= I_FIRST_BIT;
         if (key_len)
             std::memmove(p + I2 + K1, key_.data(), key_len);

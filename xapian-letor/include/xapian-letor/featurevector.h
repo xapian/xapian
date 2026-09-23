@@ -68,10 +68,10 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_fvals(const std::vector<double> & fvals);
 
     /// Set individual feature value from vector of fvals, by index.
-    void set_feature_value(int index, double value);
+    void set_feature_value(size_t index, double value);
 
     /// Get number of feature values corresponding to the FeatureVector object
-    int get_fcount() const;
+    size_t get_fcount() const;
 
     /// Get score value corresponding to the FeatureVector object
     double get_score() const;
@@ -86,7 +86,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     std::vector<double> get_fvals() const;
 
     /// Get individual feature value from vector of fvals, by index.
-    double get_feature_value(int index) const;
+    double get_feature_value(size_t index) const;
 };
 
 }

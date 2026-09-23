@@ -636,7 +636,7 @@ RemoteConnection::get_message_chunked(double end_time)
     // handle partial reads.
     uint_least64_t len = static_cast<unsigned char>(buffer[1]);
     if (len < 128) {
-        chunked_data_left = len;
+        chunked_data_left = size_t(len);
         char type = buffer[0];
         buffer.erase(0, 2);
         RETURN(type);
@@ -652,7 +652,10 @@ RemoteConnection::get_message_chunked(double end_time)
     if (!unpack_uint(&p, p_end, &len)) {
         RETURN(-1);
     }
-    chunked_data_left = len;
+    if (rare(size_t(len) != len)) {
+        RETURN(-1);
+    }
+    chunked_data_left = size_t(len);
     size_t header_len = (p - buffer.data());
     unsigned char type = buffer[0];
     buffer.erase(0, header_len);

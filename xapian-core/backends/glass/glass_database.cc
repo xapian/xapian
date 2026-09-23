@@ -513,7 +513,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
             whole_db_copies_left--;
 
             // Send the whole database across.
-            start_rev_num = get_revision();
+            start_rev_num = glass_revision_number_t(get_revision());
             start_uuid = get_uuid();
 
             send_whole_database(conn, 0.0);
@@ -529,7 +529,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
                 // copy is safe to make live.
 
                 string buf;
-                needed_rev_num = get_revision();
+                needed_rev_num = glass_revision_number_t(get_revision());
                 pack_uint(buf, needed_rev_num);
                 conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
                 if (info != NULL && start_rev_num == needed_rev_num)
