@@ -845,9 +845,9 @@ jobs:
     - name: Install package dependencies
       run: |
         sudo apt-get update
+        # libcrypt-dev needed for crypt.h included by Perl headers.
         sudo apt-get install \
             python3-sphinx \
-            uuid-dev \
             libpcre2-dev \
             libmagic-dev \
             lua5.4 \
@@ -858,6 +858,7 @@ jobs:
             tcl-dev \
             libicu-dev \
             pkg-config \
+            libcrypt-dev \
             libpoppler-glib-dev \
             libglib2.0-dev \
             libe-book-dev \
