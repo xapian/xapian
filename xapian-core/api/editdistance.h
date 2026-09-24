@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "omassert.h"
+#include "xapian/error.h"
 #include "xapian/unicode.h"
 
 /** Calculate edit distances to a target string.
@@ -114,6 +115,11 @@ class EditDistanceCalculator {
     explicit
     EditDistanceCalculator(std::string_view target_)
         : target_bytes(target_.size()) {
+        if (target_bytes > size_t(INT_MAX)) {
+            // Xapian only calculates edit distances for words but this defends
+            // assumptions made in the algorithm.
+            throw Xapian::InvalidArgumentError("Edit distance target too long");
+        }
         using Xapian::Utf8Iterator;
         for (Utf8Iterator it(target_); it != Utf8Iterator(); ++it) {
             unsigned ch = *it;
@@ -183,7 +189,7 @@ class EditDistanceCalculator {
         }
 
         // Actually calculate the edit distance.
-        return calc(&utf32[0], utf32.size(), max_distance);
+        return calc(&utf32[0], int(utf32.size()), max_distance);
     }
 };
 
