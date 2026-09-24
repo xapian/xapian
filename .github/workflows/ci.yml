@@ -94,7 +94,7 @@ jobs:
     - name: make
       run: make -j2
     - name: Run tests
-      run: #make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
+      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
     - name: Create distribution tarball
       run: |
         make dist
@@ -123,7 +123,6 @@ jobs:
           **/*.log
 
   clang-santisers:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -242,7 +241,6 @@ jobs:
           **/*.log
 
   GLIBCXX_DEBUG:
-    if: false
     runs-on: 'ubuntu-26.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -347,7 +345,6 @@ jobs:
           **/*.log
 
   FORTIFY_SOURCE_3:
-    if: false
     # _FORTIFY_SOURCE level 3 requires GCC 12.
     runs-on: 'ubuntu-24.04'
     env:
@@ -459,7 +456,6 @@ jobs:
           **/*.log
 
   valgrind:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -560,7 +556,6 @@ jobs:
           **/*.log
 
   assertions:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -660,7 +655,6 @@ jobs:
           **/*.log
 
   assertions-partial:
-    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -715,7 +709,6 @@ jobs:
           **/*.log
 
   debug-log:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -916,7 +909,6 @@ jobs:
           **/*.log
 
   clang:
-    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1018,7 +1010,6 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
-    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1116,7 +1107,6 @@ jobs:
   # GCC 7 is the oldest GCC we currently aim to support.
   # Ubuntu 22.04 has GCC 9.3.0.
   GCC7:
-    if: false
     name: 'GCC 9'
     runs-on: 'ubuntu-22.04'
     env:
@@ -1218,7 +1208,6 @@ jobs:
           **/*.log
 
   Emscripten:
-    if: false
     runs-on: 'ubuntu-24.04'
     needs: makedist
     env:
@@ -1272,7 +1261,6 @@ jobs:
           **/*.log
 
   debian-stable:
-    if: false
     runs-on: 'ubuntu-latest'
     container: debian:stable
     env:
@@ -1374,7 +1362,6 @@ jobs:
           **/*.log
 
   macos-27:
-    if: false
     runs-on: 'xcode-27'
     needs: makedist
     steps:
@@ -1480,7 +1467,6 @@ jobs:
           **/*.log
 
   macos-26:
-    if: false
     runs-on: 'macos-26'
     needs: makedist
     steps:
@@ -1586,7 +1572,6 @@ jobs:
           **/*.log
 
   macos-15:
-    if: false
     runs-on: 'macos-15'
     needs: makedist
     steps:
@@ -1853,7 +1838,6 @@ jobs:
           **/*.log
 
   Fedora:
-    if: false
     runs-on: 'ubuntu-22.04'
     container: fedora:35
     needs: makedist
@@ -1930,7 +1914,6 @@ jobs:
           **/*.log
 
   android-cross:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       # Use the default ANDROID_NDK.
@@ -2008,7 +1991,6 @@ jobs:
           **/*.log
 
   cygwin:
-    if: false
     # We only test 64-bit cygwin as 32-bit support has been dropped as of
     # Cygwin 3.4:
     # https://cygwin.com/pipermail/cygwin/2022-November/252542.html
@@ -2086,7 +2068,6 @@ jobs:
           **/*.log
 
   msys2-mingw32:
-    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2180,7 +2161,6 @@ jobs:
           **/*.log
 
   msys2-mingw64:
-    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2264,7 +2244,6 @@ jobs:
           **/*.log
 
   msys2-ucrt64:
-    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2789,7 +2768,6 @@ jobs:
           **/*.log
 
   clang-cl:
-    if: false
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
@@ -2902,7 +2880,6 @@ jobs:
           **/*.log
 
   freebsd:
-    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2978,7 +2955,6 @@ jobs:
           **/*.log
 
   dragonfly:
-    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3054,7 +3030,6 @@ jobs:
           **/*.log
 
   netbsd:
-    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3129,7 +3104,6 @@ jobs:
           **/*.log
 
   openbsd:
-    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3208,7 +3182,6 @@ jobs:
           **/*.log
 
   solaris:
-    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3283,7 +3256,6 @@ jobs:
           **/*.log
 
   checkpatch:
-    if: false
     name: 'Automated run of xapian-check-patch'
     runs-on: 'ubuntu-slim'
     steps:
