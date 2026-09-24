@@ -1,7 +1,7 @@
 /** @file
  * @brief class wrapper around zlib
  */
-/* Copyright (C) 2007,2009,2012,2013,2014,2016,2019 Olly Betts
+/* Copyright (C) 2007,2009,2012,2013,2014,2016,2019,2026 Olly Betts
  * Copyright (C) 2009 Richard Boulton
  * Copyright (C) 2012 Dan Colish
  *
@@ -23,6 +23,7 @@
 #include <config.h>
 #include "compression_stream.h"
 
+#include "clamp_cast.h"
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
@@ -83,14 +84,14 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
 }
 
 bool
-CompressionStream::decompress_chunk(const char* p, int len, string& buf)
+CompressionStream::decompress_chunk(const char* p, size_t len, string& buf)
 {
     Bytef blk[8192];
 
     inflate_zstream->next_in = reinterpret_cast<const Bytef*>(p);
-    inflate_zstream->avail_in = static_cast<uInt>(len);
-
-    while (true) {
+    auto end = inflate_zstream->next_in + len;
+    while (end - inflate_zstream->next_in) {
+        inflate_zstream->avail_in = clamp_cast<uInt>(end - inflate_zstream->next_in);
         inflate_zstream->next_out = blk;
         inflate_zstream->avail_out = static_cast<uInt>(sizeof(blk));
         int err = inflate(inflate_zstream, Z_SYNC_FLUSH);
@@ -108,8 +109,8 @@ CompressionStream::decompress_chunk(const char* p, int len, string& buf)
         buf.append(reinterpret_cast<const char*>(blk),
                    inflate_zstream->next_out - blk);
         if (err == Z_STREAM_END) return true;
-        if (inflate_zstream->avail_in == 0) return false;
     }
+    return false;
 }
 
 void

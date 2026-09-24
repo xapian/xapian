@@ -147,12 +147,12 @@ GlassTermList::next()
     bool wdf_in_reuse = false;
     if (!current_term.empty()) {
         // Find out how much of the previous term to reuse.
-        size_t len = static_cast<unsigned char>(*pos++);
+        unsigned len = static_cast<unsigned char>(*pos++);
         if (len > current_term.size()) {
             // The wdf is also stored in the "reuse" byte.
             wdf_in_reuse = true;
             size_t divisor = current_term.size() + 1;
-            current_wdf = len / divisor - 1;
+            current_wdf = Xapian::termcount(len / divisor - 1);
             len %= divisor;
         }
         current_term.resize(len);
