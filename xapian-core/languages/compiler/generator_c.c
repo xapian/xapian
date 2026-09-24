@@ -3072,7 +3072,7 @@ static void generate_header_file(struct generator * g) {
              "~M~S0 operator()(const ~S0& word) override {~N~+"
              "~Mstruct SN_env* z = &(zlocal.z);~N"
              "~Mconst symbol* s = reinterpret_cast<const symbol*>(word.data());~N"
-             "~Mint s_size = word.size() > INT_MAX ? INT_MAX : word.size();~N"
+             "~Mint s_size = word.size() > INT_MAX ? INT_MAX : static_cast<int>(word.size());~N"
              "~Mreplace_s(z, 0, z->l, s_size, s);~N"
              "~Mz->c = 0;~N"
              "~M");

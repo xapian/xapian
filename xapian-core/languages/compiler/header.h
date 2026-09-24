@@ -364,7 +364,7 @@ struct node {
     struct node * next;
     struct node * left;
     struct node * aux;     /* used in setlimit */
-    struct among * among;  /* used in among */
+    struct among * among;  /* used in substring and among */
     struct node * right;
     byte type;
     byte mode;
