@@ -884,8 +884,8 @@ jobs:
         #make -j2 -C xapian-letor check
     - name: Run lcov
       run: |
-        lcov --capture -d . --quiet --rc 'branch_coverage=1' --no-external --ignore-errors mismatch -o xapian.lcov
-        genhtml --demangle-cpp --branch-coverage --rc geninfo_unexecuted_blocks=1 -q -p "`pwd`" -t "Test Coverage for xapian `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian.lcov
+        lcov --ignore-errors mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,mismatch,inconsistent --capture -d . --quiet --rc 'branch_coverage=1' --no-external -o xapian.lcov
+        genhtml --ignore-errors inconsistent --demangle-cpp --branch-coverage -q -p "`pwd`" -t 'Test Coverage for xapian ${{ github.sha }}' -o lcov xapian.lcov
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4
       with:
