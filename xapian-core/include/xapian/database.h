@@ -266,6 +266,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param term     The term to iterate the postings of.  An empty string
      *                  acts as a special pseudo-term which indexes all the
      *                  documents in the database with a wdf of 1.
+     *
+     *  If the term isn't present then an iterator which compares equal to @a
+     *  postlist_end(term) is returned.
      */
     PostingIterator postlist_begin(std::string_view term) const;
 
@@ -279,6 +282,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param did      The document id to iterate terms from
      *
      *  The terms are returned in ascending string order (by byte value).
+     *
+     *  @exception Xapian::InvalidArgumentError did == 0.
+     *  @exception Xapian::DocNotFoundError     There isn't a document with the
+     *                                          specified id.
      */
     TermIterator termlist_begin(Xapian::docid did) const;
 
@@ -408,22 +415,34 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     /** Get a lower bound on the length of a document in this DB.
      *
      *  This bound does not include any zero-length documents.
+     *
+     *  Returns 0 for a database with no shards.
      */
     Xapian::termcount get_doclength_lower_bound() const;
 
-    /// Get an upper bound on the length of a document in this DB.
+    /** Get an upper bound on the length of a document in this DB.
+     *
+     *  Returns 0 for a database with no shards.
+     */
     Xapian::termcount get_doclength_upper_bound() const;
 
-    /// Get an upper bound on the wdf of term @a term.
+    /** Get an upper bound on the wdf of term @a term.
+     *
+     *  Returns 0 for a database with no shards.
+     */
     Xapian::termcount get_wdf_upper_bound(std::string_view term) const;
 
     /** Get a lower bound on the unique terms size of a document in this DB.
+     *
+     *  Returns 0 for a database with no shards.
      *
      *  @since Added in Xapian 2.0.0.
      */
     Xapian::termcount get_unique_terms_lower_bound() const;
 
     /** Get an upper bound on the unique terms size of a document in this DB.
+     *
+     *  Returns 0 for a database with no shards.
      *
      *  @since Added in Xapian 2.0.0.
      */
