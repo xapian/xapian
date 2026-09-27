@@ -1,7 +1,7 @@
 /** @file
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008-2023 Olly Betts
+/* Copyright (C) 2008-2026 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -2101,4 +2101,171 @@ DEFINE_TESTCASE(checksingletable1, glass || honey) {
         std::filesystem::current_path(cwd);
     }
 #endif
+}
+
+static void
+test_empty_db(Xapian::Database db)
+{
+    TEST(db.postlist_begin(""sv) == db.postlist_end(""sv));
+    TEST(db.postlist_begin("void"sv) == db.postlist_end("void"sv));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.termlist_begin(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
+    TEST(!db.has_positions());
+    TEST(db.positionlist_begin(1, "x"sv) == db.positionlist_end(1, "x"sv));
+    TEST(db.allterms_begin() == db.allterms_end());
+    TEST(db.allterms_begin("S"sv) == db.allterms_end("S"sv));
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_lastdocid(), 0);
+    TEST_EQUAL(db.get_average_length(), 0.0);
+    TEST_EQUAL(db.get_total_length(), 0);
+    TEST_EQUAL(db.get_termfreq(""sv), 0);
+    TEST_EQUAL(db.get_termfreq("void"sv), 0);
+    TEST(!db.term_exists(""sv));
+    TEST(!db.term_exists("void"sv));
+    TEST_EQUAL(db.get_collection_freq(""sv), 0);
+    TEST_EQUAL(db.get_collection_freq("void"sv), 0);
+    TEST_EQUAL(db.get_value_freq(0), 0);
+    TEST_EQUAL(db.get_value_freq(42), 0);
+    TEST_STRINGS_EQUAL(db.get_value_lower_bound(0), ""sv);
+    TEST_STRINGS_EQUAL(db.get_value_lower_bound(99), ""sv);
+    TEST_STRINGS_EQUAL(db.get_value_upper_bound(0), ""sv);
+    TEST_STRINGS_EQUAL(db.get_value_upper_bound(123), ""sv);
+    TEST_EQUAL(db.get_doclength_lower_bound(), 0);
+    TEST_EQUAL(db.get_doclength_upper_bound(), 0);
+    TEST_EQUAL(db.get_wdf_upper_bound(""sv), 0);
+    TEST_EQUAL(db.get_wdf_upper_bound("x"sv), 0);
+    TEST_EQUAL(db.get_unique_terms_lower_bound(), 0);
+    TEST_EQUAL(db.get_unique_terms_upper_bound(), 0);
+    TEST(db.valuestream_begin(0) == db.valuestream_end(0));
+    TEST(db.valuestream_begin(999) == db.valuestream_end(999));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_doclength(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_unique_terms(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_wdfdocmax(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_wdfdocmax(1));
+    // Should be a no-op.
+    db.keep_alive();
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_document(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("teh"), ""sv);
+    TEST(db.spellings_begin() == db.spellings_end());
+    TEST(db.synonyms_begin("x"sv) == db.synonyms_end("x"sv));
+    TEST(db.synonym_keys_begin() == db.synonym_keys_end());
+    TEST(db.synonym_keys_begin("x"sv) == db.synonym_keys_end("x"sv));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""sv));
+    TEST_STRINGS_EQUAL(db.get_metadata("config"sv), ""sv);
+    TEST(db.metadata_keys_begin() == db.metadata_keys_end());
+    TEST(db.metadata_keys_begin("x"sv) == db.metadata_keys_end("x"sv));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.reconstruct_text(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.reconstruct_text(1));
+
+    // Should not throw an exception.
+    db.close();
+}
+
+// Test Database methods when there are no shards.  Regression test for:
+//
+// * various methods on Database() used to segfault or cause division by 0.
+//   Fixed in 1.1.4 and 1.0.18.  Ticket#415.
+//
+// * various methods throwing a less appropriate exception, or throwing when
+//   they should return 0 or an end iterator.  Fixed in 2.2.0.
+DEFINE_TESTCASE(zeroshards1, !backend) {
+    Xapian::Database db;
+    TEST_EQUAL(db.size(), 0);
+    TEST_STRINGS_EQUAL(db.get_description(), "Database()");
+    TEST(!db.reopen());
+    TEST_STRINGS_EQUAL(db.get_uuid(), ""sv);
+    TEST_EQUAL(db.get_revision(), 0);
+    TEST(!db.locked());
+
+    // This is documented to return the same database when called on a
+    // read-only database, which we verify by looking at the internals.
+    // USER CODE SHOULD NEVER DO THIS!
+    TEST(db.internal == db.unlock().internal);
+
+    test_empty_db(db);
+}
+
+DEFINE_TESTCASE(emptydb2, backend) {
+    // Test Database methods when the database is empty.
+    Xapian::Database db = get_database(""s);
+    TEST_NOT_EQUAL(db.size(), 0);
+
+    // This is documented to return the same database when called on a
+    // read-only database, which we verify by looking at the internals.
+    // USER CODE SHOULD NEVER DO THIS!
+    TEST(db.internal == db.unlock().internal);
+
+    test_empty_db(db);
+}
+
+static void
+test_empty_wrdb(Xapian::WritableDatabase db)
+{
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.delete_document(0));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.delete_document(1));
+
+    test_empty_db(db);
+}
+
+// Test WritableDatabase methods when there are no shards.
+DEFINE_TESTCASE(zeroshards2, !backend) {
+    Xapian::WritableDatabase db;
+    TEST_EQUAL(db.size(), 0);
+    TEST_STRINGS_EQUAL(db.get_description(),
+                       "WritableDatabase()");
+    TEST(!db.reopen());
+    TEST_STRINGS_EQUAL(db.get_uuid(), ""sv);
+    TEST_EQUAL(db.get_revision(), 0);
+    TEST(!db.locked());
+
+    Xapian::Document doc;
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+                   db.add_document(doc));
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+                   db.delete_document("Q1"sv));
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+                   db.replace_document(1, doc));
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+                   db.replace_document("Q1"sv, doc));
+
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.commit());
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.begin_transaction());
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.commit_transaction());
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.cancel_transaction());
+
+    test_empty_wrdb(db);
+}
+
+// Test WritableDatabase methods when the database is empty.
+// This testcase handles backends which don't support transactions.
+DEFINE_TESTCASE(emptydb3, writable && !transactions) {
+    Xapian::WritableDatabase db = get_writable_database(""s);
+    TEST_NOT_EQUAL(db.size(), 0);
+    test_empty_wrdb(db);
+}
+
+// Test WritableDatabase methods when the database is empty.
+// This testcase handles backends which support transactions.
+DEFINE_TESTCASE(emptydb4, writable && transactions) {
+    Xapian::WritableDatabase db = get_writable_database(""s);
+    TEST_NOT_EQUAL(db.size(), 0);
+
+    db.begin_transaction();
+    db.commit_transaction();
+
+    db.begin_transaction(false);
+    db.commit_transaction();
+
+    db.begin_transaction();
+    db.cancel_transaction();
+
+    db.begin_transaction(false);
+    db.cancel_transaction();
+
+    db.commit();
+
+    test_empty_wrdb(db);
 }

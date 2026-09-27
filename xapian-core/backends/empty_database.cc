@@ -1,7 +1,7 @@
 /** @file
  * @brief Empty database internals
  */
-/* Copyright (C) 2017,2024 Olly Betts
+/* Copyright (C) 2017,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,12 @@ static void no_subdatabases()
     throw Xapian::InvalidOperationError("No subdatabases");
 }
 
+[[noreturn]]
+static void doc_not_found()
+{
+    throw Xapian::DocNotFoundError("No subdatabases");
+}
+
 EmptyDatabase::size_type
 EmptyDatabase::size() const
 {
@@ -60,13 +66,13 @@ EmptyDatabase::open_leaf_post_list(string_view, bool) const
 TermList*
 EmptyDatabase::open_term_list(Xapian::docid) const
 {
-    no_subdatabases();
+    doc_not_found();
 }
 
 TermList*
 EmptyDatabase::open_term_list_direct(Xapian::docid) const
 {
-    no_subdatabases();
+    doc_not_found();
 }
 
 TermList*
@@ -84,7 +90,7 @@ EmptyDatabase::has_positions() const
 PositionList*
 EmptyDatabase::open_position_list(Xapian::docid, string_view) const
 {
-    no_subdatabases();
+    return NULL;
 }
 
 Xapian::doccount
@@ -168,7 +174,7 @@ EmptyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
     (void)did;
-    no_subdatabases();
+    doc_not_found();
 }
 
 Xapian::termcount
@@ -176,7 +182,7 @@ EmptyDatabase::get_unique_terms(Xapian::docid did) const
 {
     Assert(did != 0);
     (void)did;
-    no_subdatabases();
+    doc_not_found();
 }
 
 Xapian::termcount
@@ -184,7 +190,7 @@ EmptyDatabase::get_wdfdocmax(Xapian::docid did) const
 {
     Assert(did != 0);
     (void)did;
-    no_subdatabases();
+    doc_not_found();
 }
 
 Xapian::Document::Internal*
@@ -192,7 +198,7 @@ EmptyDatabase::open_document(Xapian::docid did, bool) const
 {
     Assert(did != 0);
     (void)did;
-    no_subdatabases();
+    doc_not_found();
 }
 
 bool
@@ -300,7 +306,7 @@ EmptyDatabase::add_document(const Xapian::Document&)
 void
 EmptyDatabase::delete_document(Xapian::docid)
 {
-    no_subdatabases();
+    doc_not_found();
 }
 
 void

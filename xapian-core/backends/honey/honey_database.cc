@@ -163,7 +163,17 @@ Xapian::termcount
 HoneyDatabase::get_unique_terms(Xapian::docid did) const
 {
     Assert(did != 0);
-    return HoneyTermList(this, did).get_unique_terms();
+    auto result = HoneyTermList(this, did).get_unique_terms();
+    if (rare(result == 0)) {
+        // It could be the document has no terms, but maybe it doesn't exist -
+        // in the latter case we ought to throw DocNotFoundError.  FIXME: If
+        // the document has no terms, but does have values, we should be able
+        // to avoid this check.
+        //
+        // This will throw DocNotFoundError if did isn't in use.
+        (void)HoneyDatabase::get_doclength(did);
+    }
+    return result;
 }
 
 Xapian::termcount
@@ -171,6 +181,15 @@ HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
 {
     Assert(did != 0);
     HoneyTermList termlist(this, did);
+    if (rare(termlist.size() == 0)) {
+        // It could be the document has no terms, but maybe it doesn't exist -
+        // in the latter case we ought to throw DocNotFoundError.  FIXME: If
+        // the document has no terms, but does have values, we should be able
+        // to avoid this check.
+        //
+        // This will throw DocNotFoundError if did isn't in use.
+        (void)HoneyDatabase::get_doclength(did);
+    }
     Xapian::termcount max_wdf = 0;
     while (termlist.next() == NULL) {
         Xapian::termcount current_wdf = termlist.get_wdf();

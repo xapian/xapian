@@ -550,7 +550,7 @@ InMemoryDatabase::get_doclength_lower_bound() const
 {
     // A zero-length document can't contain any terms, so we ignore such
     // documents for the purposes of this lower bound.
-    return 1;
+    return totdocs ? 1 : 0;
 }
 
 Xapian::termcount

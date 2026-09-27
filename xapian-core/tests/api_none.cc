@@ -46,28 +46,6 @@ DEFINE_TESTCASE(version1, !backend) {
     TEST_EQUAL(Xapian::version_string(), version);
 }
 
-// Regression test: various methods on Database() used to segfault or cause
-// division by 0.  Fixed in 1.1.4 and 1.0.18.  Ticket#415.
-DEFINE_TESTCASE(nosubdatabases1, !backend) {
-    Xapian::Database db;
-    TEST(db.get_metadata("foo").empty());
-    TEST_EQUAL(db.metadata_keys_begin(), db.metadata_keys_end());
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db.termlist_begin(1));
-    TEST_EQUAL(db.allterms_begin(), db.allterms_end());
-    TEST_EQUAL(db.allterms_begin("foo"), db.allterms_end("foo"));
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db.positionlist_begin(1, "foo"));
-    TEST_EQUAL(db.get_lastdocid(), 0);
-    TEST_EQUAL(db.valuestream_begin(7), db.valuestream_end(7));
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_unique_terms(1));
-    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
-
-    Xapian::WritableDatabase wdb;
-    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.begin_transaction());
-    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.commit_transaction());
-    TEST_EXCEPTION(Xapian::InvalidOperationError, wdb.cancel_transaction());
-}
-
 /// Feature test for Document::add_boolean_term(), new in 1.0.18/1.1.4.
 DEFINE_TESTCASE(document1, !backend) {
     Xapian::Document doc;

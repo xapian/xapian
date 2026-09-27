@@ -1,7 +1,7 @@
 /** @file
  * @brief Database API class
  */
-/* Copyright 2006-2024 Olly Betts
+/* Copyright 2006-2026 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -536,6 +536,9 @@ Database::reconstruct_text(Xapian::docid did,
                            Xapian::termpos start_pos,
                            Xapian::termpos end_pos) const
 {
+    if (did == 0)
+        docid_zero_invalid();
+
     return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
 }
 
@@ -566,6 +569,9 @@ WritableDatabase::add_document(const Document& doc)
 void
 WritableDatabase::delete_document(Xapian::docid did)
 {
+    if (did == 0)
+        docid_zero_invalid();
+
     internal->delete_document(did);
 }
 
