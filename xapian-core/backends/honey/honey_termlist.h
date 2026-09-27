@@ -138,7 +138,7 @@ class HoneyTermList : public TermList {
      *  or check() must be called before any methods which need the context of
      *  the current position.
      *
-     *  @return Always returns 0 for a HoneyTermList.
+     *  @return Always returns this or NULL for a HoneyTermList.
      */
     TermList* next();
 

@@ -197,7 +197,7 @@ DEFINE_TESTCASE(dbstats1, backend) {
 }
 
 // Check stats with a single document.  In a multi-database situation, this
-// gave 0 for get-_doclength_lower_bound() in 1.3.2.
+// gave 0 for get_doclength_lower_bound() in 1.3.2.
 DEFINE_TESTCASE(dbstats2, backend) {
     Xapian::Database db = get_database("apitest_onedoc");
 
