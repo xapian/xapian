@@ -252,7 +252,7 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
 
     /// Return a TermIterator to the end of the termlist
     TermIterator termlist_end() const noexcept {
-        return TermIterator(NULL);
+        return TermIterator();
     }
 
     /** Validate whether a certain term exists in the termlist
