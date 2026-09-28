@@ -79,6 +79,35 @@ AC_DEFUN([XAPIAN_TEST_LDFLAGS],
   [XAPIAN_TEST_FLAGS_([LDFLAGS], [AC_LINK_IFELSE], [$1], [$2], [$3], [$4])])
 
 AC_CANONICAL_HOST
+dnl Check if the C++ compiler is MSVC.  This sets variable `msvc` which
+dnl can be yes, no, or clang (for clang-cl).
+AC_LANG([C++])
+AM_LDFLAGS=
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef __clang__
+#error clang
+#endif
+  ]])], [msvc=yes], [
+    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
+    dnl about -EHsc not having any effect (which is promoted to an error
+    dnl in maintainer-mode).  The least terrible solution seems to be to
+    dnl suppress this warning when linking.
+    AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
+  ])
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
+AC_SUBST([AM_LDFLAGS])
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
@@ -141,32 +170,6 @@ fi
 
 dnl Run tests using the C++ compiler.
 AC_LANG([C++])
-
-dnl msvc can be yes, no, or clang (for clang-cl).
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef _MSC_VER
-#error MSVC
-#endif
-]])], [msvc=no], [
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef __clang__
-#error clang
-#endif
-  ]])], [msvc=yes], [
-    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
-    dnl about -EHsc not having any effect (which is promoted to an error
-    dnl in maintainer-mode).  The least terrible solution seems to be to
-    dnl suppress this warning when linking.
-    AM_LDFLAGS=-Wno-unused-command-line-argument
-    msvc=clang
-  ])
-  if test yes = "$msvc"; then
-    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-    case "$CXX $CPPFLAGS $CXXFLAGS" in
-      *-nologo*) ;;
-      *) CXX="$CXX -nologo" ;;
-    esac
-  fi])
 
 dnl Probe for any options needed to enable C++17 support.
 AX_CXX_COMPILE_STDCXX([17])

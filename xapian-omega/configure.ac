@@ -81,6 +81,36 @@ dnl We will already have run LT_PATH_LD, so make AC_LIB_PROG_LD a no-op
 dnl as LT_PATH_LD will already have set the with_gnu_ld variable.
 AC_DEFUN([AC_LIB_PROG_LD], [])
 
+dnl Check if the C++ compiler is MSVC.  This sets variable `msvc` which
+dnl can be yes, no, or clang (for clang-cl).
+AC_LANG([C++])
+AM_LDFLAGS=
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef _MSC_VER
+#error MSVC
+#endif
+]])], [msvc=no], [
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
+#ifdef __clang__
+#error clang
+#endif
+  ]])], [msvc=yes], [
+    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
+    dnl about -EHsc not having any effect (which is promoted to an error
+    dnl in maintainer-mode).  The least terrible solution seems to be to
+    dnl suppress this warning when linking.
+    AM_LDFLAGS=-Wno-unused-command-line-argument
+    msvc=clang
+  ])
+  if test yes = "$msvc"; then
+    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
+    case "$CXX $CPPFLAGS $CXXFLAGS" in
+      *-nologo*) ;;
+      *) CXX="$CXX -nologo" ;;
+    esac
+  fi])
+AC_SUBST([AM_LDFLAGS])
+
 LT_PREREQ([2.2.6])
 LT_INIT
 
@@ -171,34 +201,6 @@ AC_LANG([C++])
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 XO_REQUIRE([2.0.0])
-
-dnl msvc can be yes, no, or clang (for clang-cl).
-AM_LDFLAGS=
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef _MSC_VER
-#error MSVC
-#endif
-]])], [msvc=no], [
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[
-#ifdef __clang__
-#error clang
-#endif
-  ]])], [msvc=yes], [
-    dnl Autotools passes CXXFLAGS when linking, but clang-cl warns
-    dnl about -EHsc not having any effect (which is promoted to an error
-    dnl in maintainer-mode).  The least terrible solution seems to be to
-    dnl suppress this warning when linking.
-    AM_LDFLAGS=-Wno-unused-command-line-argument
-    msvc=clang
-  ])
-  if test yes = "$msvc"; then
-    dnl Add -nologo option for MSVC to turn off banner which spams build logs.
-    case "$CXX $CPPFLAGS $CXXFLAGS" in
-      *-nologo*) ;;
-      *) CXX="$CXX -nologo" ;;
-    esac
-  fi])
-AC_SUBST([AM_LDFLAGS])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
