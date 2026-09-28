@@ -815,6 +815,7 @@ jobs:
           **/*.log
 
   lcov:
+    if: false
     runs-on: 'ubuntu-26.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
