@@ -1576,9 +1576,12 @@ jobs:
       with:
         msystem: mingw32
         install: base-devel
+        # Install MSYS perl which should be suitable for our uses -- it seems
+        # there's no longer a mingw32 build of perl.
         pacboy: >-
           gcc:p
           pcre2:p
+          perl
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
@@ -1664,6 +1667,7 @@ jobs:
           file:p
           gcc:p
           pcre2:p
+          perl:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
@@ -1738,6 +1742,7 @@ jobs:
           file:p
           gcc:p
           pcre2:p
+          perl:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
