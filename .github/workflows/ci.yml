@@ -1575,6 +1575,7 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: mingw32
+        suppress-deprecation-warnings: msystem-mingw32
         install: base-devel
         # Install MSYS perl which should be suitable for our uses -- it seems
         # there's no longer a mingw32 build of perl.
@@ -1662,6 +1663,7 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: mingw64
+        suppress-deprecation-warnings: msystem-mingw64
         install: base-devel
         pacboy: >-
           file:p
@@ -1811,6 +1813,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        msystem: ucrt64
         release: true # Use the pre-installed MSYS2
         path-type: inherit
         install: base-devel
@@ -1916,6 +1919,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        msystem: ucrt64
         release: true # Use the pre-installed MSYS2
         path-type: inherit
         install: base-devel
@@ -2018,6 +2022,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        msystem: ucrt64
         release: true # Use the pre-installed MSYS2
         path-type: inherit
         install: base-devel
@@ -2123,6 +2128,7 @@ jobs:
     steps:
     - uses: msys2/setup-msys2@v2
       with:
+        msystem: ucrt64
         release: true # Use the pre-installed MSYS2
         path-type: inherit
         install: base-devel
