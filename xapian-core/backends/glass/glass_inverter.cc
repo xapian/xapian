@@ -36,7 +36,7 @@ void
 Inverter::store_positions(const GlassPositionListTable& position_table,
                           Xapian::docid did,
                           string_view term,
-                          const Xapian::VecCOW<Xapian::termpos>& posvec,
+                          const Xapian::VecCOWUniq<Xapian::termpos>& posvec,
                           bool modifying)
 {
     string s;
@@ -85,7 +85,7 @@ Inverter::set_positionlist(const GlassPositionListTable& position_table,
     } else {
         Xapian::PositionIterator pos = term_it.positionlist_begin();
         if (pos != term_it.positionlist_end()) {
-            Xapian::VecCOW<Xapian::termpos> posvec;
+            Xapian::VecCOWUniq<Xapian::termpos> posvec;
             posvec.reserve(pos.internal->get_approx_size());
             while (pos != term_it.positionlist_end()) {
                 posvec.push_back(*pos);

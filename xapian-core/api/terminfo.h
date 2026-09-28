@@ -32,10 +32,11 @@ class TermInfo {
      *
      *  To allow more efficient insertion of positions, we support the
      *  positions being split into two sorted ranges, and if this is the
-     *  case, split will be > 0 and there will be two sorted ranges [0, split)
-     *  and [split, positions.size()).
+     *  case, split will be > 0 and there will be two ranges, each sorted
+     *  in strictly increasing order: [0, split) and [split, positions.size()).
      *
-     *  If split is 0, then [0, positions.size()) form a single sorted range.
+     *  If split is 0, then [0, positions.size()) form a single range sorted
+     *  in strictly increasing order.
      *
      *  If positions.empty(), then split > 0 indicates that the term has been
      *  deleted (this allows us to delete terms without invalidating existing
@@ -49,10 +50,17 @@ class TermInfo {
 
     /** Positions at which the term occurs.
      *
-     *  The entries are sorted in strictly increasing order (so duplicate
-     *  entries are not allowed).
+     *  To allow more efficient insertion of positions, we support the
+     *  positions being split into two sorted ranges, and if this is the
+     *  case, split will be > 0 and there will be two ranges, each sorted
+     *  in strictly increasing order: [0, split) and [split, positions.size()).
+     *
+     *  If split is 0, then [0, positions.size()) form a single range sorted
+     *  in strictly increasing order.
+     *
+     *  Duplicate entries are not allowed.
      */
-    mutable Xapian::VecCOW<Xapian::termpos> positions;
+    mutable Xapian::VecCOWUniq<Xapian::termpos> positions;
 
     /** Merge sorted ranges before and after @a split. */
     void merge() const;
@@ -74,7 +82,7 @@ class TermInfo {
     }
 
     /// Get a pointer to the positions.
-    const Xapian::VecCOW<Xapian::termpos>* get_positions() const {
+    const Xapian::VecCOWUniq<Xapian::termpos>* get_positions() const {
         if (split) merge();
         return &positions;
     }

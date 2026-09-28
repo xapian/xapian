@@ -58,7 +58,7 @@ class BitWriter {
     }
 
     /// Perform interpolative encoding of pos elements between j and k.
-    void encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos,
+    void encode_interpolative(const Xapian::VecCOWUniq<Xapian::termpos>& pos,
                               int j, int k);
 };
 

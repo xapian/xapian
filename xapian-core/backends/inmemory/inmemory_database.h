@@ -45,7 +45,8 @@ class InMemoryPosting {
   public:
     Xapian::docid did;
     bool valid;
-    Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
+    // Sorted vector of positions
+    Xapian::VecCOWUniq<Xapian::termpos> positions;
     Xapian::termcount wdf;
 
     // Add new position entry preserving sorted order.
@@ -59,7 +60,8 @@ class InMemoryPosting {
 class InMemoryTermEntry {
   public:
     std::string term;
-    Xapian::VecCOW<Xapian::termpos> positions; // Sorted vector of positions
+    // Sorted vector of positions
+    Xapian::VecCOWUniq<Xapian::termpos> positions;
     Xapian::termcount wdf;
 
     // Add new position entry preserving sorted order.

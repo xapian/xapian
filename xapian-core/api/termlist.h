@@ -106,15 +106,16 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::intrusive_base {
     /// Return the length of the position list for the current position.
     virtual Xapian::termcount positionlist_count() const = 0;
 
-    /** Get pointer to VecCOW<termpos> if that's the internal representation.
+    /** Get pointer to VecCOWUniq<termpos> if that's the internal
+     *  representation.
      *
      *  This avoids unnecessary copying of positions in the common cases - the
      *  case it doesn't help with is adding a document back with unmodified
      *  positions *AND* a different docid, which is an unusual thing to do.
      *
-     *  @return Pointer to VecCOW<termpos> or NULL.
+     *  @return Pointer to VecCOWUniq<termpos> or NULL.
      */
-    virtual const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
+    virtual const Xapian::VecCOWUniq<Xapian::termpos>* get_vec_termpos() const;
 
     /// Return PositionList for the current position.
     virtual PositionList* positionlist_begin() const = 0;

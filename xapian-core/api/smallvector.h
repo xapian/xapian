@@ -54,6 +54,7 @@ namespace Xapian {
 template<typename T,
          bool COW = false,
          bool UNIQUEPTR = false,
+         typename SIZE_TYPE = std::size_t,
          typename = typename std::enable_if_t<
              (std::is_trivially_copyable_v<T> &&
               (!(COW && UNIQUEPTR)) &&
@@ -61,9 +62,9 @@ template<typename T,
               (!COW || std::is_integral_v<T>))>>
 class Vec {
     // This gives capacity() if c > INTERNAL_CAPACITY, or size() otherwise.
-    std::size_t c = 0;
+    SIZE_TYPE c = 0;
 
-    static constexpr std::size_t INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
+    static constexpr SIZE_TYPE INTERNAL_CAPACITY = 2 * sizeof(T*) / sizeof(T);
 
     union {
         T v[INTERNAL_CAPACITY];
@@ -80,7 +81,7 @@ class Vec {
     };
 
   public:
-    typedef std::size_t size_type;
+    typedef SIZE_TYPE size_type;
 
     typedef const T* const_iterator;
 
@@ -133,7 +134,7 @@ class Vec {
     }
 
     size_type size() const {
-        return is_external() ? u.p.e - u.p.b : c;
+        return is_external() ? size_type(u.p.e - u.p.b) : c;
     }
 
     size_type capacity() const {
@@ -266,7 +267,7 @@ class Vec {
         if (is_external()) {
             u.p.e -= n_erased;
         } else {
-            c -= n_erased;
+            c -= size_type(n_erased);
         }
     }
 
@@ -278,7 +279,7 @@ class Vec {
         if (n == cap || (COW && is_external() && u.p.b[-1] > 0)) {
             if (n == cap) {
                 cap *= 2;
-                // Logic error or size_t wrapping.
+                // Logic error or size_type wrapping.
                 if (rare(COW ? cap < c : cap <= c))
                     throw std::bad_alloc();
             }
@@ -360,7 +361,7 @@ class Vec {
     }
 
     void do_reserve(size_type n) {
-        // Logic error or size_t wrapping.
+        // Logic error or size_type wrapping.
         if (rare(COW ? n < c : n <= c))
             throw std::bad_alloc();
         T* blk = new T[n + COW];
@@ -406,6 +407,9 @@ class Vec {
 
 template<typename T>
 using VecCOW = Vec<T, true>;
+
+template<typename T>
+using VecCOWUniq = Vec<T, true, false, T>;
 
 template<typename T>
 using VecUniquePtr = Vec<T*, false, true>;

@@ -301,6 +301,14 @@ operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
     return ps;
 }
 
+template<class S, typename T>
+inline PrettyOStream<S> &
+operator<<(PrettyOStream<S> &ps, const Xapian::VecCOWUniq<T>& v) {
+    ps.os << "VecCOWUniq(" << v.size() << ')';
+    // FIXME: could show first up to N elements.
+    return ps;
+}
+
 template<class S, typename T, typename U>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const std::pair<T, U>& v) {

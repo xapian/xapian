@@ -251,7 +251,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, string_view term) const
     if (message.empty())
         return nullptr;
 
-    Xapian::VecCOW<Xapian::termpos> positions;
+    Xapian::VecCOWUniq<Xapian::termpos> positions;
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
     const char* p = message.data();
     const char* p_end = p + message.size();

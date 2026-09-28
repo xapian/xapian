@@ -52,7 +52,7 @@ DocumentTermList::get_termfreq() const
     throw Xapian::InvalidOperationError("get_termfreq() not valid for a TermIterator from a Document which is not associated with a database");
 }
 
-const Xapian::VecCOW<Xapian::termpos>*
+const Xapian::VecCOWUniq<Xapian::termpos>*
 DocumentTermList::get_vec_termpos() const
 {
     return it->second.get_positions();

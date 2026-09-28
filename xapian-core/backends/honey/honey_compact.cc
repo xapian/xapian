@@ -2038,7 +2038,7 @@ next_without_next:
                     const char* p = valtag.data();
                     const char* end = p + valtag.size();
 
-                    Xapian::VecCOW<Xapian::termpos> slots;
+                    Xapian::VecCOWUniq<Xapian::termpos> slots;
 
                     Xapian::valueno first_slot;
                     if (!unpack_uint(&p, end, &first_slot)) {

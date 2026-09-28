@@ -331,7 +331,7 @@ HoneyValueManager::add_document(Xapian::docid did, const Xapian::Document& doc,
     }
 
     Xapian::valueno count = doc.internal->values_count();
-    Xapian::VecCOW<Xapian::termpos> slotvec(count);
+    Xapian::VecCOWUniq<Xapian::termpos> slotvec(count);
 
     Xapian::valueno first_slot = it.get_valueno();
     Xapian::valueno last_slot = first_slot;

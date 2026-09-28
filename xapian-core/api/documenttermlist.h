@@ -57,7 +57,7 @@ class DocumentTermList final : public TermList {
 
     Xapian::doccount get_termfreq() const;
 
-    const Xapian::VecCOW<Xapian::termpos> * get_vec_termpos() const;
+    const Xapian::VecCOWUniq<Xapian::termpos>* get_vec_termpos() const;
 
     PositionList* positionlist_begin() const;
 

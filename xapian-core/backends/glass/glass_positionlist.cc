@@ -33,8 +33,9 @@
 using namespace std;
 
 void
-GlassPositionListTable::pack(string & s,
-                             const Xapian::VecCOW<Xapian::termpos> & vec) const
+GlassPositionListTable::pack(
+        string& s,
+        const Xapian::VecCOWUniq<Xapian::termpos>& vec) const
 {
     LOGCALL_VOID(DB, "GlassPositionListTable::pack", s | vec);
     Assert(!vec.empty());

@@ -158,7 +158,7 @@ BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 }
 
 void
-BitWriter::encode_interpolative(const Xapian::VecCOW<Xapian::termpos>& pos,
+BitWriter::encode_interpolative(const Xapian::VecCOWUniq<Xapian::termpos>& pos,
                                 int j, int k)
 {
     // "Interpolative code" - for an algorithm description, see "Managing

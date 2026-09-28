@@ -27,7 +27,7 @@
 /// PositionList from an InMemory DB or a Document object.
 class InMemoryPositionList : public PositionList {
     /// Sorted list of term positions.
-    Xapian::VecCOW<Xapian::termpos> positions;
+    Xapian::VecCOWUniq<Xapian::termpos> positions;
 
     /** Current index into @a positions.
      *
@@ -51,22 +51,22 @@ class InMemoryPositionList : public PositionList {
 
     /// Move construct with positional data.
     explicit
-    InMemoryPositionList(Xapian::VecCOW<Xapian::termpos>&& positions_)
+    InMemoryPositionList(Xapian::VecCOWUniq<Xapian::termpos>&& positions_)
         : positions(std::move(positions_)) {}
 
     /// Construct with copied positional data.
     explicit
-    InMemoryPositionList(const Xapian::VecCOW<Xapian::termpos>& positions_)
+    InMemoryPositionList(const Xapian::VecCOWUniq<Xapian::termpos>& positions_)
         : positions(positions_.copy()) {}
 
     /// Move assign positional data.
-    void assign(Xapian::VecCOW<Xapian::termpos>&& positions_) {
+    void assign(Xapian::VecCOWUniq<Xapian::termpos>&& positions_) {
         positions = std::move(positions_);
         index = size_t(-1);
     }
 
     /// Assign copied positional data.
-    void assign(const Xapian::VecCOW<Xapian::termpos>& positions_) {
+    void assign(const Xapian::VecCOWUniq<Xapian::termpos>& positions_) {
         positions = positions_.copy();
         index = size_t(-1);
     }

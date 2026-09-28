@@ -163,7 +163,8 @@ class HoneyPositionTable : public HoneyLazyTable {
      *
      *  @param s The string to append the position list data to.
      */
-    void pack(std::string& s, const Xapian::VecCOW<Xapian::termpos>& vec) const;
+    void pack(std::string& s,
+              const Xapian::VecCOWUniq<Xapian::termpos>& vec) const;
 
     /** Set the position list for term @a term in document @a did.
      */

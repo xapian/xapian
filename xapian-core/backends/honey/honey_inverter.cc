@@ -34,11 +34,12 @@
 using namespace std;
 
 void
-HoneyInverter::store_positions(const HoneyPositionTable& position_table,
-                               Xapian::docid did,
-                               string_view term,
-                               const Xapian::VecCOW<Xapian::termpos>& posvec,
-                               bool modifying)
+HoneyInverter::store_positions(
+        const HoneyPositionTable& position_table,
+        Xapian::docid did,
+        string_view term,
+        const Xapian::VecCOWUniq<Xapian::termpos>& posvec,
+        bool modifying)
 {
     string s;
     position_table.pack(s, posvec);
@@ -86,7 +87,7 @@ HoneyInverter::set_positionlist(const HoneyPositionTable& position_table,
     } else {
         Xapian::PositionIterator pos = term_it.positionlist_begin();
         if (pos != term_it.positionlist_end()) {
-            Xapian::VecCOW<Xapian::termpos> posvec;
+            Xapian::VecCOWUniq<Xapian::termpos> posvec;
             posvec.reserve(pos.internal->get_approx_size());
             while (pos != term_it.positionlist_end()) {
                 posvec.push_back(*pos);

@@ -144,7 +144,7 @@ class Inverter {
     void store_positions(const GlassPositionListTable& position_table,
                          Xapian::docid did,
                          std::string_view term,
-                         const Xapian::VecCOW<Xapian::termpos>& posvec,
+                         const Xapian::VecCOWUniq<Xapian::termpos>& posvec,
                          bool modifying);
 
     void set_positionlist(Xapian::docid did,
