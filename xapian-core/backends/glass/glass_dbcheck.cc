@@ -749,7 +749,7 @@ check_glass_table(const char* tablename, string_view db_dir, int fd,
             if (!unpack_uint(&pos, end, &doclen)) {
                 if (out) {
                     *out << "document id " << did;
-                    if (pos != 0) {
+                    if (pos != nullptr) {
                         *out << ": doclen out of range\n";
                     } else {
                         *out << ": Unexpected end of data when reading "
@@ -782,7 +782,7 @@ check_glass_table(const char* tablename, string_view db_dir, int fd,
             if (!unpack_uint(&pos, end, &termlist_size)) {
                 if (out) {
                     *out << "document id " << did;
-                    if (pos != 0) {
+                    if (pos != nullptr) {
                         *out << ": termlist_size out of range\n";
                     } else {
                         *out << ": Unexpected end of data when reading "
@@ -822,7 +822,7 @@ check_glass_table(const char* tablename, string_view db_dir, int fd,
                     if (!unpack_uint(&pos, end, &current_wdf)) {
                         if (out) {
                             *out << "document id " << did;
-                            if (pos == 0) {
+                            if (pos == nullptr) {
                                 *out << ": Unexpected end of data when reading "
                                         "termlist current_wdf\n";
                             } else {

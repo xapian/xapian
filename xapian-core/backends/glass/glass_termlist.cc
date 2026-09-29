@@ -63,7 +63,7 @@ GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
     // Read doclen
     if (!unpack_uint(&pos, end, &doclen)) {
         const char *msg;
-        if (pos == 0) {
+        if (pos == nullptr) {
             msg = "Too little data for doclen in termlist";
         } else {
             msg = "Overflowed value for doclen in termlist";
@@ -74,7 +74,7 @@ GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
     // Read termlist_size
     if (!unpack_uint(&pos, end, &termlist_size)) {
         const char *msg;
-        if (pos == 0) {
+        if (pos == nullptr) {
             msg = "Too little data for list size in termlist";
         } else {
             msg = "Overflowed value for list size in termlist";
@@ -166,7 +166,7 @@ GlassTermList::next()
     // Read the wdf if it wasn't packed into the reuse byte.
     if (!wdf_in_reuse && !unpack_uint(&pos, end, &current_wdf)) {
         const char *msg;
-        if (pos == 0) {
+        if (pos == nullptr) {
             msg = "Too little data for wdf in termlist";
         } else {
             msg = "Overflowed value for wdf in termlist";

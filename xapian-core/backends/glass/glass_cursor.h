@@ -48,7 +48,7 @@ class Cursor {
 
   public:
     /// Constructor.
-    Cursor() : data(0), c(-1), rewrite(false) { }
+    Cursor() : data(nullptr), c(-1), rewrite(false) { }
 
     ~Cursor() { destroy(); }
 
