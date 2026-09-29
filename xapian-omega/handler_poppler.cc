@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include "handler.h"
+
 #include "str.h"
 
 #ifdef __GNUC__
