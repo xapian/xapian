@@ -1353,12 +1353,14 @@ if test yes = "$GXX"; then
       dnl
       dnl -Wdouble-promotion was added in GCC 4.6.
       dnl
+      dnl -Wzero-as-null-pointer-constant was added in GCC 4.7.
+      dnl
       dnl -Wduplicated-cond was added in GCC 6.
       dnl
       dnl -Wduplicated-branches was added in GCC 7.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Wduplicated-cond -Wduplicated-branches"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Wduplicated-cond -Wduplicated-branches -Wzero-as-null-pointer-constant"
 
       case $gxx_version in
       [[0-6]].*)
@@ -1394,6 +1396,8 @@ if test yes = "$GXX"; then
 
       dnl These options work at least as far back as clang++ 3.0:
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wmissing-declarations -Winit-self"
+      dnl -Wzero-as-null-pointer-constant was apparently added in clang 5.0.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wzero-as-null-pointer-constant"
 
       case $clangxx_version in
       [[0-5]].*)
