@@ -701,7 +701,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      */
     static size_t check(std::string_view path,
                         int opts = 0,
-                        std::ostream* out = NULL) {
+                        std::ostream* out = nullptr) {
         return check_(&path, 0, opts, out);
     }
 
@@ -715,8 +715,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
      *  @param opts     Options to use for check
      *  @param out      std::ostream to write output to (NULL for no output)
      */
-    static size_t check(int fd, int opts = 0, std::ostream* out = NULL) {
-        return check_(NULL, fd, opts, out);
+    static size_t check(int fd, int opts = 0, std::ostream* out = nullptr) {
+        return check_(nullptr, fd, opts, out);
     }
 
     /** Produce a compact version of this database.
@@ -771,7 +771,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     void compact(std::string_view output,
                  unsigned flags = 0,
                  int block_size = 0) {
-        compact_(&output, 0, flags, block_size, NULL);
+        compact_(&output, 0, flags, block_size, nullptr);
     }
 
     /** Produce a compact version of this database.
@@ -826,7 +826,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
     void compact(int fd,
                  unsigned flags = 0,
                  int block_size = 0) {
-        compact_(NULL, fd, flags, block_size, NULL);
+        compact_(nullptr, fd, flags, block_size, nullptr);
     }
 
     /** Produce a compact version of this database.
@@ -946,7 +946,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
                  int block_size,
                  Xapian::Compactor& compactor)
     {
-        compact_(NULL, fd, flags, block_size, &compactor);
+        compact_(nullptr, fd, flags, block_size, &compactor);
     }
 
     /** Reconstruct document text.

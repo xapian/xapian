@@ -1025,7 +1025,7 @@ Query::operator^=(const Query & o)
         // q ^= empty_query is a no-op.
     } else if (internal.get() == o.internal.get()) {
         // q ^= q gives MatchNothing.
-        internal = NULL;
+        internal = nullptr;
     } else if (internal &&
                internal->_refs == 1 &&
                get_type() == OP_XOR) {

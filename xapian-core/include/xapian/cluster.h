@@ -200,7 +200,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      *                      based on the terms found in the document
      *  @param stopper      Xapian::Stopper object to identify stopwords
      */
-    void add_document(const Document &document, const Stopper *stopper = NULL);
+    void add_document(const Document& document,
+                      const Stopper* stopper = nullptr);
 
   public:
     /** Constructor
@@ -208,7 +209,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
      *  @param docs     MSet object used to construct the TermListGroup
      *  @param stopper  Xapian::Stopper object to identify stopwords
      */
-    explicit TermListGroup(const MSet &docs, const Stopper *stopper = NULL);
+    explicit TermListGroup(const MSet& docs, const Stopper* stopper = nullptr);
 
     /** Return the number of documents that the term 'term' exists in
      *
@@ -650,7 +651,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  @param stop     The Stopper object to set (default NULL, which means no
      *                  stopwords)
      */
-    void set_stopper(const Xapian::Stopper* stop = NULL) { stopper = stop; }
+    void set_stopper(const Xapian::Stopper* stop = nullptr) { stopper = stop; }
 
     /// Return a string describing this object
     std::string get_description() const override;

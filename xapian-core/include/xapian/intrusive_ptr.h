@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014,2015,2017,2022 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015,2017,2022,2026 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -87,35 +87,35 @@ private:
 
 public:
 
-    intrusive_ptr(): px( 0 )
+    intrusive_ptr(): px( nullptr )
     {
     }
 
     intrusive_ptr( T * p): px( p )
     {
-        if( px != 0 ) ++px->_refs;
+        if( px != nullptr ) ++px->_refs;
     }
 
     template<class U>
     intrusive_ptr( intrusive_ptr<U> const & rhs )
     : px( rhs.get() )
     {
-        if( px != 0 ) ++px->_refs;
+        if( px != nullptr ) ++px->_refs;
     }
 
     intrusive_ptr(intrusive_ptr const & rhs): px( rhs.px )
     {
-        if( px != 0 ) ++px->_refs;
+        if( px != nullptr ) ++px->_refs;
     }
 
     ~intrusive_ptr()
     {
-        if( px != 0 && --px->_refs == 0 ) delete px;
+        if( px != nullptr && --px->_refs == 0 ) delete px;
     }
 
     intrusive_ptr(intrusive_ptr && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        rhs.px = nullptr;
     }
 
     intrusive_ptr & operator=(intrusive_ptr && rhs)
@@ -129,7 +129,7 @@ public:
     template<class U>
     intrusive_ptr(intrusive_ptr<U> && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        rhs.px = nullptr;
     }
 
     template<class U>
@@ -252,7 +252,7 @@ public:
 
     intrusive_ptr_nonnull(intrusive_ptr_nonnull && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        rhs.px = nullptr;
     }
 
     intrusive_ptr_nonnull & operator=(intrusive_ptr_nonnull && rhs)
@@ -266,7 +266,7 @@ public:
     template<class U>
     intrusive_ptr_nonnull(intrusive_ptr_nonnull<U> && rhs) : px( rhs.px )
     {
-        rhs.px = 0;
+        rhs.px = nullptr;
     }
 
     template<class U>
@@ -419,11 +419,11 @@ private:
 
 public:
 
-    opt_intrusive_ptr(): px( 0 ), counting( false )
+    opt_intrusive_ptr(): px( nullptr ), counting( false )
     {
     }
 
-    opt_intrusive_ptr( T * p): px( p ), counting( px != 0 && px->_refs )
+    opt_intrusive_ptr( T * p): px( p ), counting( px != nullptr && px->_refs )
     {
         if( counting ) ++px->_refs;
     }
@@ -449,8 +449,8 @@ public:
     opt_intrusive_ptr(opt_intrusive_ptr && rhs)
     : px( rhs.px ), counting( rhs.counting )
     {
-        rhs.px = 0;
-        rhs.counting = 0;
+        rhs.px = nullptr;
+        rhs.counting = false;
     }
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr && rhs)
@@ -465,8 +465,8 @@ public:
     opt_intrusive_ptr(opt_intrusive_ptr<U> && rhs)
     : px( rhs.px ), counting( rhs.counting )
     {
-        rhs.px = 0;
-        rhs.counting = 0;
+        rhs.px = nullptr;
+        rhs.counting = false;
     }
 
     template<class U>

@@ -1,7 +1,7 @@
 /** @file
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018,2023,2024 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014,2018,2023,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  @param stop     The Stopper object to set (default NULL, which means no
      *                  stopwords).
      */
-    void set_stopper(const Xapian::Stopper *stop = NULL);
+    void set_stopper(const Xapian::Stopper* stop = nullptr);
 
     /// Set the current document.
     void set_document(const Xapian::Document & doc);

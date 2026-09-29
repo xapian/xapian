@@ -1,7 +1,7 @@
 /** @file
  * @brief Querying session
  */
-/* Copyright (C) 2005,2013,2016,2017,2024 Olly Betts
+/* Copyright (C) 2005,2013,2016,2017,2024,2026 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -383,8 +383,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     MSet get_mset(doccount first,
                   doccount maxitems,
                   doccount checkatleast = 0,
-                  const RSet* rset = NULL,
-                  const MatchDecider* mdecider = NULL) const;
+                  const RSet* rset = nullptr,
+                  const MatchDecider* mdecider = nullptr) const;
 
     /** Run the query.
      *
@@ -404,7 +404,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     MSet get_mset(doccount first,
                   doccount maxitems,
                   const RSet* rset,
-                  const MatchDecider* mdecider = NULL) const {
+                  const MatchDecider* mdecider = nullptr) const {
         return get_mset(first, maxitems, 0, rset, mdecider);
     }
 
@@ -501,7 +501,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
     ESet get_eset(termcount maxitems,
                   const RSet& rset,
                   int flags = 0,
-                  const ExpandDecider* edecider = NULL,
+                  const ExpandDecider* edecider = nullptr,
                   double min_weight = 0.0) const;
 
     /** Perform query expansion.

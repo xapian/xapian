@@ -1,7 +1,7 @@
 /** @file
  *  @brief Functions to assist creating language-idiomatic iterator wrappers.
  */
-/* Copyright (C) 2014,2016,2017,2019 Olly Betts
+/* Copyright (C) 2014,2016,2017,2019,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,22 +74,22 @@ inline bool iterator_rewound(Xapian::MSetIterator& it) {
 
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::PositionIterator& it) {
-    return it.internal != NULL;
+    return it.internal != nullptr;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::PostingIterator& it) {
-    return it.internal != NULL;
+    return it.internal != nullptr;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::TermIterator& it) {
-    return it.internal != NULL;
+    return it.internal != nullptr;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::ValueIterator& it) {
-    return it.internal != NULL;
+    return it.internal != nullptr;
 }
 
 /** @internal Determine if iterator is valid to dereference. */

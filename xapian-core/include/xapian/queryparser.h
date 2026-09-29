@@ -864,7 +864,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param stop     The Stopper object to set (default NULL, which means no
      *                  stopwords).
      */
-    void set_stopper(const Stopper *stop = NULL);
+    void set_stopper(const Stopper *stop = nullptr);
 
     /** Set the stopper strategy.
      *
@@ -1114,7 +1114,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *                  [default: NULL]
      */
     void add_boolean_prefix(std::string_view field, std::string_view prefix,
-                            const std::string* grouping = NULL);
+                            const std::string* grouping = nullptr);
 
     /** Add a boolean term prefix allowing the user to restrict a
      *  search with a boolean filter specified in the free text query.
@@ -1152,7 +1152,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void add_boolean_prefix(std::string_view field,
                             Xapian::FieldProcessor* proc,
-                            const std::string* grouping = NULL);
+                            const std::string* grouping = nullptr);
 
     /** Register a FieldProcessor for a boolean prefix.
      *
@@ -1188,7 +1188,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Register a RangeProcessor.
     void add_rangeprocessor(Xapian::RangeProcessor * range_proc,
-                            const std::string* grouping = NULL);
+                            const std::string* grouping = nullptr);
 
     /** Get the spelling-corrected query string.
      *

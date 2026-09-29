@@ -76,7 +76,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
             end = p + len;
             seqlen = 0;
         } else {
-            p = NULL;
+            p = nullptr;
         }
     }
 
@@ -127,7 +127,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  has reached its end.
      */
     Utf8Iterator() noexcept
-        : p(NULL), end(0), seqlen(0) { }
+        : p(nullptr), end(nullptr), seqlen(0) { }
 
     /** Get the current Unicode character value pointed to by the iterator.
      *
@@ -172,7 +172,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
         const unsigned char* old_p = p;
         unsigned old_seqlen = seqlen;
         p += seqlen;
-        if (p == end) p = NULL;
+        if (p == end) p = nullptr;
         seqlen = 0;
         return Utf8Iterator(old_p, end, old_seqlen);
     }
@@ -184,7 +184,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     Utf8Iterator& operator++() {
         if (seqlen == 0) calculate_sequence_length();
         p += seqlen;
-        if (p == end) p = NULL;
+        if (p == end) p = nullptr;
         seqlen = 0;
         return *this;
     }
