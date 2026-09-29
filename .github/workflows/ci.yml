@@ -1697,9 +1697,6 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
         pushd xapian-letor
         tar --strip-components=1 -xf xapian-letor-*.tar.xz
         popd
@@ -1720,9 +1717,6 @@ jobs:
         ./configure --enable-werror --host i686-w64-mingw32
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror --host i686-w64-mingw32
-        popd
         pushd xapian-letor
         ./configure --enable-werror --host i686-w64-mingw32
         popd
@@ -1730,7 +1724,6 @@ jobs:
       run: |
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
@@ -1773,9 +1766,6 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
         pushd xapian-letor
         tar --strip-components=1 -xf xapian-letor-*.tar.xz
         popd
@@ -1804,9 +1794,6 @@ jobs:
         ./configure --enable-werror --host x86_64-w64-mingw32
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror --host x86_64-w64-mingw32
-        popd
         pushd xapian-letor
         ./configure --enable-werror --host x86_64-w64-mingw32
         popd
@@ -1814,7 +1801,6 @@ jobs:
       run: |
         export PATH=/usr/lib/ccache:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
         make -j2 -C xapian-letor
     - name: Run tests
       run: |
@@ -2098,9 +2084,6 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # file package (and hence libmagic) no longer available for mingw32
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2129,7 +2112,6 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2353,9 +2335,9 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic and PCRE for omega
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
+        # pushd xapian-omega
+        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        # popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2403,9 +2385,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror
-        popd
+        # pushd xapian-omega
+        # ./configure --enable-werror
+        # popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2416,7 +2398,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2425,7 +2407,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2465,9 +2447,9 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic and PCRE for omega
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
+        # pushd xapian-omega
+        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        # popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2512,9 +2494,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror
-        popd
+        # pushd xapian-omega
+        # ./configure --enable-werror
+        # popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2525,7 +2507,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2534,7 +2516,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2574,9 +2556,9 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic and PCRE for omega
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
+        # pushd xapian-omega
+        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        # popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2624,9 +2606,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror
-        popd
+        # pushd xapian-omega
+        # ./configure --enable-werror
+        # popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2637,7 +2619,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2646,7 +2628,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2686,9 +2668,9 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic and PCRE for omega
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
+        # pushd xapian-omega
+        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        # popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2733,9 +2715,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror
-        popd
+        # pushd xapian-omega
+        # ./configure --enable-werror
+        # popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2746,7 +2728,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2755,7 +2737,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
@@ -2795,9 +2777,9 @@ jobs:
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
         # Need libmagic and PCRE for omega
-        pushd xapian-omega
-        tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        popd
+        # pushd xapian-omega
+        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        # popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2845,9 +2827,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        pushd xapian-omega
-        ./configure --enable-werror
-        popd
+        # pushd xapian-omega
+        # ./configure --enable-werror
+        # popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2858,7 +2840,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        make -j2 -C xapian-omega
+        # make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2867,7 +2849,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        make -j2 -C xapian-omega check
+        # make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files

@@ -500,36 +500,81 @@ AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
 AC_PATH_TOOL(PKG_CONFIG, [pkg-config], [])
 
 dnl libmagic used to detect MIME types for files we don't detect by extension.
-MAGIC_CFLAGS=
 MAGIC_LIBS=
-dnl if test -n "$PKG_CONFIG" ; then
-dnl   MAGIC_CFLAGS=`$PKG_CONFIG libmagic --cflags 2>/dev/null`
-dnl   MAGIC_LIBS=`$PKG_CONFIG libmagic --libs 2>/dev/null`
-dnl fi
-dnl if test -z "$MAGIC_LIBS" ; then
-dnl   MAGIC_CFLAGS=
-dnl   AC_CHECK_HEADERS([magic.h])
-dnl   if test $ac_cv_header_magic_h = yes ; then
-dnl     dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
-dnl     dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
-dnl     dnl libtool, but we've checked for magic.h, so checking the library would
-dnl     dnl not really gain us much - we know it is -lmagic.
-dnl     MAGIC_LIBS=-lmagic
-dnl   fi
-dnl fi
-dnl if test -z "$MAGIC_LIBS" ; then
-dnl   if test -r /etc/debian_version ; then
-dnl     pkg="libmagic-dev"
-dnl   else
-dnl     pkg="file-devel (or maybe libmagic-devel)"
-dnl   fi
-dnl   AC_MSG_ERROR([libmagic required but development files not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
-dnl fi
+if test -n "$PKG_CONFIG" ; then
+  MAGIC_CFLAGS=`$PKG_CONFIG libmagic --cflags 2>/dev/null`
+  MAGIC_LIBS=`$PKG_CONFIG libmagic --libs 2>/dev/null`
+fi
+if test -z "$MAGIC_LIBS" ; then
+  MAGIC_CFLAGS=
+  AC_CHECK_HEADERS([magic.h])
+  if test $ac_cv_header_magic_h = yes ; then
+    dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+    dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+    dnl libtool, but we've checked for magic.h, so checking the library would
+    dnl not really gain us much - we know it is -lmagic.
+    MAGIC_LIBS=-lmagic
+  fi
+fi
+if test -z "$MAGIC_LIBS" ; then
+  if test -r /etc/debian_version ; then
+    pkg="libmagic-dev"
+  else
+    pkg="file-devel (or maybe libmagic-devel)"
+  fi
+  AC_MSG_ERROR([libmagic required but development files not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+fi
 AC_SUBST([MAGIC_CFLAGS])
 AC_SUBST([MAGIC_LIBS])
 
-PCRE2_CFLAGS=
-PCRE2_LIBS=
+pcre_runtime_installed() {
+  dnl Simple check to see if the problem is likely to be that we're using a
+  dnl "packaged" pcre but only have the runtime package installed.
+  for sfx in '' 32 64 ; do
+    set /usr/lib$sfx/libpcre2-*.so.*
+    if test "/usr/lib$sfx/libpcre2-*.so.*" != "$1" ; then
+      if test -r /etc/debian_version ; then
+        pkg="libpcre2-dev"
+      else
+        pkg="pcre2-devel"
+      fi
+      AS_SET_STATUS([0])
+    fi
+  done
+  AS_SET_STATUS([1])
+}
+
+PCRE2_LIBS_FLAG=--libs8
+AC_ARG_VAR(PCRE2_CONFIG, [Location of pcre2-config])
+if test -z "$PCRE2_CONFIG" ; then
+  if test -n "$PKG_CONFIG" ; then
+    pcre_try="$PKG_CONFIG libpcre2-8"
+    if $pcre_try 2>/dev/null ; then
+      PCRE2_CONFIG=$pcre_try
+      PCRE2_LIBS_FLAG=--libs
+    else
+      if pcre_runtime_installed ; then
+        AC_MSG_ERROR(['$pcre_try' failed, but the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+      else
+        AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
+      fi
+    fi
+  else
+    dnl Fall back to looking for pcre2-config, but that's not installed on PATH
+    dnl with the platform tuple prefixed (at least under MXE), so preferring
+    dnl 'pkg-config libpcre2' works better when cross-compiling.
+    AC_PATH_TOOL(PCRE2_CONFIG, [pcre2-config])
+    if test -z $PCRE2_CONFIG ; then
+      if pcre_runtime_installed ; then
+        AC_MSG_ERROR([Can't find pcre2-config, although the PCRE2 runtime library seems to be installed.  If you've installed PCRE2 from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+      else
+        AC_MSG_ERROR([Can't find pcre2-config.  If the PCRE2 library is installed, you need to add PCRE2_CONFIG=/path/to/pcre2-config to your configure command.])
+      fi
+    fi
+  fi
+fi
+PCRE2_CFLAGS=`$PCRE2_CONFIG --cflags`
+PCRE2_LIBS=`$PCRE2_CONFIG $PCRE2_LIBS_FLAG`
 AC_SUBST(PCRE2_CFLAGS)
 AC_SUBST(PCRE2_LIBS)
 
