@@ -49,13 +49,13 @@ int
 main(int argc, char **argv)
 try {
     static const struct option long_opts[] = {
-        {"help",        no_argument, 0, OPT_HELP},
-        {"version",     no_argument, 0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"help",        no_argument, nullptr, OPT_HELP},
+        {"version",     no_argument, nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, "", long_opts, nullptr)) != -1) {
         switch (c) {
             case OPT_HELP:
                 cout << PROG_NAME " - " PROG_DESC "\n\n";

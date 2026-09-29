@@ -257,7 +257,7 @@ static bool
 parse_filter_rule(const char* rule, map<string, string>& mime_map)
 {
     const char* s = strchr(rule, ':');
-    if (s == NULL || s[1] == '\0') {
+    if (s == nullptr || s[1] == '\0') {
         cerr << "Invalid filter mapping '" << rule << "'\n"
                 "Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or "
                 "TYPE,EXT:COMMAND\n"
@@ -327,7 +327,7 @@ static bool
 parse_worker_rule(const char* rule)
 {
     const char* s = strchr(rule, ':');
-    if (s == NULL || s[1] == '\0') {
+    if (s == nullptr || s[1] == '\0') {
         cerr << "Invalid worker mapping '" << rule << "'\n"
                 "Should be of the form TYPE:WORKER\n"
                 "e.g. 'application/msword:omindex_libreofficekit\n";
@@ -372,36 +372,36 @@ main(int argc, char **argv)
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;
     static const struct option longopts[] = {
-        { "help",               NO_ARG,         NULL, 'h' },
-        { "version",            NO_ARG,                NULL, 'V' },
-        { "overwrite",          NO_ARG,                NULL, 'o' },
-        { "duplicates",         REQ_ARG,        NULL, 'd' },
-        { "no-delete",          NO_ARG,                NULL, 'p' },
-        { "db",                 REQ_ARG,        NULL, 'D' },
-        { "url",                REQ_ARG,        NULL, 'U' },
-        { "mime-type",          REQ_ARG,        NULL, 'M' },
-        { "mime-type-match",    REQ_ARG,        NULL, 'G' },
-        { "filter",             REQ_ARG,        NULL, 'F' },
-        { "worker",             REQ_ARG,        NULL, 'W' },
-        { "read-filters",       REQ_ARG,        NULL, OPT_READ_FILTERS },
-        { "read-workers",       REQ_ARG,        NULL, OPT_READ_WORKERS },
-        { "depth-limit",        REQ_ARG,        NULL, 'l' },
-        { "follow",             NO_ARG,         NULL, 'f' },
-        { "ignore-exclusions",  NO_ARG,         NULL, 'i' },
-        { "stemmer",            REQ_ARG,        NULL, 's' },
-        { "spelling",           NO_ARG,         NULL, 'S' },
-        { "verbose",            NO_ARG,         NULL, 'v' },
-        { "empty-docs",         REQ_ARG,        NULL, 'e' },
-        { "max-size",           REQ_ARG,        NULL, 'm' },
-        { "sample",             REQ_ARG,        NULL, OPT_SAMPLE },
-        { "sample-size",        REQ_ARG,        NULL, 'E' },
-        { "title-size",         REQ_ARG,        NULL, 'T' },
-        { "retry-failed",       NO_ARG,         NULL, 'R' },
-        { "opendir-sleep",      REQ_ARG,        NULL, OPT_OPENDIR_SLEEP },
-        { "track-ctime",        NO_ARG,         NULL, 'C' },
-        { "date-terms",         NO_ARG,         NULL, OPT_DATE_TERMS },
-        { "no-date-terms",      NO_ARG,         NULL, OPT_NO_DATE_TERMS },
-        { 0, 0, NULL, 0 }
+        { "help",               NO_ARG,         nullptr, 'h' },
+        { "version",            NO_ARG,         nullptr, 'V' },
+        { "overwrite",          NO_ARG,         nullptr, 'o' },
+        { "duplicates",         REQ_ARG,        nullptr, 'd' },
+        { "no-delete",          NO_ARG,         nullptr, 'p' },
+        { "db",                 REQ_ARG,        nullptr, 'D' },
+        { "url",                REQ_ARG,        nullptr, 'U' },
+        { "mime-type",          REQ_ARG,        nullptr, 'M' },
+        { "mime-type-match",    REQ_ARG,        nullptr, 'G' },
+        { "filter",             REQ_ARG,        nullptr, 'F' },
+        { "worker",             REQ_ARG,        nullptr, 'W' },
+        { "read-filters",       REQ_ARG,        nullptr, OPT_READ_FILTERS },
+        { "read-workers",       REQ_ARG,        nullptr, OPT_READ_WORKERS },
+        { "depth-limit",        REQ_ARG,        nullptr, 'l' },
+        { "follow",             NO_ARG,         nullptr, 'f' },
+        { "ignore-exclusions",  NO_ARG,         nullptr, 'i' },
+        { "stemmer",            REQ_ARG,        nullptr, 's' },
+        { "spelling",           NO_ARG,         nullptr, 'S' },
+        { "verbose",            NO_ARG,         nullptr, 'v' },
+        { "empty-docs",         REQ_ARG,        nullptr, 'e' },
+        { "max-size",           REQ_ARG,        nullptr, 'm' },
+        { "sample",             REQ_ARG,        nullptr, OPT_SAMPLE },
+        { "sample-size",        REQ_ARG,        nullptr, 'E' },
+        { "title-size",         REQ_ARG,        nullptr, 'T' },
+        { "retry-failed",       NO_ARG,         nullptr, 'R' },
+        { "opendir-sleep",      REQ_ARG,        nullptr, OPT_OPENDIR_SLEEP },
+        { "track-ctime",        NO_ARG,         nullptr, 'C' },
+        { "date-terms",         NO_ARG,         nullptr, OPT_DATE_TERMS },
+        { "no-date-terms",      NO_ARG,         nullptr, OPT_NO_DATE_TERMS },
+        { nullptr, 0, nullptr, 0 }
     };
 
     map<string, string> mime_map;
@@ -421,7 +421,7 @@ main(int argc, char **argv)
     int getopt_ret;
     while ((getopt_ret = gnu_getopt_long(argc, argv,
                                          "hvd:D:U:M:G:F:W:l:s:pfRSVe:im:E:T:C",
-                                         longopts, NULL)) != -1) {
+                                         longopts, nullptr)) != -1) {
         switch (getopt_ret) {
         case 'h': {
             cout << PROG_NAME " - " PROG_DESC "\n\n"
@@ -550,7 +550,7 @@ main(int argc, char **argv)
             break;
         case 'M': {
             const char * s = strrchr(optarg, ':');
-            if (s == NULL) {
+            if (s == nullptr) {
                 cerr << "Invalid MIME mapping '" << optarg << "'\n"
                         "Should be of the form EXT:TYPE, e.g. txt:text/plain\n"
                         "(or txt: to delete a default mapping)" << endl;
@@ -717,7 +717,7 @@ main(int argc, char **argv)
             break;
         case 'G': {
             char * s = strrchr(optarg, ':');
-            if (s == NULL) {
+            if (s == nullptr) {
                 cerr << "Invalid MIME mapping '" << optarg << "'\n"
                         "Should be of the form GLOB:TYPE, e.g. *~:ignore"
                      << endl;

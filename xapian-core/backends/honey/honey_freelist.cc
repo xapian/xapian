@@ -89,7 +89,7 @@ HoneyFreeList::get_block(const HoneyTable* B, uint4 block_size,
         return first_unused_block++;
     }
 
-    if (p == 0) {
+    if (p == nullptr) {
         if (fl.n == UNUSED) {
             throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
         }
@@ -147,7 +147,7 @@ HoneyFreeList::walk(const HoneyTable* B, uint4 block_size, bool inclusive)
         return UNUSED;
     }
 
-    if (p == 0) {
+    if (p == nullptr) {
         if (fl.n == UNUSED) {
             throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
         }

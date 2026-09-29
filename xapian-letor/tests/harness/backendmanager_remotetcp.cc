@@ -208,7 +208,7 @@ try_next_port:
         dup2(fds[1], 1);
         dup2(fds[1], 2);
         close(fds[1]);
-        execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), static_cast<void*>(0));
+        execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), nullptr);
         _exit(-1);
     }
 

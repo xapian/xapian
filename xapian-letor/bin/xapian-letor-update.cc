@@ -48,17 +48,17 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:hv";
     static const struct option long_opts[] = {
-        { "db",         required_argument,  0, 'd' },
-        { "help",       no_argument,        0, 'h' },
-        { "version",    no_argument,        0, 'v' },
-        { NULL,         0, 0, 0}
+        { "db",         required_argument, nullptr, 'd' },
+        { "help",       no_argument,       nullptr, 'h' },
+        { "version",    no_argument,       nullptr, 'v' },
+        { nullptr,      0, nullptr, 0}
     };
 
     Xapian::WritableDatabase db;
     bool have_db = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'd':
                 db = Xapian::WritableDatabase(optarg, Xapian::DB_OPEN);

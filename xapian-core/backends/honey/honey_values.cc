@@ -604,7 +604,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot,
         const char* end = pos + tag.size();
 
         if (!unpack_uint(&pos, end, &(stats.freq))) {
-            if (pos == 0) {
+            if (pos == nullptr) {
                 throw Xapian::DatabaseCorruptError("Incomplete stats item in "
                                                    "value table");
             }
@@ -612,7 +612,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot,
                                      "too large");
         }
         if (!unpack_string(&pos, end, stats.lower_bound)) {
-            if (pos == 0) {
+            if (pos == nullptr) {
                 throw Xapian::DatabaseCorruptError("Incomplete stats item in "
                                                    "value table");
             }

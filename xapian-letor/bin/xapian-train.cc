@@ -51,10 +51,10 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:h:v";
     static const struct option long_opts[] = {
-        { "db",         required_argument,  0, 'd' },
-        { "help",       no_argument,        0, OPT_HELP },
-        { "version",    no_argument,        0, OPT_VERSION },
-        { NULL,         0, 0, 0}
+        { "db",         required_argument, nullptr, 'd' },
+        { "help",       no_argument,       nullptr, OPT_HELP },
+        { "version",    no_argument,       nullptr, OPT_VERSION },
+        { nullptr,      0, nullptr, 0}
     };
 
     bool have_database = false;
@@ -62,7 +62,7 @@ try {
     string db_path;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'd':
                 db_path = optarg;

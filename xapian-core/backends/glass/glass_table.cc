@@ -1577,7 +1577,7 @@ GlassCursor * GlassTable::cursor_get() const {
         if (handle == -2) {
             GlassTable::throw_database_closed();
         }
-        RETURN(NULL);
+        RETURN(nullptr);
     }
     // FIXME Ick - casting away const is nasty
     RETURN(new GlassCursor(const_cast<GlassTable *>(this)));
@@ -1718,8 +1718,8 @@ GlassTable::GlassTable(const char* tablename_, string_view path_,
           handle(-1),
           level(0),
           root(0),
-          kt(0),
-          buffer(0),
+          kt(nullptr),
+          buffer(nullptr),
           free_list(),
           name(path_),
           seq_count(0),
@@ -1731,8 +1731,8 @@ GlassTable::GlassTable(const char* tablename_, string_view path_,
           writable(!readonly_),
           cursor_created_since_last_modification(false),
           cursor_version(0),
-          changes_obj(NULL),
-          split_p(0),
+          changes_obj(nullptr),
+          split_p(nullptr),
           compress_min(0),
           comp_stream(Z_DEFAULT_STRATEGY),
           lazy(lazy_),
@@ -1753,8 +1753,8 @@ GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
           handle(-3 - fd),
           level(0),
           root(0),
-          kt(0),
-          buffer(0),
+          kt(nullptr),
+          buffer(nullptr),
           free_list(),
           name(),
           seq_count(0),
@@ -1766,8 +1766,8 @@ GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
           writable(!readonly_),
           cursor_created_since_last_modification(false),
           cursor_version(0),
-          changes_obj(NULL),
-          split_p(0),
+          changes_obj(nullptr),
+          split_p(nullptr),
           compress_min(0),
           comp_stream(Z_DEFAULT_STRATEGY),
           lazy(lazy_),
@@ -1845,12 +1845,12 @@ void GlassTable::close(bool permanent) {
         C[j].destroy();
     }
     delete [] split_p;
-    split_p = 0;
+    split_p = nullptr;
 
     delete [] kt.get_address();
-    kt = LeafItem_wr(0);
+    kt = LeafItem_wr(nullptr);
     delete [] buffer;
-    buffer = 0;
+    buffer = nullptr;
 }
 
 void

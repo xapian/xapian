@@ -241,7 +241,7 @@ show_docdata(Database &db,
 
 static void
 show_termlist(const Database &db, Xapian::docid did,
-              const char * all_pfx = NULL)
+              const char* all_pfx = nullptr)
 {
     TermIterator t, tend;
     if (all_pfx) {
@@ -309,7 +309,7 @@ main(int argc, char **argv) try {
         }
     }
 
-    const char * all_terms = NULL;
+    const char* all_terms = nullptr;
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;

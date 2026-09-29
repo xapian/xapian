@@ -133,7 +133,7 @@ Worker::start_worker_subprocess()
 #endif
         // Replacing the current process image with a new process image
         const char* mod = filter_module.c_str();
-        execl(mod, mod, static_cast<void*>(NULL));
+        execl(mod, mod, nullptr);
         _exit(EX_OSERR);
     }
 

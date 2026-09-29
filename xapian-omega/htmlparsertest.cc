@@ -113,7 +113,7 @@ static const testcase tests[] = {
     // Test magic comments also work in XHTML.
     { "<?xml version=\"1.0\"?><body>test<!--htdig_noindex-->ing</body>", "test", "", "", "" },
     { "<?xml version=\"1.0\"?><!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
-    { 0, 0, 0, 0, 0 }
+    { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
 int

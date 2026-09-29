@@ -39,9 +39,9 @@ class dircloser {
   public:
     dircloser(DIR * dir_) : dir(dir_) {}
     ~dircloser() {
-        if (dir != NULL) {
+        if (dir != nullptr) {
             closedir(dir);
-            dir = NULL;
+            dir = nullptr;
         }
     }
 };
@@ -52,7 +52,7 @@ removedir(const string &dirname)
     DIR * dir;
 
     dir = opendir(dirname.c_str());
-    if (dir == NULL) {
+    if (dir == nullptr) {
         if (errno == ENOENT) return;
         throw Xapian::DatabaseError("Cannot open directory '" + dirname + "'", errno);
     }
@@ -62,7 +62,7 @@ removedir(const string &dirname)
         while (true) {
             errno = 0;
             struct dirent * entry = readdir(dir);
-            if (entry == NULL) {
+            if (entry == nullptr) {
                 if (errno == 0)
                     break;
                 throw Xapian::DatabaseError("Cannot read entry from directory at '" + dirname + "'", errno);

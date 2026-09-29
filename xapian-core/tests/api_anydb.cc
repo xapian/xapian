@@ -299,7 +299,7 @@ DEFINE_TESTCASE(expandweights3, backend) {
     myrset.add_document(*(++i));
 
     // Set min_wt to 6.0
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 6.0);
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, nullptr, 6.0);
     TEST_EQUAL(eset.size(), 2);
     TEST_REL(eset.get_ebound(), >=, eset.size());
     // With a multi backend, the top two terms all happen to occur in both
@@ -322,7 +322,7 @@ DEFINE_TESTCASE(expandweights4, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 0, -100);
+    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, nullptr, -100);
     // Now include negative weights
     TEST_EQUAL(eset.size(), 37);
     TEST_REL(eset.get_ebound(), >=, eset.size());
@@ -406,7 +406,7 @@ DEFINE_TESTCASE(expandweights8, backend) {
 
     // Set expand_k to 1.0 and min_wt to 0
     enquire.set_expansion_scheme("prob", 1.0);
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0);
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, nullptr, 0);
     // With a multi backend, the top three terms all happen to occur in both
     // shard so their termfreq is exactly known even without
     // USE_EXACT_TERMFREQ and so the weights should be the same for all

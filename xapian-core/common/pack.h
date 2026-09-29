@@ -80,7 +80,7 @@ unpack_bool(const char** p, const char* end, bool* result)
     Assert(ptr);
     char ch;
     if (rare(ptr == end || ((ch = *ptr++ - '0') &~ 1))) {
-        ptr = NULL;
+        ptr = nullptr;
         return false;
     }
     *result = static_cast<bool>(ch);
@@ -355,7 +355,7 @@ unpack_uint(const char** p, const char* end, U* result)
     do {
         if (rare(ptr == end)) {
             // Out of data.
-            *p = NULL;
+            *p = nullptr;
             return false;
         }
     } while (static_cast<unsigned char>(*ptr++) >= 128);
@@ -419,7 +419,7 @@ unpack_uint_backwards(const char** p, const char* start, U* result)
     // Check it's not empty and that the final byte is valid.
     if (rare(ptr == start || static_cast<unsigned char>(ptr[-1]) >= 128)) {
         // Out of data.
-        *p = NULL;
+        *p = nullptr;
         return false;
     }
 
@@ -474,7 +474,7 @@ unpack_string(const char** p, const char* end, std::string& result)
 
     const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
-        ptr = NULL;
+        ptr = nullptr;
         return false;
     }
 
@@ -499,7 +499,7 @@ unpack_string_append(const char** p, const char* end, std::string& result)
 
     const char*& ptr = *p;
     if (rare(len > size_t(end - ptr))) {
-        ptr = NULL;
+        ptr = nullptr;
         return false;
     }
 

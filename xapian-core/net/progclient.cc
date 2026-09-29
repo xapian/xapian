@@ -255,7 +255,7 @@ ProgClient::~ProgClient()
 
     // Wait for the child process to exit.
 #ifndef __WIN32__
-    waitpid(child, 0, 0);
+    waitpid(child, nullptr, 0);
 #else
     WaitForSingleObject(child, INFINITE);
 #endif

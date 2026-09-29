@@ -356,7 +356,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     GrepMatchDecider myfunctor("This is");
 
-    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
+    Xapian::MSet mymset = enquire.get_mset(0, 100, nullptr, &myfunctor);
 
     vector<bool> docid_checked(db.get_lastdocid());
 
@@ -384,7 +384,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     // Check that the bounds are appropriate even if we don't ask for any
     // actual matches.
-    mymset = enquire.get_mset(0, 0, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 0, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
@@ -398,7 +398,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // Check that the bounds are appropriate if we ask for only one hit.
     // (Regression test - until SVN 10256, we didn't reduce the lower_bound
     // appropriately, and returned 6 here.)
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -423,7 +423,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // Check that the bounds are appropriate if a collapse key is used.
     // Use a value which is never set so we don't actually discard anything.
     enquire.set_collapse_key(99);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -442,7 +442,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // use.  Set a 1% threshold so we don't actually discard anything.
     enquire.set_collapse_key(Xapian::BAD_VALUENO);
     enquire.set_cutoff(1);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -459,7 +459,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     // And now with both a collapse key and percentage cutoff.
     enquire.set_collapse_key(99);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -483,7 +483,7 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
 
     GrepMatchDecider myfunctor("This is");
 
-    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &myfunctor);
+    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, nullptr, &myfunctor);
 
     vector<bool> docid_checked(db.get_lastdocid());
 

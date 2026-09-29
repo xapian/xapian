@@ -89,7 +89,7 @@ END
 END
     }
     print COLLATED_HDR <<END;
-            { 0, 0 }
+            { nullptr, nullptr }
         };
         result = max(result, test_driver::run(tests));
     }

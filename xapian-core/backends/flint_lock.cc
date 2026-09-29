@@ -393,7 +393,7 @@ report_dup_failure:
         }
 
         // FIXME: use special statically linked helper instead of cat.
-        execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
+        execl("/bin/cat", "/bin/cat", nullptr);
         // Emulate cat ourselves (we try to avoid this to reduce VM overhead).
         char ch;
         while (read(0, &ch, 1) != 0) {

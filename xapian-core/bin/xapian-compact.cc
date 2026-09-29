@@ -113,17 +113,17 @@ main(int argc, char **argv)
 {
     const char * opts = "b:B:nFmqs";
     static const struct option long_opts[] = {
-        {"fuller",      no_argument, 0, 'F'},
-        {"no-full",     no_argument, 0, 'n'},
-        {"multipass",   no_argument, 0, 'm'},
-        {"blocksize",   required_argument, 0, 'b'},
-        {"backend",     required_argument, 0, 'B'},
-        {"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
-        {"single-file", no_argument, 0, 's'},
-        {"quiet",       no_argument, 0, 'q'},
-        {"help",        no_argument, 0, OPT_HELP},
-        {"version",     no_argument, 0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"fuller",      no_argument, nullptr, 'F'},
+        {"no-full",     no_argument, nullptr, 'n'},
+        {"multipass",   no_argument, nullptr, 'm'},
+        {"blocksize",   required_argument, nullptr, 'b'},
+        {"backend",     required_argument, nullptr, 'B'},
+        {"no-renumber", no_argument, nullptr, OPT_NO_RENUMBER},
+        {"single-file", no_argument, nullptr, 's'},
+        {"quiet",       no_argument, nullptr, 'q'},
+        {"help",        no_argument, nullptr, OPT_HELP},
+        {"version",     no_argument, nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     MyCompactor compactor;
@@ -133,7 +133,7 @@ main(int argc, char **argv)
     unsigned block_size = 0;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'b': {
                 char *p;

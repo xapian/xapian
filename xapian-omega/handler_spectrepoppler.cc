@@ -24,8 +24,17 @@
 #include "str.h"
 #include "tmpdir.h"
 
+#ifdef __GNUC__
+// Glib headers trigger -Wzero-as-null-pointer-constant
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
 #include <poppler-document.h>
 #include <poppler-page.h>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+
 #include <libspectre/spectre.h>
 
 using namespace std;

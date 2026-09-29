@@ -489,14 +489,14 @@ struct wildcard_testcase {
     const char * terms[4];
 };
 
-#define WILDCARD_EXCEPTION { 0, 0, 0, "" }
+#define WILDCARD_EXCEPTION { nullptr, nullptr, nullptr, "" }
 static const
 wildcard_testcase wildcard1_testcases[] = {
     // Tries to expand to 7 terms.
     { "th",     6, 'E', WILDCARD_EXCEPTION },
-    { "thou",   1, 'E', { "though", 0, 0, 0 } },
-    { "s",      2, 'F', { "say", "search", 0, 0 } },
-    { "s",      2, 'M', { "simpl", "so", 0, 0 } }
+    { "thou",   1, 'E', { "though", nullptr, nullptr, nullptr } },
+    { "s",      2, 'F', { "say", "search", nullptr, nullptr } },
+    { "s",      2, 'M', { "simpl", "so", nullptr, nullptr } }
 };
 
 DEFINE_TESTCASE(wildcard1, backend) {
@@ -805,16 +805,16 @@ struct editdist_testcase {
     const char* terms[4];
 };
 
-#define EDITDIST_EXCEPTION { 0, 0, 0, "" }
+#define EDITDIST_EXCEPTION { nullptr, nullptr, nullptr, "" }
 static const
 editdist_testcase editdist1_testcases[] = {
     // Tries to expand to 9 terms.
     { "muse",   2, 8, 'E', EDITDIST_EXCEPTION },
-    { "museum", 3, 3, 'E', { "mset", "must", "use", 0 } },
-    { "thou",   0, 9, 'E', { 0, 0, 0, 0 } },
-    { "though", 0, 9, 'E', { "though", 0, 0, 0 } },
-    { "museum", 3, 1, 'F', { "mset", 0, 0, 0 } },
-    { "museum", 3, 1, 'M', { "use", 0, 0, 0 } },
+    { "museum", 3, 3, 'E', { "mset", "must", "use", nullptr } },
+    { "thou",   0, 9, 'E', { nullptr, nullptr, nullptr, nullptr } },
+    { "though", 0, 9, 'E', { "though", nullptr, nullptr, nullptr } },
+    { "museum", 3, 1, 'F', { "mset", nullptr, nullptr, nullptr } },
+    { "museum", 3, 1, 'M', { "use", nullptr, nullptr, nullptr } },
 };
 
 DEFINE_TESTCASE(editdist1, backend) {
@@ -870,7 +870,8 @@ DEFINE_TESTCASE(editdist1, backend) {
 
 static const
 editdist_testcase editdist2_testcases[] = {
-    { UTF8("\U00010000"), 1, 8, 'E', { UTF8("a\U00010000"), 0, 0, 0 } },
+    { UTF8("\U00010000"), 1, 8, 'E',
+      { UTF8("a\U00010000"), nullptr, nullptr, nullptr } },
 };
 
 /// Test Unicode edit distance calculations.
@@ -966,12 +967,12 @@ struct positional_testcase {
 
 static const
 positional_testcase loosephrase1_testcases[] = {
-    { 5, { "expect", "to", "mset", 0 }, 0 },
-    { 5, { "word", "well", "the", 0 }, 2 },
-    { 5, { "if", "word", "doesnt", 0 }, 0 },
-    { 5, { "at", "line", "three", 0 }, 0 },
-    { 5, { "paragraph", "other", "the", 0 }, 0 },
-    { 5, { "other", "the", "with", 0 }, 0 }
+    { 5, { "expect", "to", "mset", nullptr }, 0 },
+    { 5, { "word", "well", "the", nullptr }, 2 },
+    { 5, { "if", "word", "doesnt", nullptr }, 0 },
+    { 5, { "at", "line", "three", nullptr }, 0 },
+    { 5, { "paragraph", "other", "the", nullptr }, 0 },
+    { 5, { "other", "the", "with", nullptr }, 0 }
 };
 
 /// Regression test for bug fixed in 1.3.3 and 1.2.21.
@@ -997,13 +998,13 @@ DEFINE_TESTCASE(loosephrase1, backend) {
 
 static const
 positional_testcase loosenear1_testcases[] = {
-    { 4, { "test", "the", "with", 0 }, 1 },
-    { 4, { "expect", "word", "the", 0 }, 2 },
-    { 4, { "line", "be", "blank", 0 }, 1 },
-    { 2, { "banana", "banana", 0, 0 }, 0 },
-    { 3, { "banana", "banana", 0, 0 }, 0 },
-    { 2, { "word", "word", 0, 0 }, 2 },
-    { 4, { "work", "meant", "work", 0 }, 0 },
+    { 4, { "test", "the", "with", nullptr }, 1 },
+    { 4, { "expect", "word", "the", nullptr }, 2 },
+    { 4, { "line", "be", "blank", nullptr }, 1 },
+    { 2, { "banana", "banana", nullptr, nullptr }, 0 },
+    { 3, { "banana", "banana", nullptr, nullptr }, 0 },
+    { 2, { "word", "word", nullptr, nullptr }, 2 },
+    { 4, { "work", "meant", "work", nullptr }, 0 },
     { 4, { "this", "one", "yet", "one" }, 0 }
 };
 

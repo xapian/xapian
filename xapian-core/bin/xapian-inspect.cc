@@ -231,17 +231,17 @@ int
 main(int argc, char** argv)
 {
     static const struct option long_opts[] = {
-        {"table",       required_argument, 0, 't'},
-        {"help",        no_argument, 0, OPT_HELP},
-        {"version",     no_argument, 0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"table",       required_argument, nullptr, 't'},
+        {"help",        no_argument, nullptr, OPT_HELP},
+        {"version",     no_argument, nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     string table_name;
     off_t offset = 0;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "t:", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, "t:", long_opts, nullptr)) != -1) {
         switch (c) {
             case 't':
                 table_name = optarg;

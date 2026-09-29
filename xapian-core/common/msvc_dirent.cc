@@ -50,7 +50,7 @@ struct DIR
 
 DIR *opendir(const char *name)
 {
-    DIR *dir = 0;
+    DIR *dir = nullptr;
 
     if(name && name[0])
     {
@@ -60,7 +60,7 @@ DIR *opendir(const char *name)
          * in struct DIR for name (plus padding). */
         size_t alloc_size = sizeof(DIR) + base_length + 2;
 
-        if((dir = (DIR *) malloc(alloc_size)) != 0)
+        if((dir = (DIR *) malloc(alloc_size)) != nullptr)
         {
             memcpy(dir->name, name, base_length);
             /* Search pattern must end with suitable wildcard */
@@ -70,19 +70,19 @@ DIR *opendir(const char *name)
 
             if((dir->handle = _findfirst(dir->name, &dir->info)) != -1)
             {
-                dir->result.d_name = 0;
+                dir->result.d_name = nullptr;
             }
             else /* rollback */
             {
                 /* _findfirst() will have set errno suitably. */
                 free(dir);
-                dir = 0;
+                dir = nullptr;
             }
         }
         else /* rollback */
         {
             free(dir);
-            dir   = 0;
+            dir   = nullptr;
             errno = ENOMEM;
         }
     }
@@ -118,7 +118,7 @@ int closedir(DIR *dir)
 
 struct dirent *readdir(DIR *dir)
 {
-    struct dirent *result = 0;
+    struct dirent *result = nullptr;
 
     if(dir && dir->handle != -1)
     {
@@ -153,7 +153,7 @@ void rewinddir(DIR *dir)
     {
         _findclose(dir->handle);
         dir->handle = _findfirst(dir->name, &dir->info);
-        dir->result.d_name = 0;
+        dir->result.d_name = nullptr;
     }
     else
     {

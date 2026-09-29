@@ -40,7 +40,7 @@ using namespace std;
 [[noreturn]]
 static void report_read_error(const char * position)
 {
-    if (position == 0) {
+    if (position == nullptr) {
         // data ran out
         LOGLINE(DB, "GlassPostList data ran out");
         throw Xapian::DatabaseCorruptError("Data ran out unexpectedly when "
@@ -556,7 +556,8 @@ PostlistChunkWriter::flush(GlassTable *table)
             Xapian::docid first_did_in_chunk;
             if (is_prev_first_chunk) {
                 first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
-                                                               0, 0);
+                                                               nullptr,
+                                                               nullptr);
             } else {
                 if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
                     report_read_error(keypos);
@@ -697,7 +698,7 @@ GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
                              string_view term_,
                              bool keep_reference)
         : LeafPostList(term_),
-          this_db(keep_reference ? this_db_ : NULL),
+          this_db(keep_reference ? this_db_ : nullptr),
           have_started(false),
           is_at_end(false),
           cursor(this_db_->postlist_table.cursor_get())
@@ -729,8 +730,8 @@ GlassPostList::init()
         termfreq = 0;
         collfreq = 0;
         is_at_end = true;
-        pos = 0;
-        end = 0;
+        pos = nullptr;
+        end = nullptr;
         first_did_in_chunk = 0;
         last_did_in_chunk = 0;
         wdf_upper_bound = 0;
@@ -846,7 +847,7 @@ GlassPostList::read_position_list()
 {
     LOGCALL(DB, PositionList *, "GlassPostList::read_position_list", NO_ARGS);
     Assert(this_db);
-    if (rare(positionlist == NULL)) {
+    if (rare(positionlist == nullptr)) {
         // Lazily create positionlist to avoid the size cost for the common
         // case where we don't want positional data.
         positionlist = new GlassRePositionList(&this_db->position_table);
@@ -881,7 +882,7 @@ GlassPostList::next(double w_min)
         LOGLINE(DB, "Moved to docid " << did << ", wdf = " << wdf);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 bool
@@ -921,10 +922,10 @@ GlassPostList::move_to_chunk_containing(Xapian::docid desired_did)
         // In first chunk
 #ifdef XAPIAN_ASSERTIONS
         Xapian::doccount old_termfreq = termfreq;
-        did = read_start_of_first_chunk(&pos, end, &termfreq, NULL);
+        did = read_start_of_first_chunk(&pos, end, &termfreq, nullptr);
         Assert(old_termfreq == termfreq);
 #else
-        did = read_start_of_first_chunk(&pos, end, NULL, NULL);
+        did = read_start_of_first_chunk(&pos, end, nullptr, nullptr);
 #endif
     } else {
         // In normal chunk
@@ -958,7 +959,7 @@ GlassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
                 RETURN(true);
             }
             // It's faster to just skip over the wdf than to decode it.
-            read_wdf(&pos, end, NULL);
+            read_wdf(&pos, end, nullptr);
         }
 
         // If we hit the end of the chunk then last_did_in_chunk must be wrong.
@@ -979,14 +980,14 @@ GlassPostList::skip_to(Xapian::docid desired_did, double w_min)
     have_started = true;
 
     // Don't skip back, and don't need to do anything if already there.
-    if (is_at_end || desired_did <= did) RETURN(NULL);
+    if (is_at_end || desired_did <= did) RETURN(nullptr);
 
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
         move_to_chunk_containing(desired_did);
         // Might be at_end now, so we need to check before trying to move
         // forward in chunk.
-        if (is_at_end) RETURN(NULL);
+        if (is_at_end) RETURN(nullptr);
     }
 
     // Move to correct position in chunk
@@ -1000,7 +1001,7 @@ GlassPostList::skip_to(Xapian::docid desired_did, double w_min)
         LOGLINE(DB, "Skipped to docid " << did << ", wdf = " << wdf);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 // Used for doclens.
@@ -1013,7 +1014,7 @@ GlassPostList::jump_to(Xapian::docid desired_did)
     have_started = true;
 
     // If the list is empty, give up right away.
-    if (pos == 0) RETURN(false);
+    if (pos == nullptr) RETURN(false);
 
     // Move to correct chunk, or reload the current chunk to go backwards in it
     // (FIXME: perhaps handle the latter case more elegantly, though it won't
@@ -1036,7 +1037,7 @@ GlassPostList::jump_to(Xapian::docid desired_did)
 void
 GlassPostList::get_docid_range(Xapian::docid& first, Xapian::docid& last) const
 {
-    if (pos == NULL) {
+    if (pos == nullptr) {
         last = 0;
     } else {
         first = first_did_in_chunk;
@@ -1087,7 +1088,7 @@ GlassPostListTable::get_chunk(string_view term,
                                                "posting list "
                                                "for "s.append(term));
 
-        *from = NULL;
+        *from = nullptr;
         *to = new PostlistChunkWriter({}, true, term, true);
         RETURN(Xapian::docid(-1));
     }
@@ -1102,7 +1103,8 @@ GlassPostListTable::get_chunk(string_view term,
     const char * end = pos + cursor->current_tag.size();
     Xapian::docid first_did_in_chunk;
     if (is_first_chunk) {
-        first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
+        first_did_in_chunk = read_start_of_first_chunk(&pos, end,
+                                                       nullptr, nullptr);
     } else {
         if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
             report_read_error(keypos);
@@ -1118,7 +1120,7 @@ GlassPostListTable::get_chunk(string_view term,
         // This is the shortcut.  Not very pretty, but I'll leave refactoring
         // until I've a clearer picture of everything which needs to be done.
         // (FIXME)
-        *from = NULL;
+        *from = nullptr;
         (*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
                           string(pos, end));
     } else {
@@ -1150,7 +1152,7 @@ GlassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termco
     LOGCALL_VOID(DB, "GlassPostListTable::merge_doclen_changes", doclens);
 
     // The cursor in the doclen_pl will no longer be valid, so reset it.
-    doclen_pl.reset(0);
+    doclen_pl.reset();
 
     LOGVALUE(DB, doclens.size());
     if (doclens.empty()) return;
@@ -1340,7 +1342,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
     const char * p = cur->current_tag.data();
     const char * e = p + cur->current_tag.size();
 
-    first = read_start_of_first_chunk(&p, e, NULL, NULL);
+    first = read_start_of_first_chunk(&p, e, nullptr, nullptr);
 
     (void)cur->find_entry(pack_glass_postlist_key({}, GLASS_MAX_DOCID));
     Assert(!cur->after_end());
@@ -1362,7 +1364,7 @@ GlassPostListTable::get_used_docid_range(Xapian::docid & first,
     Xapian::docid start_of_last_chunk;
     if (keypos == keyend) {
         start_of_last_chunk = first;
-        first = read_start_of_first_chunk(&p, e, NULL, NULL);
+        first = read_start_of_first_chunk(&p, e, nullptr, nullptr);
     } else {
         // In normal chunk
         if (!unpack_uint_preserving_sort(&keypos, keyend,

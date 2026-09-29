@@ -926,7 +926,7 @@ MSet::Internal::snippet(string_view text,
             // [The][ cat][ sat][ on][ the][ mat]
             size_t term_end = text.size() - left;
 
-            double* relevance = 0;
+            double* relevance = nullptr;
             size_t highlight = 0;
             if (stats) {
                 size_t i = 0;

@@ -652,7 +652,8 @@ RemoteServer::msg_query(string_view message_in)
     unserialise_stats(p, p_end, *total_stats);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
-                                         *total_stats, *wt, 0, sorter.get(),
+                                         *total_stats, *wt, nullptr,
+                                         sorter.get(),
                                          collapse_key, collapse_max,
                                          percent_threshold, weight_threshold,
                                          order,

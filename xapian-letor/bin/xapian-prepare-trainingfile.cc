@@ -54,11 +54,11 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:m";
     static const struct option long_opts[] = {
-        { "db",         required_argument,  0, 'd' },
-        { "msize",      required_argument,  0, 'm' },
-        { "help",       no_argument,        0, OPT_HELP },
-        { "version",    no_argument,        0, OPT_VERSION },
-        { NULL,         0, 0, 0}
+        { "db",         required_argument, nullptr, 'd' },
+        { "msize",      required_argument, nullptr, 'm' },
+        { "help",       no_argument,       nullptr, OPT_HELP },
+        { "version",    no_argument,       nullptr, OPT_VERSION },
+        { nullptr,      0, nullptr, 0}
     };
 
     Xapian::doccount msize = 10;
@@ -68,7 +68,7 @@ try {
     string db_path;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'd':
                 db_path = optarg;

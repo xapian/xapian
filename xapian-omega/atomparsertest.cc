@@ -64,7 +64,7 @@ static const testcase tests[] = {
       "Helium",
       "x",
       "" },
-    { 0, 0, 0, 0, 0 }
+    { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
 int

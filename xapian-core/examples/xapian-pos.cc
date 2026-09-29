@@ -91,14 +91,15 @@ struct PosCmp {
 int
 main(int argc, char **argv)
 try {
+    const char* opts = "d:s:e:r::";
     static const struct option long_opts[] = {
-        {"doc",         required_argument,  0, 'd'},
-        {"start",       required_argument,  0, 's'},
-        {"end",         required_argument,  0, 'e'},
-        {"reconstruct", optional_argument,  0, 'r'},
-        {"help",        no_argument,        0, OPT_HELP},
-        {"version",     no_argument,        0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"doc",         required_argument, nullptr, 'd'},
+        {"start",       required_argument, nullptr, 's'},
+        {"end",         required_argument, nullptr, 'e'},
+        {"reconstruct", optional_argument, nullptr, 'r'},
+        {"help",        no_argument,       nullptr, OPT_HELP},
+        {"version",     no_argument,       nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     Xapian::docid did = 0;
@@ -107,7 +108,7 @@ try {
     bool reconstruct = false;
     string reconstruct_prefix;
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "d:e:s:r::", long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'd':
                 if (!parse_unsigned(optarg, did) || did == 0) {

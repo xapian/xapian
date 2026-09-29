@@ -660,7 +660,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
 #endif
 
         if (use_shell) {
-            execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+            execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), nullptr);
             _exit(-1);
         }
 

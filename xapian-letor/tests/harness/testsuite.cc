@@ -606,8 +606,8 @@ test_driver::runtest(const test_desc *test)
 # ifdef HAVE_CXXABI_H
                 // __cxa_demangle() apparently requires GCC >= 3.1.
                 // Demangle the name which GCC returns for type_info::name().
-                int status;
-                char * realname = abi::__cxa_demangle(name, NULL, 0, &status);
+                char* realname =
+                    abi::__cxa_demangle(name, nullptr, nullptr, nullptr);
                 if (realname) {
                     out << realname;
                     free(realname);
@@ -901,10 +901,10 @@ test_driver::parse_command_line(int argc, char **argv)
 #endif
 
     static const struct option long_opts[] = {
-        {"verbose",         no_argument, 0, 'v'},
-        {"abort-on-error",  no_argument, 0, 'o'},
-        {"help",            no_argument, 0, 'h'},
-        {NULL,              0, 0, 0}
+        {"verbose",         no_argument, nullptr, 'v'},
+        {"abort-on-error",  no_argument, nullptr, 'o'},
+        {"help",            no_argument, nullptr, 'h'},
+        {nullptr,           0, nullptr, 0}
     };
 
     string short_opts_string = "voh";
@@ -916,7 +916,7 @@ test_driver::parse_command_line(int argc, char **argv)
     const char * opts = short_opts_string.c_str();
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'v':
                 ++verbose;
