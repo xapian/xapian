@@ -1826,7 +1826,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # Need libmagic for omega
+        # Need libmagic and PCRE for omega
         # pushd xapian-applications/omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
@@ -1932,7 +1932,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # Need libmagic for omega
+        # Need libmagic and PCRE for omega
         # pushd xapian-applications/omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
@@ -2035,7 +2035,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # Need libmagic for omega
+        # Need libmagic and PCRE for omega
         # pushd xapian-applications/omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
@@ -2141,7 +2141,7 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # Need libmagic for omega
+        # Need libmagic and PCRE for omega
         # pushd xapian-applications/omega
         # tar --strip-components=1 -xf xapian-omega-*.tar.xz
         # popd
