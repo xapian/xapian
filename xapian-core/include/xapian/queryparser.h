@@ -864,7 +864,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param stop     The Stopper object to set (default NULL, which means no
      *                  stopwords).
      */
-    void set_stopper(const Stopper *stop = nullptr);
+    void set_stopper(const Stopper* stop = nullptr);
 
     /** Set the stopper strategy.
      *

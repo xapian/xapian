@@ -36,25 +36,25 @@
 template<class S>
 struct PrettyOStream {
     /// The std::ostream object we're outputting to.
-    S & os;
+    S& os;
 
-    PrettyOStream(S & os_) : os(os_) { }
-    template<typename T> PrettyOStream & operator|(const T & t) {
+    PrettyOStream(S& os_) : os(os_) { }
+    template<typename T> PrettyOStream& operator|(const T& t) {
         os << ", ";
         return *this << t;
     }
 };
 
 struct Literal {
-    const char * _lit;
-    explicit Literal(const char * lit) : _lit(lit) { }
-    explicit Literal(const std::string & s) : _lit(s.c_str()) { }
+    const char* _lit;
+    explicit Literal(const char* lit) : _lit(lit) { }
+    explicit Literal(const std::string& s) : _lit(s.c_str()) { }
 };
 
 /// Default is to output as std::ostream would.
 template<class S, class T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const T & t)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const T& t)
 {
     ps.os << t;
     return ps;
@@ -68,16 +68,16 @@ operator<<(PrettyOStream<S> &ps, const T & t)
  *  ps << Literal("x = ") << x << Literal(", y = ") << y << endl;
  */
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Literal & t)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Literal& t)
 {
     ps.os << t._lit;
     return ps;
 }
 
 template<class S, class T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const T * t)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const T* t)
 {
     if (!t) {
         ps.os << "NULL";
@@ -88,16 +88,16 @@ operator<<(PrettyOStream<S> &ps, const T * t)
 }
 
 template<class S, class T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const T ** t)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const T** t)
 {
     ps.os << (void*)t;
     return ps;
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const void * t)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const void* t)
 {
     ps.os << "(void*)" << t;
     return ps;
@@ -105,7 +105,7 @@ operator<<(PrettyOStream<S> &ps, const void * t)
 
 // FIXME: We probably don't want to inline this, but need to arrange to
 // put it somewhere sane out-of-line.
-inline void write_ch(std::ostream & os, unsigned char ch)
+inline void write_ch(std::ostream& os, unsigned char ch)
 {
     if (ch < 32 || ch >= 127) {
         os << '\\';
@@ -126,8 +126,8 @@ inline void write_ch(std::ostream & os, unsigned char ch)
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const char * str)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const char* str)
 {
     ps.os << '"';
     while (*str) {
@@ -138,8 +138,8 @@ operator<<(PrettyOStream<S> &ps, const char * str)
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::string & str)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::string& str)
 {
     ps.os << '"';
     for (char ch : str) {
@@ -150,16 +150,16 @@ operator<<(PrettyOStream<S> &ps, const std::string & str)
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, std::string &)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::string&)
 {
     ps.os << "std::string&";
     return ps;
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, std::string *)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::string*)
 {
     ps.os << "std::string*";
     return ps;
@@ -189,8 +189,8 @@ operator<<(PrettyOStream<S>& ps, const std::string_view* p_str)
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, unsigned char ch)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, unsigned char ch)
 {
     ps.os << '\'';
     if (ch < 32 || ch >= 127) {
@@ -215,8 +215,8 @@ operator<<(PrettyOStream<S> &ps, unsigned char ch)
 }
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, bool b)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, bool b)
 {
     ps.os << (b ? "true" : "false");
     return ps;
@@ -224,8 +224,8 @@ operator<<(PrettyOStream<S> &ps, bool b)
 
 /*
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, bool &)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, bool&)
 {
     ps.os << "bool&";
     return ps;
@@ -233,85 +233,85 @@ operator<<(PrettyOStream<S> &ps, bool &)
 */
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, Xapian::termcount * p)
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, Xapian::termcount* p)
 {
     ps.os << "(Xapian::termcount*)" << (void*)p;
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, std::list<T> &) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::list<T>&) {
     ps.os << "std::list&";
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::list<T> &) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::list<T>&) {
     ps.os << "std::list";
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename K, typename V>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, std::map<K, V> *) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::map<K, V>*) {
     ps.os << "std::map*";
     return ps;
 }
 
 template<class S, typename K, typename V>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, std::map<K, V> &) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, std::map<K, V>&) {
     ps.os << "std::map&";
     return ps;
 }
 
 template<class S, typename K, typename V>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::map<K, V> & m) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::map<K, V>& m) {
     ps.os << "std::map(" << m.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::vector<T>& v) {
     ps.os << "std::vector(" << v.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Vec<T>& v) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Xapian::Vec<T>& v) {
     ps.os << "Vec(" << v.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::VecCOW<T>& v) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Xapian::VecCOW<T>& v) {
     ps.os << "VecCOW(" << v.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::VecCOWUniq<T>& v) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Xapian::VecCOWUniq<T>& v) {
     ps.os << "VecCOWUniq(" << v.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;
 }
 
 template<class S, typename T, typename U>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::pair<T, U>& v) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const std::pair<T, U>& v) {
     ps.os << "std::pair(" << v.first << ", " << v.second << ')';
     return ps;
 }
@@ -352,8 +352,8 @@ class HoneyTable;
 
 #define XAPIAN_PRETTY_AS_CLASSNAME(C)\
 template<class S>\
-inline PrettyOStream<S> &\
-operator<<(PrettyOStream<S> &ps, const C &) {\
+inline PrettyOStream<S>&\
+operator<<(PrettyOStream<S>& ps, const C&) {\
     ps.os << #C;\
     return ps;\
 }
@@ -384,8 +384,8 @@ XAPIAN_PRETTY_AS_CLASSNAME(GlassTable)
 XAPIAN_PRETTY_AS_CLASSNAME(HoneyTable)
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Xapian::Weight* p) {
     ps.os << "(Xapian:Weight*)" << (const void*)p;
     return ps;
 }
@@ -393,8 +393,8 @@ operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
 class RemoteConnection;
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const RemoteConnection&) {
     ps.os << "RemoteConnection";
     return ps;
 }
@@ -402,15 +402,15 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
 #include "backends/databaseinternal.h"
 
 template<class S>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const Xapian::Database::Internal *p) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, const Xapian::Database::Internal* p) {
     ps.os << "(Database::Internal*)" << (const void*)p;
     return ps;
 }
 
 template<class S, class T>
-inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "intrusive_ptr->";
     return ps << t.get();
 }
