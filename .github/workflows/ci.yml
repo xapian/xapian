@@ -2393,7 +2393,7 @@ jobs:
       run: |
         export AR=lib
         export CC="cl"
-        export CXX="$PWD/xapian-core/compile cl"
+        export CXX="cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2502,7 +2502,7 @@ jobs:
       run: |
         export AR=lib
         export CC="cl"
-        export CXX="$PWD/xapian-core/compile cl"
+        export CXX="cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2614,7 +2614,7 @@ jobs:
       run: |
         export AR=lib
         export CC="cl"
-        export CXX="$PWD/xapian-core/compile cl"
+        export CXX="cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2723,7 +2723,7 @@ jobs:
       run: |
         export AR=lib
         export CC="cl"
-        export CXX="$PWD/xapian-core/compile cl"
+        export CXX="cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
@@ -2835,7 +2835,7 @@ jobs:
       run: |
         export AR=lib
         export CC="clang-cl"
-        export CXX="$PWD/xapian-core/compile clang-cl"
+        export CXX="clang-cl"
         export CPPFLAGS="-I$PWD/zlib"
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
