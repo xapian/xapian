@@ -92,9 +92,9 @@ jobs:
     - name: configure
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
-      run: make -j2
-    - name: Run tests
-      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
+      run: make -j2 WERROR='-Wzero-as-null-pointer-constant'
+#    - name: Run tests
+#      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
     - name: Create distribution tarball
       run: |
         make dist

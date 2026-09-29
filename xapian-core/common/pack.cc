@@ -29,7 +29,7 @@ void
 unpack_throw_serialisation_error(const char* p)
 {
     const char* m;
-    if (p == NULL) {
+    if (p == nullptr) {
         m = "Insufficient serialised data";
     } else {
         m = "Serialised data overflowed type";
