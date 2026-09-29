@@ -1576,13 +1576,10 @@ jobs:
       with:
         msystem: mingw32
         suppress-deprecation-warnings: msystem-mingw32
-        install: base-devel
-        # Install MSYS perl which should be suitable for our uses -- it seems
-        # there's no longer a mingw32 build of perl.
+        install: base-devel perl
         pacboy: >-
           gcc:p
           pcre2:p
-          perl
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
@@ -1664,12 +1661,11 @@ jobs:
       with:
         msystem: mingw64
         suppress-deprecation-warnings: msystem-mingw64
-        install: base-devel
+        install: base-devel perl
         pacboy: >-
           file:p
           gcc:p
           pcre2:p
-          perl:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
@@ -1739,12 +1735,11 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ucrt64
-        install: base-devel
+        install: base-devel perl
         pacboy: >-
           file:p
           gcc:p
           pcre2:p
-          perl:p
           zlib:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
