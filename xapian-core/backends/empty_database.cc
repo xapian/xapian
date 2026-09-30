@@ -54,13 +54,13 @@ EmptyDatabase::close()
 PostList*
 EmptyDatabase::open_post_list(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 LeafPostList*
 EmptyDatabase::open_leaf_post_list(string_view, bool) const
 {
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -78,7 +78,7 @@ EmptyDatabase::open_term_list_direct(Xapian::docid) const
 TermList*
 EmptyDatabase::open_allterms(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -90,7 +90,7 @@ EmptyDatabase::has_positions() const
 PositionList*
 EmptyDatabase::open_position_list(Xapian::docid, string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 Xapian::doccount
@@ -166,7 +166,7 @@ EmptyDatabase::get_wdf_upper_bound(string_view term) const
 ValueList*
 EmptyDatabase::open_value_list(Xapian::valueno) const
 {
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount
@@ -210,13 +210,13 @@ EmptyDatabase::term_exists(string_view) const
 TermList*
 EmptyDatabase::open_spelling_termlist(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 TermList*
 EmptyDatabase::open_spelling_wordlist() const
 {
-    return NULL;
+    return nullptr;
 }
 
 Xapian::doccount
@@ -228,13 +228,13 @@ EmptyDatabase::get_spelling_frequency(string_view) const
 TermList*
 EmptyDatabase::open_synonym_termlist(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 TermList*
 EmptyDatabase::open_synonym_keylist(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 string
@@ -246,7 +246,7 @@ EmptyDatabase::get_metadata(string_view) const
 TermList*
 EmptyDatabase::open_metadata_keylist(string_view) const
 {
-    return NULL;
+    return nullptr;
 }
 
 void

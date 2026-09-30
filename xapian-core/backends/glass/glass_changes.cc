@@ -58,7 +58,7 @@ GlassChanges::start(glass_revision_number_t old_rev,
 {
     if (rev == 0) {
         // Don't generate a changeset for the first revision.
-        return NULL;
+        return nullptr;
     }
 
     // Always check max_changesets for modification since last revision.
@@ -73,7 +73,7 @@ GlassChanges::start(glass_revision_number_t old_rev,
     }
 
     if (max_changesets == 0)
-        return NULL;
+        return nullptr;
 
     string changes_tmp = changes_stem;
     changes_tmp += "tmp";

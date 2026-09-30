@@ -147,7 +147,7 @@ convert_to_utf8_(string_view text, const string& charset, string& output)
         // the same input as iso-8859-1, and it seems undesirable to be
         // rejecting input due to this behind-the-scenes character set
         // shenanigans.
-        const char * q = NULL;
+        const char* q = nullptr;
         if (strncasecmp(p, "windows", 7) == 0) {
             q = p + 7;
         } else if (strncasecmp(p, "cp", 2) == 0) {

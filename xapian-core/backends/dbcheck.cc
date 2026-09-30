@@ -461,7 +461,7 @@ Database::check_(const string_view* path_ptr,
         opts &= Xapian::DBCHECK_FIX;
     }
 
-    if (path_ptr == NULL) {
+    if (path_ptr == nullptr) {
         off_t offset = lseek(fd, 0, SEEK_CUR);
         if (rare(offset < 0)) {
             ::close(fd);

@@ -28,7 +28,7 @@ using namespace std;
 void
 SvgParser::process_content(const string& content)
 {
-    string * target = NULL;
+    string* target = nullptr;
     switch (state) {
         case TEXT:
             target = &dump;

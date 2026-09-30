@@ -86,7 +86,7 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 {
 #ifdef __WIN32__
     memset(&overlapped, 0, sizeof(overlapped));
-    overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    overlapped.hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     if (!overlapped.hEvent)
         throw Xapian::NetworkError("Failed to setup OVERLAPPED",
                                    context, -int(GetLastError()));
@@ -774,7 +774,7 @@ RemoteConnection::shutdown()
             FD_SET(fdin, &fdset);
             int res;
             do {
-                res = select(fdin + 1, &fdset, 0, 0, NULL);
+                res = select(fdin + 1, &fdset, 0, 0, nullptr);
             } while (res < 0 && (errno == EINTR || errno == EAGAIN));
         }
 # endif

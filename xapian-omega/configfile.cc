@@ -119,7 +119,7 @@ read_config_file()
 
     // First check if a location is specified in the environment variable.
     const char * cfile = getenv(configfile_envvar);
-    if (cfile != NULL && cfile[0] != '\0') {
+    if (cfile != nullptr && cfile[0] != '\0') {
         if (try_read_config_file(cfile)) return;
     }
 

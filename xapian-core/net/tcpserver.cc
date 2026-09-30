@@ -341,7 +341,7 @@ TcpServer::run()
  *
  *  FIXME - is there any way to avoid using a global variable here?
  */
-static const int* pShutdownSocket = NULL;
+static const int* pShutdownSocket = nullptr;
 
 extern "C" {
 
@@ -382,7 +382,7 @@ CtrlHandler(DWORD fdwCtrlType)
         return FALSE;
     }
 
-    pShutdownSocket = NULL;
+    pShutdownSocket = nullptr;
     return TRUE; // Tell the OS that we've handled the event.
 }
 
@@ -436,8 +436,8 @@ TcpServer::run()
             // this->handle_one_connection() on a new thread. There might be a
             // better way...)
             thread_param* param = new thread_param(this, connected_socket);
-            HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread,
-                                                    param, 0, NULL);
+            HANDLE hthread = (HANDLE)_beginthreadex(nullptr, 0, ::run_thread,
+                                                    param, 0, nullptr);
             if (hthread == 0) {
                 // errno holds the error code from _beginthreadex, and
                 // closesocket() doesn't set errno.

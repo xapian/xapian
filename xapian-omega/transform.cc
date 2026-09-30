@@ -33,7 +33,7 @@
 using namespace std;
 
 static map<pair<string, uint32_t>, pcre2_code*> re_cache;
-static pcre2_match_data* md = NULL;
+static pcre2_match_data* md = nullptr;
 
 static pcre2_code*
 get_re(const string& pattern, uint32_t options)
@@ -47,13 +47,13 @@ get_re(const string& pattern, uint32_t options)
     if (!md) {
         // Create lazily - here is a good point as it's a single place we
         // have to pass through before executing a regex.
-        md = pcre2_match_data_create(10, NULL);
+        md = pcre2_match_data_create(10, nullptr);
     }
 
     int error_code;
     PCRE2_SIZE erroffset;
     auto re = pcre2_compile(PCRE2_SPTR8(pattern.data()), pattern.size(),
-                            options, &error_code, &erroffset, NULL);
+                            options, &error_code, &erroffset, nullptr);
     if (!re) {
         string m = "$transform failed to compile its regular expression: ";
         // pcre2api(3) says that "a buffer size of 120 code units is ample".
@@ -96,7 +96,7 @@ omegascript_match(string & value, const vector<string> & args)
     }
     pcre2_code* re = get_re(args[0], options);
     int matches = pcre2_match(re, PCRE2_SPTR8(args[1].data()), args[1].size(),
-                              0, 0, md, NULL);
+                              0, 0, md, nullptr);
     if (matches > 0) {
         value += "true";
     }
@@ -140,7 +140,7 @@ omegascript_transform(string & value, const vector<string> & args)
     do {
         int matches = pcre2_match(re,
                                   PCRE2_SPTR8(args[2].data()), args[2].size(),
-                                  start, 0, md, NULL);
+                                  start, 0, md, nullptr);
         if (matches <= 0) {
             // (matches == PCRE_ERROR_NOMATCH) is OK, otherwise this is an
             // error.  FIXME: should we report this rather than ignoring it?

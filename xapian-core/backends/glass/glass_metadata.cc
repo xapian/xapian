@@ -83,7 +83,7 @@ GlassMetadataTermList::next()
         RETURN(this);
     }
     current_term.assign(cursor->current_key, 2);
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -104,5 +104,5 @@ GlassMetadataTermList::skip_to(string_view key)
         }
         current_term.assign(cursor->current_key, 2);
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

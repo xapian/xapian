@@ -56,13 +56,13 @@ class OrPostList : public PostList {
 
     PostList* decay_to_and(Xapian::docid did,
                            double w_min,
-                           bool* valid_ptr = NULL);
+                           bool* valid_ptr = nullptr);
 
     PostList* decay_to_andmaybe(PostList* left,
                                 PostList* right,
                                 Xapian::docid did,
                                 double w_min,
-                                bool* valid_ptr = NULL);
+                                bool* valid_ptr = nullptr);
 
   public:
     OrPostList(PostList* left, PostList* right, PostListTree* pltree_);

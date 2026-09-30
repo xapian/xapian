@@ -36,11 +36,11 @@
 #include "safeunistd.h"
 
 #define XAPIAN_UNITTEST
-static const char * unittest_assertion_failed = NULL;
+static const char* unittest_assertion_failed = nullptr;
 #define UNITTEST_CHECK_EXCEPTION \
     if (unittest_assertion_failed) { \
         const char * unittest_assertion_failed_ = unittest_assertion_failed;\
-        unittest_assertion_failed = NULL;\
+        unittest_assertion_failed = nullptr;\
         throw unittest_assertion_failed_;\
     }
 
@@ -221,8 +221,8 @@ check_double_serialisation(double u)
     // Put a NULL pointer either side, to catch incrementing/decrementing at
     // the wrong level of indirection (regression test for a bug in an
     // unreleased version).
-    const char * ptr[3] = { NULL, buf, NULL };
-    const char * end = ptr[1] + encoded.size();
+    const char* ptr[3] = { nullptr, buf, nullptr };
+    const char* end = ptr[1] + encoded.size();
     double v = unserialise_double(&(ptr[1]), end);
     tout.str(string());
     tout << u << " -> " << v << ", difference = " << v - u << '\n';

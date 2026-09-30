@@ -1399,7 +1399,7 @@ run_actions(vector<Action>::const_iterator action_it,
                 struct tm tm;
                 memset(&tm, 0, sizeof(tm));
                 auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
-                if (ret == NULL) {
+                if (ret == nullptr) {
                     report_location(DIAG_WARN, fname, line_no);
                     cerr << "\"" << value << "\" doesn't match format "
                             "\"" << dateformat << '\"' << '\n';

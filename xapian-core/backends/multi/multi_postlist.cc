@@ -97,7 +97,7 @@ MultiPostList::next(double w_min)
             pl->next(w_min);
             if (pl->at_end()) {
                 delete pl;
-                postlists[i] = NULL;
+                postlists[i] = nullptr;
             } else {
                 docids[j++] = unshard(pl->get_docid(), i, n_shards);
             }
@@ -114,7 +114,7 @@ MultiPostList::next(double w_min)
             Heap::pop(docids, docids + docids_size,
                       std::greater<Xapian::docid>());
             delete pl;
-            postlists[shard] = NULL;
+            postlists[shard] = nullptr;
             --docids_size;
         } else {
             docids[0] = unshard(pl->get_docid(), shard, n_shards);
@@ -123,7 +123,7 @@ MultiPostList::next(double w_min)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -141,14 +141,14 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
             pl->skip_to(shard_did + (i < shard), w_min);
             if (pl->at_end()) {
                 delete pl;
-                postlists[i] = NULL;
+                postlists[i] = nullptr;
             } else {
                 docids[j++] = unshard(pl->get_docid(), i, n_shards);
             }
         }
     } else {
         if (did <= docids[0])
-            return NULL;
+            return nullptr;
         // For a skip by < n_shards docids, pop/push may be more efficient than
         // rebuilding the heap.  For now, always just rebuild the heap unless
         // we're just skipping the next docid, in which case do next() instead.
@@ -164,7 +164,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
                 pl->skip_to(shard_did + (old_shard < shard), w_min);
                 if (pl->at_end()) {
                     delete pl;
-                    postlists[old_shard] = NULL;
+                    postlists[old_shard] = nullptr;
                 } else {
                     docids[j++] = unshard(pl->get_docid(), old_shard, n_shards);
                 }
@@ -176,7 +176,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
     docids_size = j;
     Heap::make(docids, docids + docids_size, std::greater<Xapian::docid>());
 
-    return NULL;
+    return nullptr;
 }
 
 std::string

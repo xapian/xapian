@@ -98,7 +98,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
                 } \
             } \
         } \
-        expected_exception = NULL;\
+        expected_exception = nullptr;\
     } while (0)
 
 #define DEFAULT_FAIL_TO_THROW_ACTION_ \

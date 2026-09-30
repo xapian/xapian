@@ -155,7 +155,7 @@ main()
             exit(1);
         }
         const char *sample = tests[i].sample;
-        if (sample == NULL) sample = tests[i].dump;
+        if (sample == nullptr) sample = tests[i].dump;
         if (sample != p.sample) {
             cout << "SAMPLE " << i << ": [" << p.sample << "] != [" << sample << "]" << endl;
             exit(1);

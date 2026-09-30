@@ -229,10 +229,10 @@ posixy_open(const char *filename, int flags)
         CreateFileA(filename,
                     dwDesiredAccess,
                     dwShareMode,
-                    NULL,
+                    nullptr,
                     dwCreationDisposition,
                     FILE_ATTRIBUTE_NORMAL,
-                    NULL);
+                    nullptr);
     if (handleWin == INVALID_HANDLE_VALUE) {
         return posixy_set_errno_from_getlasterror();
     }
@@ -256,7 +256,7 @@ posixy_rename(const char *from, const char *to)
     //
     // Note that the order of the filenames really is swapped here vs
     // MoveFileExA().
-    if (ReplaceFileA(to, from, NULL, 0, 0, 0) != 0) {
+    if (ReplaceFileA(to, from, nullptr, 0, 0, 0) != 0) {
         return 0;
     }
 

@@ -170,7 +170,7 @@ Worker::start_worker_subprocess()
                                     PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
                                     0,
                                     1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                    NULL);
+                                    nullptr);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
         error = "CreateNamedPipeA failed: " + str(GetLastError());
@@ -178,16 +178,16 @@ Worker::start_worker_subprocess()
     }
 
     HANDLE hClient = CreateFileA(pipename,
-                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 GENERIC_READ|GENERIC_WRITE, 0, nullptr,
                                  OPEN_EXISTING,
-                                 FILE_FLAG_OVERLAPPED, NULL);
+                                 FILE_FLAG_OVERLAPPED, nullptr);
 
     if (hClient == INVALID_HANDLE_VALUE) {
         error = "CreateFileA failed: " + str(GetLastError());
         return 1;
     }
 
-    if (!ConnectNamedPipe(hPipe, NULL) &&
+    if (!ConnectNamedPipe(hPipe, nullptr) &&
         GetLastError() != ERROR_PIPE_CONNECTED) {
         error = "ConnectNamedPipe failed: " + str(GetLastError());
         return 1;
@@ -206,7 +206,8 @@ Worker::start_worker_subprocess()
     // FIXME: Is NULL the way to say "/dev/null"?
     // It's what GetStdHandle() is documented to return if "an application does
     // not have associated standard handles"...
-    startupinfo.hStdError = keep_stderr ? GetStdHandle(STD_ERROR_HANDLE) : NULL;
+    startupinfo.hStdError = nullptr;
+    if (keep_stderr) startupinfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
     startupinfo.hStdOutput = hClient;
     startupinfo.hStdInput = hClient;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
@@ -283,14 +284,14 @@ Worker::extract(const std::string& filename,
         int status;
         if (waitpid(child, &status, WNOHANG) != 0) {
             fclose(sockt);
-            sockt = NULL;
+            sockt = nullptr;
         }
 #elif defined __WIN32__
         // Check if the worker process is still alive by trying to wait for it
         // with a timeout of 0ms.
         if (WaitForSingleObject(child, 0) != WAIT_TIMEOUT) {
             fclose(sockt);
-            sockt = NULL;
+            sockt = nullptr;
         }
 #else
 # error Omega needs porting to this platform
@@ -408,7 +409,7 @@ Worker::handle_comms_error()
     int waitpid_errno = errno;
 
     fclose(sockt);
-    sockt = NULL;
+    sockt = nullptr;
 
     if (result == 0) {
         // The worker is still alive, so terminate it.
@@ -452,7 +453,7 @@ Worker::handle_comms_error()
     DWORD result = WaitForSingleObject(child, 0);
 
     fclose(sockt);
-    sockt = NULL;
+    sockt = nullptr;
 
     if (result == WAIT_TIMEOUT) {
         // The worker is still alive, so terminate it.  We need to specify an

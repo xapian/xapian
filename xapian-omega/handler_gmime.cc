@@ -330,7 +330,7 @@ static void
 extract_addresses(Field field, InternetAddressList* address_list)
 {
 #if GMIME_MAJOR_VERSION >= 3
-    auto value = internet_address_list_to_string(address_list, NULL, false);
+    auto value = internet_address_list_to_string(address_list, nullptr, false);
 #else
     auto value = internet_address_list_to_string(address_list, false);
 #endif
@@ -441,7 +441,7 @@ extract(const string& filename, const string&)
 {
     FILE* fp = fopen(filename.c_str(), "r");
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         send_field(FIELD_ERROR, "fopen() failed");
         return;
     }
@@ -449,7 +449,7 @@ extract(const string& filename, const string&)
     GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 #if GMIME_MAJOR_VERSION >= 3
-    GMimeMessage* message = g_mime_parser_construct_message(parser, NULL);
+    GMimeMessage* message = g_mime_parser_construct_message(parser, nullptr);
 #else
     GMimeMessage* message = g_mime_parser_construct_message(parser);
 #endif

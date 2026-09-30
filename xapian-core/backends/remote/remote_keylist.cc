@@ -56,7 +56,7 @@ RemoteKeyList::next()
     if (!unpack_string_append(&p, p_end, current_term)) {
         unpack_throw_serialisation_error(p);
     }
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -70,5 +70,5 @@ RemoteKeyList::skip_to(std::string_view term)
         if (RemoteKeyList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }

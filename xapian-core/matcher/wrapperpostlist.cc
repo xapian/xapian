@@ -62,7 +62,7 @@ WrapperPostList::next(double w_min)
         delete pl;
         pl = result;
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -73,7 +73,7 @@ WrapperPostList::skip_to(Xapian::docid did, double w_min)
         delete pl;
         pl = result;
     }
-    return NULL;
+    return nullptr;
 }
 
 std::string

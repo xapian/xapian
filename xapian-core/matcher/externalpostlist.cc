@@ -41,7 +41,7 @@ ExternalPostList::ExternalPostList(const Xapian::Database& db,
 {
     Assert(source_);
     Xapian::PostingSource* newsource = source_->clone();
-    if (newsource != NULL) {
+    if (newsource != nullptr) {
         source = newsource->release();
     } else if (shard_index == 0) {
         // Allow use of a non-clone-able PostingSource with a non-sharded
@@ -94,7 +94,7 @@ ExternalPostList::recalc_maxweight()
 PositionList *
 ExternalPostList::read_position_list()
 {
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -103,11 +103,11 @@ ExternalPostList::update_after_advance() {
     Assert(source);
     if (source->at_end()) {
         LOGLINE(MATCH, "ExternalPostList now at end");
-        source = NULL;
+        source = nullptr;
     } else {
         current = source->get_docid();
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 PostList *
@@ -124,7 +124,7 @@ ExternalPostList::skip_to(Xapian::docid did, double w_min)
 {
     LOGCALL(MATCH, PostList *, "ExternalPostList::skip_to", did | w_min);
     Assert(source);
-    if (did <= current) RETURN(NULL);
+    if (did <= current) RETURN(nullptr);
     source->skip_to(did, w_min);
     RETURN(update_after_advance());
 }
@@ -136,16 +136,16 @@ ExternalPostList::check(Xapian::docid did, double w_min, bool &valid)
     Assert(source);
     if (did <= current) {
         valid = true;
-        RETURN(NULL);
+        RETURN(nullptr);
     }
     valid = source->check(did, w_min);
     if (source->at_end()) {
         LOGLINE(MATCH, "ExternalPostList now at end");
-        source = NULL;
+        source = nullptr;
     } else {
         current = valid ? source->get_docid() : current;
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 bool

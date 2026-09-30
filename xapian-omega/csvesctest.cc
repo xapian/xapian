@@ -37,7 +37,7 @@ struct testcase {
     const char * result;
 };
 
-#define UNCHANGED NULL
+#define UNCHANGED nullptr
 
 static testcase csv_testcases[] = {
     { "", UNCHANGED },
@@ -82,7 +82,7 @@ static testcase csv_testcases[] = {
     { "\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF", UNCHANGED },
     { "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7", UNCHANGED },
     { "\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF", UNCHANGED },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 int main() {

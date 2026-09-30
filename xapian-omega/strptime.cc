@@ -35,7 +35,7 @@ strptime_using_std_get_time(const char* date_string,
 {
     std::istringstream s(date_string);
     s >> std::get_time(tm, format);
-    if (s.fail()) return NULL;
+    if (s.fail()) return nullptr;
     return const_cast<char*>(date_string + size_t(s.tellg()));
 }
 

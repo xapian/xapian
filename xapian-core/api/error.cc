@@ -50,7 +50,7 @@ const char *
 Xapian::Error::get_error_string() const
 {
     if (error_string.empty()) {
-        if (my_errno == 0) return NULL;
+        if (my_errno == 0) return nullptr;
 #ifdef __WIN32__
         if (my_errno < 0 || my_errno >= WSABASEERR) {
             int e = abs(my_errno);

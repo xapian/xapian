@@ -79,7 +79,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
                                        ReplicationInfo * info) const
 {
     LOGCALL_VOID(REPLICA, "DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
-    if (info != NULL)
+    if (info != nullptr)
         info->clear();
     Database db;
     try {
@@ -272,7 +272,7 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
                                       double reader_close_time)
 {
     LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info | reader_close_time);
-    if (info != NULL)
+    if (info != nullptr)
         info->clear();
     RETURN(internal->apply_next_changeset(info, reader_close_time));
 }
@@ -310,7 +310,7 @@ DatabaseReplica::Internal::update_stub_database() const
 DatabaseReplica::Internal::Internal(const string & path_)
         : path(path_), live_id(0), live_db(), have_offline_db(false),
           need_copy_next(false), offline_revision(), offline_needed_revision(),
-          last_live_changeset_time(), conn(NULL)
+          last_live_changeset_time(), conn(nullptr)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
 #ifndef XAPIAN_HAS_GLASS_BACKEND
@@ -542,7 +542,7 @@ void
 DatabaseReplica::Internal::set_read_fd(int fd)
 {
     delete conn;
-    conn = NULL;
+    conn = nullptr;
     conn = new RemoteConnection(fd, -1);
 }
 
@@ -564,7 +564,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
                 // Apply the copy - remove offline db in case of any error.
                 try {
                     apply_db_copy(0.0);
-                    if (info != NULL)
+                    if (info != nullptr)
                         ++(info->fullcopy_count);
                     string replica_uuid;
                     {
@@ -587,7 +587,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
                     throw;
                 }
                 if (possibly_make_offline_live()) {
-                    if (info != NULL)
+                    if (info != nullptr)
                         info->changed = true;
                 }
                 break;
@@ -622,7 +622,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
                     }
                     last_live_changeset_time = RealTime::now();
 
-                    if (info != NULL) {
+                    if (info != nullptr) {
                         ++(info->changeset_count);
                         info->changed = true;
                     }
@@ -639,12 +639,12 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
                     offline_revision = replicator->
                             apply_changeset_from_conn(*conn, 0.0, false);
 
-                    if (info != NULL) {
+                    if (info != nullptr) {
                         ++(info->changeset_count);
                     }
                 }
                 if (possibly_make_offline_live()) {
-                    if (info != NULL)
+                    if (info != nullptr)
                         info->changed = true;
                 }
                 RETURN(true);

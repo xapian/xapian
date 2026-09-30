@@ -414,7 +414,7 @@ HoneyTable::get_exact_entry(std::string_view key, std::string* tag) const
         } while (cmp < 0);
         if (cmp > 0) return false;
     }
-    if (tag != NULL) {
+    if (tag != nullptr) {
         if (compressed) {
             std::string v;
             read_val(v, val_size);
@@ -438,7 +438,7 @@ HoneyTable::cursor_get() const
     if (rare(!store.is_open())) {
         if (store.was_forced_closed())
             throw_database_closed();
-        return NULL;
+        return nullptr;
     }
     return new HoneyCursor(this);
 }

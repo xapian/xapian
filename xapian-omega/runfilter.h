@@ -26,7 +26,7 @@
 
 /// Exception thrown if we encounter a read error.
 struct ReadError {
-    const char* msg = NULL;
+    const char* msg = nullptr;
     int status;
     explicit ReadError(const char * m) : msg(m) { }
     explicit ReadError(int s) : status(s) { }

@@ -299,7 +299,7 @@ try {
                 break;
             case 'b': case 'p': {
                 const char * colon = strchr(optarg, ':');
-                if (colon == NULL) {
+                if (colon == nullptr) {
                     cerr << argv[0] << ": need ':' when setting prefix\n";
                     exit(1);
                 }

@@ -349,11 +349,11 @@ class SSTIndex {
     // Put an index entry every this much:
     // FIXME: tune - seems 64K is common elsewhere
     enum { INDEXBLOCK = 4096 };
-    SSTIndex* parent_index = NULL;
+    SSTIndex* parent_index = nullptr;
 
 #ifdef SSTINDEX_ARRAY
     unsigned char first, last = static_cast<unsigned char>(-1);
-    off_t* pointers = NULL;
+    off_t* pointers = nullptr;
 #endif
 
   public:
@@ -499,7 +499,7 @@ class SSTIndex {
             unaligned_write4(reinterpret_cast<unsigned char*>(&data[o]), ptr);
         }
         delete [] pointers;
-        pointers = NULL;
+        pointers = nullptr;
 #elif defined SSTINDEX_BINARY_CHOP
         if (last_index_key.size() == SSTINDEX_BINARY_CHOP_KEY_SIZE) {
             // Increment final byte(s) to give a key which is definitely
@@ -675,7 +675,7 @@ class HoneyTable {
     }
 
     bool key_exists(const std::string& key) const {
-        return get_exact_entry(key, NULL);
+        return get_exact_entry(key, nullptr);
     }
 
     bool del(const std::string&) {

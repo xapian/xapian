@@ -43,7 +43,7 @@ bool
 is_ngram_enabled()
 {
     const char * p;
-    static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != NULL && *p);
+    static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != nullptr && *p);
     return result;
 }
 

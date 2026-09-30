@@ -552,7 +552,7 @@ get_pdf_metainfo(int fd, string& author, string& title,
     try {
         string pdfinfo;
         static const char* const cmd[] = {
-            "pdfinfo", "-enc", "UTF-8", "-", NULL
+            "pdfinfo", "-enc", "UTF-8", "-", nullptr
         };
         run_filter(fd, cmd);
         parse_pdf_metainfo(pdfinfo, author, title, keywords, topic, pages);
@@ -567,7 +567,7 @@ get_pdf_metainfo(const string& file, string& author, string& title,
 {
     try {
         const char* cmd[] = {
-            "pdfinfo", "-enc", "UTF-8", NULL, NULL
+            "pdfinfo", "-enc", "UTF-8", nullptr, nullptr
         };
         cmd[3] = file.c_str();
         parse_pdf_metainfo(stdout_to_string(cmd),
@@ -1040,7 +1040,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
             }
         } else if (mimetype == "application/pdf") {
             const char* const cmd[] = {
-                "pdftotext", "-enc", "UTF-8", "-", "-", NULL
+                "pdftotext", "-enc", "UTF-8", "-", "-", nullptr
             };
             try {
                 run_filter(d.get_fd(), cmd, &dump);
@@ -1069,13 +1069,13 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
                 return;
             }
             const char* cmd[] = {
-                "ps2pdf", "-", NULL, NULL
+                "ps2pdf", "-", nullptr, nullptr
             };
             cmd[2] = tmpfile.c_str();
             try {
                 run_filter(d.get_fd(), cmd);
                 const char* cmd2[] = {
-                    "pdftotext", "-enc", "UTF-8", NULL, "-", NULL
+                    "pdftotext", "-enc", "UTF-8", nullptr, "-", nullptr
                 };
                 cmd2[3] = tmpfile.c_str();
                 run_filter(cmd2, &dump);
@@ -1116,7 +1116,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
             }
 
             const char* cmd2[] = {
-                "unzip", "-p", NULL, "meta.xml", NULL
+                "unzip", "-p", nullptr, "meta.xml", nullptr
             };
             cmd2[2] = file.c_str();
             try {
@@ -1134,7 +1134,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
         } else if (startswith(mimetype,
                               "application/vnd.openxmlformats-officedocument."))
         {
-            const char* args = NULL;
+            const char* args = nullptr;
             string tail(mimetype, 46);
             if (startswith(tail, "wordprocessingml.")) {
                 // There may be no headers or no footers.
@@ -1193,7 +1193,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
             }
 
             const char* cmd[] = {
-                "unzip", "-p", NULL, "docProps/core.xml", NULL
+                "unzip", "-p", nullptr, "docProps/core.xml", nullptr
             };
             cmd[2] = file.c_str();
             try {
@@ -1239,7 +1239,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
         } else if (mimetype == "application/oxps" ||
                    mimetype == "application/vnd.ms-xpsdocument") {
             const char* cmd[] = {
-                "unzip", "-p", NULL, "Documents/*/Pages/*.fpage", NULL
+                "unzip", "-p", nullptr, "Documents/*/Pages/*.fpage", nullptr
             };
             cmd[2] = file.c_str();
             try {
@@ -1254,7 +1254,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
             }
 
             const char* cmd2[] = {
-                "unzip", "-p", NULL, "docProps/core.xml", NULL
+                "unzip", "-p", nullptr, "docProps/core.xml", nullptr
             };
             cmd2[2] = file.c_str();
             try {
@@ -1311,7 +1311,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
         } else if (mimetype == "application/vnd.debian.binary-package" ||
                    mimetype == "application/x-debian-package") {
             const char* const cmd[] = {
-                "dpkg-deb", "-f", "-", "Description", NULL
+                "dpkg-deb", "-f", "-", "Description", nullptr
             };
             string desc;
             run_filter(d.get_fd(), cmd, &desc);
@@ -1325,7 +1325,7 @@ index_mimetype(const string& file, const string& urlterm, const string& url,
                    mimetype == "application/x-rpm") {
             const char* cmd[] = {
                 "rpm", "-q", "--qf", "%{SUMMARY}\\n%{DESCRIPTION}", "-p",
-                NULL, NULL
+                nullptr, nullptr
             };
             cmd[5] = file.c_str();
             string desc;

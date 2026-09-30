@@ -38,7 +38,7 @@ inline TermList*
 make_termlist_merger(std::vector<TermList*>& termlists)
 {
     if (termlists.size() <= 1) {
-        return termlists.size() == 1 ? termlists[0] : NULL;
+        return termlists.size() == 1 ? termlists[0] : nullptr;
     }
 
     // Make termlists into a heap so that the longest termlist is at the

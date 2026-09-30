@@ -516,8 +516,8 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
 
     GrepMatchDecider myfunctor("We produce");
 
-    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
-    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
+    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, nullptr, &myfunctor);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, nullptr, &myfunctor);
 
     // mset2 should contain all the hits, so the statistics should be exact.
     TEST_EQUAL(mset2.get_matches_estimated(), mset2.size());
@@ -1788,8 +1788,8 @@ DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
 
     Xapian::MSet mymset = enq.get_mset(0, 20);
     mset_expect_order(mymset, 8, 6, 4, 5, 7, 10, 12, 11, 13, 9, 14);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd1);
+    mymset = enq.get_mset(0, 20, 0, nullptr, &vsmd1);
     mset_expect_order(mymset, 6, 12);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
+    mymset = enq.get_mset(0, 20, 0, nullptr, &vsmd2);
     mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
 }

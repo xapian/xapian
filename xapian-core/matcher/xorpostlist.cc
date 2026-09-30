@@ -129,11 +129,11 @@ XorPostList::next(double w_min)
 
     // We've reached the end of all posting lists.
     if (did == 0)
-        RETURN(NULL);
+        RETURN(nullptr);
 
     // An odd number of sub-postlists match this docid, so the XOR matches.
     if (matching_count & 1)
-        RETURN(NULL);
+        RETURN(nullptr);
 
     // An even number of sub-postlists match this docid, so advance again.
     RETURN(next(w_min));
@@ -179,11 +179,11 @@ XorPostList::skip_to(Xapian::docid did_min, double w_min)
 
     // We've reached the end of all posting lists.
     if (did == 0)
-        RETURN(NULL);
+        RETURN(nullptr);
 
     // An odd number of sub-postlists match this docid, so the XOR matches.
     if (matching_count & 1)
-        RETURN(NULL);
+        RETURN(nullptr);
 
     // An even number of sub-postlists match this docid, so call next.
     RETURN(next(w_min));

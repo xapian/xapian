@@ -256,7 +256,7 @@ static const test test_simple[] = {
     // present in git master before 2.0.0.
     { "all,stem=en,ngrams", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
 
-    { NULL, NULL, NULL }
+    { nullptr, nullptr, nullptr }
 };
 
 #if 0

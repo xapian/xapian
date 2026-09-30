@@ -83,7 +83,7 @@ check_type_attribute:
         }
     } else if (state == AUTHOR) {
         if (tag == "uri")
-            target = NULL;
+            target = nullptr;
     }
 
     return true;
@@ -95,7 +95,7 @@ AtomParser::closing_tag(const string& tag)
     if (state != INACTIVE && tag == active_tag) {
         active_tag = string();
         state = INACTIVE;
-        target = NULL;
+        target = nullptr;
     } else if (in_entry && tag == "entry") {
         in_entry = false;
     } else if (state == AUTHOR && tag == "uri") {

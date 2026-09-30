@@ -114,7 +114,7 @@ class QueryOptimiser {
                         double factor) {
         return localsubmatch.open_post_list(term, wqf, factor, need_positions,
                                             compound_weight, this, true,
-                                            NULL);
+                                            nullptr);
     }
 
     /** Register a lazily-created LeafPostList for stats.

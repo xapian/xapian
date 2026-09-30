@@ -60,8 +60,7 @@ ValueStreamDocument::new_shard(Xapian::doccount n)
 string
 ValueStreamDocument::fetch_value(Xapian::valueno slot) const
 {
-    pair<map<Xapian::valueno, ValueList *>::iterator, bool> ret;
-    ret = valuelists.insert(make_pair(slot, static_cast<ValueList*>(NULL)));
+    auto ret = valuelists.try_emplace(slot, nullptr);
     ValueList * vl;
     if (ret.second) {
         // Entry didn't already exist, so open a value list for slot.
@@ -77,7 +76,7 @@ ValueStreamDocument::fetch_value(Xapian::valueno slot) const
     if (vl->check(did)) {
         if (vl->at_end()) {
             delete vl;
-            ret.first->second = NULL;
+            ret.first->second = nullptr;
         } else if (vl->get_docid() == did) {
             return vl->get_value();
         }

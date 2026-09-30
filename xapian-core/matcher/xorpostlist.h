@@ -96,7 +96,7 @@ class XorPostList : public PostList {
     double recalc_maxweight();
 
     PositionList * read_position_list() {
-        return NULL;
+        return nullptr;
     }
 
     PostList* next(double w_min);

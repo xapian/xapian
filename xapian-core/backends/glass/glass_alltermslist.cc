@@ -44,7 +44,7 @@ GlassAllTermsList::read_termfreq() const
     cursor->read_tag();
     const char *p = cursor->current_tag.data();
     const char *pend = p + cursor->current_tag.size();
-    GlassPostList::read_freqs(&p, pend, &termfreq, NULL);
+    GlassPostList::read_freqs(&p, pend, &termfreq, nullptr);
 }
 
 GlassAllTermsList::~GlassAllTermsList()
@@ -94,7 +94,7 @@ GlassAllTermsList::next()
                 // The exact term we asked for is there, so just copy it rather
                 // than wasting effort unpacking it from the key.
                 current_term = prefix;
-                RETURN(NULL);
+                RETURN(nullptr);
             }
         }
         if (cursor->after_end()) {
@@ -137,7 +137,7 @@ first_time:
         RETURN(this);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -176,5 +176,5 @@ GlassAllTermsList::skip_to(string_view term)
         RETURN(this);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }

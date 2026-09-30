@@ -63,7 +63,7 @@ void
 ValueChunkReader::next()
 {
     if (p == end) {
-        p = NULL;
+        p = nullptr;
         return;
     }
 
@@ -80,7 +80,7 @@ ValueChunkReader::next()
 void
 ValueChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL || target <= did)
+    if (p == nullptr || target <= did)
         return;
 
     size_t value_len;
@@ -113,7 +113,7 @@ ValueChunkReader::skip_to(Xapian::docid target)
         }
         p += value_len;
     }
-    p = NULL;
+    p = nullptr;
 }
 
 void

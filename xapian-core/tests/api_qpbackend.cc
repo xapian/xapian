@@ -47,7 +47,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
         { "hello world", "(hello@1 OR (WILDCARD SYNONYM world OR world@2))" },
         { "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
         { "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
-        { NULL, NULL }
+        { nullptr, nullptr }
     };
     static const test test_queries_auto[] = {
         { "hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
@@ -55,7 +55,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
         { "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
         { "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
         { "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
-        { NULL, NULL }
+        { nullptr, nullptr }
     };
     static const test test_queries_partial_auto[] = {
         { "hello", "(WILDCARD SYNONYM hello OR hello@1)" },
@@ -63,7 +63,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
         { "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
         { "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR (WILDCARD SYNONYM world OR world@2))" },
         { "world ~hello", "(world@1 OR (WILDCARD SYNONYM hello OR hello@2))" },
-        { NULL, NULL }
+        { nullptr, nullptr }
     };
 
     Xapian::Database db = get_database("qpsynonympartial1",

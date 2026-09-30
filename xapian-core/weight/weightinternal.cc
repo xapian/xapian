@@ -126,7 +126,7 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
         for (auto&& i : termfreqs) {
             const string& term = i.first;
             TermList * ret = tl->skip_to(term);
-            if (ret != NULL) {
+            if (ret != nullptr) {
                 // No more entries prune shouldn't happen).
                 Assert(ret == tl.get());
                 break;

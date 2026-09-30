@@ -38,7 +38,7 @@ void
 HoneyAllTermsList::read_termfreq() const
 {
     LOGCALL_VOID(DB, "HoneyAllTermsList::read_termfreq", NO_ARGS);
-    Assert(cursor != NULL);
+    Assert(cursor != nullptr);
 
     // Unpack the termfreq from the tag.
     Xapian::termcount collfreq;
@@ -74,7 +74,7 @@ Xapian::doccount
 HoneyAllTermsList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "HoneyAllTermsList::get_termfreq", NO_ARGS);
-    Assert(cursor != NULL);
+    Assert(cursor != nullptr);
     if (termfreq == 0) read_termfreq();
     RETURN(termfreq);
 }
@@ -100,7 +100,7 @@ HoneyAllTermsList::next()
                 // The exact term we asked for is there, so just copy it rather
                 // than wasting effort unpacking it from the key.
                 current_term = prefix;
-                RETURN(NULL);
+                RETURN(nullptr);
             }
         }
         if (cursor->after_end()) {
@@ -144,7 +144,7 @@ first_time:
         RETURN(this);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -164,7 +164,7 @@ HoneyAllTermsList::skip_to(string_view term)
     }
 
     if (rare(term.empty())) {
-        RETURN(NULL);
+        RETURN(nullptr);
     }
 
     string key = pack_honey_postlist_key(term);
@@ -191,5 +191,5 @@ HoneyAllTermsList::skip_to(string_view term)
         RETURN(this);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }

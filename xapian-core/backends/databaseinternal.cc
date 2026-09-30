@@ -282,7 +282,7 @@ Database::Internal::open_spelling_termlist(string_view) const
     // Only implemented for some database backends - others will just not
     // suggest spelling corrections (or not contribute to them in a multiple
     // database situation).
-    return NULL;
+    return nullptr;
 }
 
 TermList *
@@ -291,7 +291,7 @@ Database::Internal::open_spelling_wordlist() const
     // Only implemented for some database backends - others will just not
     // suggest spelling corrections (or not contribute to them in a multiple
     // database situation).
-    return NULL;
+    return nullptr;
 }
 
 Xapian::doccount
@@ -321,7 +321,7 @@ Database::Internal::open_synonym_termlist(string_view) const
     // Only implemented for some database backends - others will just not
     // expand synonyms (or not contribute to them in a multiple database
     // situation).
-    return NULL;
+    return nullptr;
 }
 
 TermList *
@@ -330,7 +330,7 @@ Database::Internal::open_synonym_keylist(string_view) const
     // Only implemented for some database backends - others will just not
     // expand synonyms (or not contribute to them in a multiple database
     // situation).
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -362,7 +362,7 @@ Database::Internal::open_metadata_keylist(string_view) const
 {
     // Only implemented for some database backends - others will simply report
     // there being no metadata keys.
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -482,7 +482,7 @@ reconstruct_open_poslists(TermList* termlist,
         } else {
             delete poslist;
         }
-    } while (termlist->next() == NULL);
+    } while (termlist->next() == nullptr);
 }
 
 string
@@ -516,17 +516,17 @@ Database::Internal::reconstruct_text(Xapian::docid did,
     unique_ptr<TermList> termlist(open_term_list_direct(did));
     if (usual(termlist)) {
         if (prefix.empty()) {
-            if (termlist->next() == NULL) {
+            if (termlist->next() == nullptr) {
                 reconstruct_open_poslists(termlist.get(), start_pos, end_pos,
                                           "A", heap);
-                if (termlist->skip_to("[") == NULL) {
+                if (termlist->skip_to("[") == nullptr) {
                     reconstruct_open_poslists(termlist.get(),
                                               start_pos, end_pos,
                                               prefix, heap);
                 }
             }
         } else {
-            if (termlist->skip_to(prefix) == NULL) {
+            if (termlist->skip_to(prefix) == nullptr) {
                 // Calculate the first possible term without the specified
                 // prefix.
                 string term_ub{prefix};

@@ -67,7 +67,7 @@ class DateRangeLimit {
 
     explicit DateRangeLimit(time_t secs) {
 #ifdef HAVE_GMTIME_R
-        if (gmtime_r(&secs, &tm) == NULL) {
+        if (gmtime_r(&secs, &tm) == nullptr) {
             tm.tm_sec = -1;
         }
 #else
@@ -253,7 +253,7 @@ date_value_range(bool as_time_t,
             end = start + span;
         } else {
             // Only SPAN is set, so go back from now.
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             end = DateRangeLimit(now);
             start = end - span;
         }

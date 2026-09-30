@@ -85,7 +85,7 @@ DocumentTermList::next()
         return this;
     }
     current_term = it->first;
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -99,5 +99,5 @@ DocumentTermList::skip_to(string_view term)
         return this;
     }
     current_term = it->first;
-    return NULL;
+    return nullptr;
 }

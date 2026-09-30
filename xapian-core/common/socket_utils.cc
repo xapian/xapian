@@ -149,7 +149,7 @@ pretty_ip6(const void* p, char* buf)
                      sizeof(struct sockaddr_in));
     DWORD size = PRETTY_IP6_LEN;
     if (WSAAddressToStringA(const_cast<struct sockaddr*>(sa),
-                            in_size, NULL, buf, &size) != 0) {
+                            in_size, nullptr, buf, &size) != 0) {
         return -1;
     }
     const char* r = buf;

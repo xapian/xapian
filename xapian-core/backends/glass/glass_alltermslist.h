@@ -60,7 +60,7 @@ class GlassAllTermsList : public AllTermsList {
   public:
     GlassAllTermsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
                       std::string_view prefix_)
-        : database(database_), cursor(NULL), prefix(prefix_), termfreq(0) { }
+        : database(database_), cursor(nullptr), prefix(prefix_), termfreq(0) { }
 
     /// Destructor.
     ~GlassAllTermsList();

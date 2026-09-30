@@ -355,7 +355,7 @@ DEFINE_TESTCASE(latlongmetric1, !backend) {
     std::string s1 = m2.serialise();
     const Xapian::LatLongMetric * m3;
     m3 = registry.get_lat_long_metric(m2.name());
-    TEST(m3 != NULL);
+    TEST(m3 != nullptr);
     m3 = m3->unserialise(s1);
     double d3 = (*m3)(c1, c2);
     TEST_EQUAL_DOUBLE(d2, d3);

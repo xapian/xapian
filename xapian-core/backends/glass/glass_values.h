@@ -187,7 +187,7 @@ class ValueChunkReader {
 
   public:
     /// Create a ValueChunkReader which is already at_end().
-    ValueChunkReader() : p(NULL) { }
+    ValueChunkReader() : p(nullptr) { }
 
     ValueChunkReader(const char * p_, size_t len, Xapian::docid did_) {
         assign(p_, len, did_);
@@ -195,7 +195,7 @@ class ValueChunkReader {
 
     void assign(const char * p_, size_t len, Xapian::docid did_);
 
-    bool at_end() const { return p == NULL; }
+    bool at_end() const { return p == nullptr; }
 
     Xapian::docid get_docid() const { return did; }
 

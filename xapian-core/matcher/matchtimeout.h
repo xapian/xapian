@@ -81,7 +81,7 @@ class TimeOut {
         if (limit > 0) {
             sev.sigev_notify = SIGEV_THREAD;
             sev.sigev_notify_function = set_timeout_flag;
-            sev.sigev_notify_attributes = NULL;
+            sev.sigev_notify_attributes = nullptr;
             sev.sigev_value.sival_ptr =
                 static_cast<void*>(const_cast<bool*>(&expired));
             if (usual(timer_create(TIMEOUT_CLOCK, &sev, &timerid) == 0)) {
@@ -89,7 +89,7 @@ class TimeOut {
                 interval.it_interval.tv_sec = 0;
                 interval.it_interval.tv_nsec = 0;
                 RealTime::to_timespec(limit, &interval.it_value);
-                if (usual(timer_settime(timerid, 0, &interval, NULL) == 0)) {
+                if (usual(timer_settime(timerid, 0, &interval, nullptr) == 0)) {
                     // Timeout successfully set.
                     return;
                 }

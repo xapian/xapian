@@ -461,7 +461,7 @@ SnipPipe::pump(double* r, size_t t, size_t h, unsigned flags)
             phrase_start.highlight = h;
             *r /= DECAY;
         }
-        r = NULL;
+        r = nullptr;
         h = 0;
     }
     pipe.emplace_back(r, t, h);
@@ -811,14 +811,14 @@ check_term(unordered_map<string, double> & loose_terms,
            double max_tw)
 {
     auto it = loose_terms.find(term);
-    if (it == loose_terms.end()) return NULL;
+    if (it == loose_terms.end()) return nullptr;
 
     if (it->second == 0.0) {
         double relevance;
         if (!stats->get_termweight(term, relevance)) {
             // FIXME: Assert?
             loose_terms.erase(it);
-            return NULL;
+            return nullptr;
         }
 
         it->second = relevance + max_tw;

@@ -513,7 +513,7 @@ DEFINE_TESTCASE(wildcard1, backend) {
     for (auto&& test : wildcard1_testcases) {
         tout << test.pattern << '\n';
         auto tend = test.terms + 4;
-        while (tend[-1] == NULL) --tend;
+        while (tend[-1] == nullptr) --tend;
         bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
         Xapian::Query q;
         if (test.max_type) {
@@ -830,7 +830,7 @@ DEFINE_TESTCASE(editdist1, backend) {
     for (auto&& test : editdist1_testcases) {
         tout << test.target << '\n';
         auto tend = test.terms + 4;
-        while (tend > test.terms && tend[-1] == NULL) --tend;
+        while (tend > test.terms && tend[-1] == nullptr) --tend;
         bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
         Xapian::Query q;
         int max_type;
@@ -890,7 +890,7 @@ DEFINE_TESTCASE(editdist2, backend) {
     for (auto&& test : editdist2_testcases) {
         tout << test.target << '\n';
         auto tend = test.terms + 4;
-        while (tend > test.terms && tend[-1] == NULL) --tend;
+        while (tend > test.terms && tend[-1] == nullptr) --tend;
         bool expect_exception = (tend - test.terms == 4 && tend[-1][0] == '\0');
         Xapian::Query q;
         int max_type;
@@ -982,7 +982,7 @@ DEFINE_TESTCASE(loosephrase1, backend) {
 
     for (auto&& test : loosephrase1_testcases) {
         auto tend = test.terms + 4;
-        while (tend[-1] == NULL) --tend;
+        while (tend[-1] == nullptr) --tend;
         auto OP_PHRASE = Xapian::Query::OP_PHRASE;
         Xapian::Query q(OP_PHRASE, test.terms, tend, test.window);
         enq.set_query(q);
@@ -1015,7 +1015,7 @@ DEFINE_TESTCASE(loosenear1, backend) {
 
     for (auto&& test : loosenear1_testcases) {
         auto tend = test.terms + 4;
-        while (tend[-1] == NULL) --tend;
+        while (tend[-1] == nullptr) --tend;
         Xapian::Query q(Xapian::Query::OP_NEAR, test.terms, tend, test.window);
         enq.set_query(q);
         Xapian::MSet mset = enq.get_mset(0, 10);

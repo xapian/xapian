@@ -451,7 +451,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <cmath>
 #include <cstdio>
 #include <ctime>
 using namespace std;]], [[
-  double a = log(ceil(time(NULL)/7.0));
+  time_t t; double a = log(ceil(time(&t)/7.0));
   printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));
   ]])], [AC_MSG_RESULT([no])], [
     LIBS="-lm $LIBS"
@@ -459,7 +459,7 @@ using namespace std;]], [[
 #include <cstdio>
 #include <ctime>
 using namespace std;]], [[
-  double a = log(ceil(time(NULL)/7.0));
+  time_t t; double a = log(ceil(time(&t)/7.0));
   printf("%f %f %f\n", a, sqrt(a), exp(fabs(a - 12345.6)));]])],
         [AC_MSG_RESULT([yes])],
         [AC_MSG_ERROR([Failed to link a C++ program using <cmath>])
@@ -484,7 +484,7 @@ AC_CACHE_CHECK([for __builtin_exp10], xo_cv_link___builtin_exp10, [
 #include <cstdio>
 #include <ctime>
 using namespace std;]],
-    [[printf("%f", __builtin_exp10(double(time(NULL)*1e-8)));]])],
+    [[time_t t; printf("%f", __builtin_exp10(double(time(&t)*1e-8)));]])],
     [xo_cv_link___builtin_exp10=yes],
     [xo_cv_link___builtin_exp10=no])
 ])

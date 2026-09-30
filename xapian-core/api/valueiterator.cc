@@ -54,7 +54,7 @@ ValueIterator::ValueIterator(Internal *internal_) : internal(internal_)
     }
     if (internal->at_end()) {
         decref();
-        internal = NULL;
+        internal = nullptr;
     }
 }
 
@@ -94,7 +94,7 @@ ValueIterator::operator++()
     internal->next();
     if (internal->at_end()) {
         decref();
-        internal = NULL;
+        internal = nullptr;
     }
     RETURN(*this);
 }
@@ -123,7 +123,7 @@ ValueIterator::skip_to(Xapian::docid docid_or_slot)
         internal->skip_to(docid_or_slot);
         if (internal->at_end()) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     }
 }
@@ -136,7 +136,7 @@ ValueIterator::check(Xapian::docid did)
         if (!internal->check(did)) RETURN(false);
         if (internal->at_end()) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     }
     RETURN(true);

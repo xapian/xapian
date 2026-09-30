@@ -186,7 +186,7 @@ LocalSubMatch::get_postlist(PostListTree * matcher,
     {
         QueryOptimiser opt(*db, *this, matcher, shard_index);
         double factor = wt_factory.is_bool_weight_() ? 0.0 : 1.0;
-        plest = query.internal->postlist(&opt, factor, NULL);
+        plest = query.internal->postlist(&opt, factor, nullptr);
         *total_subqs_ptr = opt.get_total_subqs();
     }
 
@@ -243,7 +243,7 @@ LocalSubMatch::open_post_list(const string& term,
 
     bool weighted = false;
 
-    LeafPostList * pl = NULL;
+    LeafPostList* pl = nullptr;
     if (term.empty()) {
         Assert(!need_positions);
         pl = db->open_leaf_post_list(term, false);

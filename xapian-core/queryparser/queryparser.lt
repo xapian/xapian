@@ -290,8 +290,8 @@ void ParseInit(yyParser *pParser){
 #endif
 #if 0
 #if YYSTACKDEPTH<=0
-  pParser->yytos = NULL;
-  pParser->yystack = NULL;
+  pParser->yytos = nullptr;
+  pParser->yystack = nullptr;
   pParser->yystksz = 0;
   if( yyGrowStack(pParser) ){
     pParser->yystack = &pParser->yystk0;

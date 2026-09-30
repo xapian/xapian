@@ -874,7 +874,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
         string d = replicapath;
         d += "/replica_1";
         DIR * dir = opendir(d.c_str());
-        TEST(dir != NULL);
+        TEST(dir != nullptr);
         while (true) {
             errno = 0;
             struct dirent * entry = readdir(dir);

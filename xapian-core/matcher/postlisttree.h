@@ -26,7 +26,7 @@
 #include "valuestreamdocument.h"
 
 class PostListTree {
-    PostList* pl = NULL;
+    PostList* pl = nullptr;
 
     bool use_cached_max_weight = false;
 
@@ -109,7 +109,7 @@ class PostListTree {
     double set_postlists(PostList** pls, Xapian::doccount n_shards_) {
         shard_pls = pls;
         n_shards = n_shards_;
-        while (shard_pls[current_shard] == NULL) {
+        while (shard_pls[current_shard] == nullptr) {
             ++current_shard;
             Assert(current_shard != n_shards);
         }
@@ -200,7 +200,7 @@ class PostListTree {
             do {
                 if (++current_shard == n_shards)
                     return false;
-            } while (shard_pls[current_shard] == NULL);
+            } while (shard_pls[current_shard] == nullptr);
             pl = shard_pls[current_shard];
             shard_db = db.internal.get();
             if (n_shards > 1) {

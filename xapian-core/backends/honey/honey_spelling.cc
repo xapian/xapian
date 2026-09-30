@@ -430,7 +430,7 @@ HoneySpellingTermList::next()
     }
     p += add;
 
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -440,7 +440,7 @@ HoneySpellingTermList::skip_to(string_view term)
         if (HoneySpellingTermList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount

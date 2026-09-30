@@ -178,7 +178,7 @@ QueryParser::parse_query(string_view query_string, unsigned flags,
         internal->stoplist.clear();
         internal->unstem.clear();
     }
-    internal->errmsg = NULL;
+    internal->errmsg = nullptr;
 
     if (query_string.empty()) return Query();
 

@@ -508,7 +508,7 @@ DEFINE_TESTCASE(matchdecider4, remote) {
     Xapian::MSet mset;
 
     TEST_EXCEPTION(Xapian::UnimplementedError,
-        mset = enquire.get_mset(0, 10, NULL, &mdecider));
+        mset = enquire.get_mset(0, 10, nullptr, &mdecider));
     TEST(!mdecider.was_called());
 }
 
@@ -1361,7 +1361,7 @@ retry:
         fd_set fdset;
         FD_ZERO(&fdset);
         FD_SET(fds[1], &fdset);
-        int sr = select(fds[1] + 1, &fdset, NULL, NULL, &tv);
+        int sr = select(fds[1] + 1, &fdset, nullptr, nullptr, &tv);
         if (sr == 0) {
             // Timed out.
             result[0] = 'T';

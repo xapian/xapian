@@ -58,7 +58,7 @@ NetworkPostList::next(double)
     }
 
     if (pos == pos_end) {
-        pos = NULL;
+        pos = nullptr;
     } else {
         Xapian::docid inc;
         if (!unpack_uint(&pos, pos_end, &inc) ||
@@ -68,7 +68,7 @@ NetworkPostList::next(double)
         lastdocid += inc + 1;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -78,13 +78,13 @@ NetworkPostList::skip_to(Xapian::docid did, double min_weight)
         next(min_weight);
     while (pos && lastdocid < did)
         next(min_weight);
-    return NULL;
+    return nullptr;
 }
 
 bool
 NetworkPostList::at_end() const
 {
-    return (pos == NULL && started);
+    return (pos == nullptr && started);
 }
 
 Xapian::termcount

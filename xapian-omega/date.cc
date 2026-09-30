@@ -247,7 +247,7 @@ date_range_filter(const string & date_start, const string & date_end,
             int end = ymd_to_days(y1, m1, d1) + days;
             days_to_ymd(end, y2, m2, d2);
         } else {
-            time_t end = time(NULL);
+            time_t end = time(nullptr);
             struct tm *t = localtime(&end);
             y2 = t->tm_year + 1900;
             m2 = t->tm_mon + 1;
@@ -264,7 +264,7 @@ date_range_filter(const string & date_start, const string & date_end,
             parse_date(date_start, &y1, &m1, &d1, true);
         }
         if (date_end.empty()) {
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             struct tm *t = localtime(&now);
             y2 = t->tm_year + 1900;
             m2 = t->tm_mon + 1;

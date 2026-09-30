@@ -101,7 +101,7 @@ process_ch:
 }
 
 class CStringItor {
-    const char* p = NULL;
+    const char* p = nullptr;
 
     void operator++(int);
 
@@ -109,13 +109,13 @@ class CStringItor {
     CStringItor() { }
 
     explicit CStringItor(const char * p_) : p(p_) {
-        if (!*p) p = NULL;
+        if (!*p) p = nullptr;
     }
 
     unsigned char operator*() const { return *p; }
 
     CStringItor & operator++() {
-        if (!*++p) p = NULL;
+        if (!*++p) p = nullptr;
         return *this;
     }
 
@@ -384,7 +384,7 @@ url_prettify(std::string & url)
                         while (true) {
                             const void* s = std::memchr(d + slash, '/',
                                                         pretty_limit - slash);
-                            if (s == NULL) {
+                            if (s == nullptr) {
                                 slash = in.size();
                                 break;
                             }

@@ -73,7 +73,7 @@ HoneyAllDocsPostList::get_wdf() const
 bool
 HoneyAllDocsPostList::at_end() const
 {
-    return cursor == NULL;
+    return cursor == nullptr;
 }
 
 PostList*
@@ -81,20 +81,20 @@ HoneyAllDocsPostList::next(double)
 {
     Assert(cursor);
     if (!reader.at_end()) {
-        if (reader.next()) return NULL;
+        if (reader.next()) return nullptr;
         cursor->next();
     }
 
     if (!cursor->after_end()) {
         if (reader.update(cursor)) {
-            if (!reader.at_end()) return NULL;
+            if (!reader.at_end()) return nullptr;
         }
     }
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
-    return NULL;
+    cursor = nullptr;
+    return nullptr;
 }
 
 PostList*
@@ -102,7 +102,7 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 {
     if (rare(!cursor)) {
         // No-op if already at_end.
-        return NULL;
+        return nullptr;
     }
 
     if (reader.at_end()) {
@@ -112,7 +112,7 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
     }
 
     if (reader.skip_to(did))
-        return NULL;
+        return nullptr;
 
     if (cursor->find_entry_ge(make_doclenchunk_key(did))) {
         // Exact match.
@@ -120,12 +120,12 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
             // Shouldn't be possible.
             Assert(false);
         }
-        if (reader.skip_to(did)) return NULL;
+        if (reader.skip_to(did)) return nullptr;
         // The chunk's last docid is did, so skip_to() should always succeed.
         Assert(false);
     } else if (!cursor->after_end()) {
         if (reader.update(cursor)) {
-            if (reader.skip_to(did)) return NULL;
+            if (reader.skip_to(did)) return nullptr;
             // The chunk's last docid is >= did, so skip_to() should always
             // succeed.
             Assert(false);
@@ -134,8 +134,8 @@ HoneyAllDocsPostList::skip_to(Xapian::docid did, double)
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
-    return NULL;
+    cursor = nullptr;
+    return nullptr;
 }
 
 PostList*
@@ -144,14 +144,14 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     if (rare(!cursor)) {
         // Already at_end.
         valid = true;
-        return NULL;
+        return nullptr;
     }
 
     if (!reader.at_end()) {
         // Check for the requested docid in the current block.
         if (reader.skip_to(did)) {
             valid = true;
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -161,11 +161,11 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
         if (reader.update(cursor)) {
             if (reader.skip_to(did)) {
                 valid = true;
-                return NULL;
+                return nullptr;
             }
         }
         valid = false;
-        return NULL;
+        return nullptr;
     }
 
     // We had an exact match for a chunk starting with specified docid.
@@ -177,7 +177,7 @@ HoneyAllDocsPostList::check(Xapian::docid did, double, bool& valid)
     }
 
     valid = true;
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount
@@ -262,7 +262,7 @@ DocLenChunkReader::next()
     do {
         p += width;
         if (p == end) {
-            p = NULL;
+            p = nullptr;
             return false;
         }
 
@@ -274,7 +274,7 @@ DocLenChunkReader::next()
 bool
 DocLenChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL)
+    if (p == nullptr)
         return false;
 
     if (target <= did)
@@ -282,7 +282,7 @@ DocLenChunkReader::skip_to(Xapian::docid target)
 
     Xapian::docid delta = target - did;
     if (delta >= Xapian::docid(end - p) / width) {
-        p = NULL;
+        p = nullptr;
         return false;
     }
 

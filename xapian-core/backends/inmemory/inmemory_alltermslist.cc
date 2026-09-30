@@ -54,7 +54,7 @@ InMemoryAllTermsList::skip_to(string_view term_)
     Assert(it != tmap->end());
     if (!it->first.empty()) {
         // Don't skip backwards.
-        if (term <= it->first) return NULL;
+        if (term <= it->first) return nullptr;
     } else {
         // Don't skip to before where we're supposed to start.
         if (term < prefix) {
@@ -65,7 +65,7 @@ InMemoryAllTermsList::skip_to(string_view term_)
             if (it == tmap->end())
                 return this;
             current_term = it->first;
-            return NULL;
+            return nullptr;
         }
     }
     it = tmap->lower_bound(term);
@@ -74,7 +74,7 @@ InMemoryAllTermsList::skip_to(string_view term_)
         return this;
     }
     current_term = it->first;
-    return NULL;
+    return nullptr;
 }
 
 TermList *
@@ -92,7 +92,7 @@ InMemoryAllTermsList::next()
         return this;
     }
     current_term = it->first;
-    return NULL;
+    return nullptr;
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN

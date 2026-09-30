@@ -85,7 +85,7 @@ apply_unix_permissions(Xapian::Query & query, const char * user)
     // Make sure we're rewound.
     setgrent();
     errno = 0;
-    while ((grentry = getgrent()) != NULL) {
+    while ((grentry = getgrent()) != nullptr) {
         // Don't process the main group again if it happens to be listed as
         // a supplementary group.
         if (grentry->gr_gid == main_gid)

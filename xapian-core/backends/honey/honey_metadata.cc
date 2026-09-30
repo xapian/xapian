@@ -76,12 +76,12 @@ TermList*
 HoneyMetadataTermList::next()
 {
     LOGCALL(DB, TermList*, "HoneyMetadataTermList::next", NO_ARGS);
-    Assert(cursor != NULL);
+    Assert(cursor != nullptr);
 
     if (cursor->after_end()) {
         // This is the first action on a new HoneyMetadataTermList.
         if (cursor->find_entry_ge(prefix))
-            RETURN(NULL);
+            RETURN(nullptr);
     } else {
         cursor->next();
     }
@@ -91,14 +91,14 @@ HoneyMetadataTermList::next()
         RETURN(this);
     }
     current_term.assign(cursor->current_key, 2);
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
 HoneyMetadataTermList::skip_to(string_view key)
 {
     LOGCALL(DB, TermList*, "HoneyMetadataTermList::skip_to", key);
-    Assert(cursor != NULL);
+    Assert(cursor != nullptr);
 
     // k is the table key (key is the user metadata key).
     string k(2, '\0');
@@ -122,5 +122,5 @@ HoneyMetadataTermList::skip_to(string_view key)
         }
         current_term.assign(cursor->current_key, 2);
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

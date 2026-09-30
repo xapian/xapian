@@ -70,7 +70,7 @@ command_needs_shell(const char * p)
     for ( ; *p; ++p) {
         // Probably overly conservative, but suitable for
         // real-world cases.
-        if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != NULL) {
+        if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != nullptr) {
             return true;
         }
     }
@@ -140,16 +140,16 @@ handle_signal(int signum)
     }
     switch (signum) {
         case SIGHUP:
-            sigaction(signum, &old_hup_handler, NULL);
+            sigaction(signum, &old_hup_handler, nullptr);
             break;
         case SIGINT:
-            sigaction(signum, &old_int_handler, NULL);
+            sigaction(signum, &old_int_handler, nullptr);
             break;
         case SIGQUIT:
-            sigaction(signum, &old_quit_handler, NULL);
+            sigaction(signum, &old_quit_handler, nullptr);
             break;
         case SIGTERM:
-            sigaction(signum, &old_term_handler, NULL);
+            sigaction(signum, &old_term_handler, nullptr);
             break;
         default:
             return;
@@ -357,7 +357,7 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
         tv.tv_sec = 300;
         tv.tv_usec = 0;
         FD_SET(fd, &readfds);
-        int r = select(fd + 1, &readfds, NULL, NULL, &tv);
+        int r = select(fd + 1, &readfds, nullptr, nullptr, &tv);
         if (r <= 0) {
             if (r < 0) {
                 if (errno == EINTR || errno == EAGAIN) {
@@ -442,22 +442,22 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
                                     PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
                                     0,
                                     1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                    NULL);
+                                    nullptr);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
         throw ReadError("CreateNamedPipeA failed");
     }
 
     HANDLE hClient = CreateFileA(pipename,
-                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 GENERIC_READ|GENERIC_WRITE, 0, nullptr,
                                  OPEN_EXISTING,
-                                 FILE_FLAG_OVERLAPPED, NULL);
+                                 FILE_FLAG_OVERLAPPED, nullptr);
 
     if (hClient == INVALID_HANDLE_VALUE) {
         throw ReadError("CreateFileA failed");
     }
 
-    if (!ConnectNamedPipe(hPipe, NULL) &&
+    if (!ConnectNamedPipe(hPipe, nullptr) &&
         GetLastError() != ERROR_PIPE_CONNECTED) {
         throw ReadError("ConnectNamedPipe failed");
     }
@@ -477,7 +477,8 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     // FIXME: Is NULL the way to say "/dev/null"?
     // It's what GetStdHandle() is documented to return if "an application does
     // not have associated standard handles"...
-    startupinfo.hStdInput = fd_in >= 0 ? (HANDLE) _get_osfhandle(fd_in) : NULL;
+    startupinfo.hStdInput = nullptr;
+    if (fd_in >= 0) startupinfo.hStdInput = (HANDLE)_get_osfhandle(fd_in);
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
     string cmdline;
@@ -486,7 +487,7 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     }
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    if (!CreateProcessA(NULL, &cmdline[0],
+    if (!CreateProcessA(nullptr, &cmdline[0],
                         0, 0, TRUE, 0, 0, 0,
                         &startupinfo, &procinfo)) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
@@ -501,7 +502,7 @@ run_filter(int fd_in, const char* const cmd[], string* out, int alt_status)
     while (true) {
         char buf[4096];
         DWORD received;
-        if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
+        if (!ReadFile(hPipe, buf, sizeof(buf), &received, nullptr)) {
             throw ReadError("ReadFile failed");
         }
         if (received == 0) break;
@@ -598,7 +599,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
             argv.push_back(word);
         }
         if (argv.empty()) return; // Empty command!
-        argv.push_back(NULL);
+        argv.push_back(nullptr);
     }
 
     pid_t child = fork();
@@ -708,7 +709,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
         tv.tv_sec = 300;
         tv.tv_usec = 0;
         FD_SET(fd, &readfds);
-        int r = select(fd + 1, &readfds, NULL, NULL, &tv);
+        int r = select(fd + 1, &readfds, nullptr, nullptr, &tv);
         if (r <= 0) {
             if (r < 0) {
                 if (errno == EINTR || errno == EAGAIN) {
@@ -794,22 +795,22 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
                                     PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
                                     0,
                                     1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                    NULL);
+                                    nullptr);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
         throw ReadError("CreateNamedPipeA failed");
     }
 
     HANDLE hClient = CreateFileA(pipename,
-                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 GENERIC_READ|GENERIC_WRITE, 0, nullptr,
                                  OPEN_EXISTING,
-                                 FILE_FLAG_OVERLAPPED, NULL);
+                                 FILE_FLAG_OVERLAPPED, nullptr);
 
     if (hClient == INVALID_HANDLE_VALUE) {
         throw ReadError("CreateFileA failed");
     }
 
-    if (!ConnectNamedPipe(hPipe, NULL) &&
+    if (!ConnectNamedPipe(hPipe, nullptr) &&
         GetLastError() != ERROR_PIPE_CONNECTED) {
         throw ReadError("ConnectNamedPipe failed");
     }
@@ -829,13 +830,14 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     // FIXME: Is NULL the way to say "/dev/null"?
     // It's what GetStdHandle() is documented to return if "an application does
     // not have associated standard handles"...
-    startupinfo.hStdInput = fd_in >= 0 ? (HANDLE) _get_osfhandle(fd_in) : NULL;
+    startupinfo.hStdInput = nullptr;
+    if (fd_in >= 0) startupinfo.hStdInput = (HANDLE)_get_osfhandle(fd_in);
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
 
     string cmdline{cmd};
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
-    if (!CreateProcessA(NULL, &cmdline[0],
+    if (!CreateProcessA(nullptr, &cmdline[0],
                         0, 0, TRUE, 0, 0, 0,
                         &startupinfo, &procinfo)) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
@@ -850,7 +852,7 @@ run_filter(int fd_in, const string& cmd, bool use_shell, string* out,
     while (true) {
         char buf[4096];
         DWORD received;
-        if (!ReadFile(hPipe, buf, sizeof(buf), &received, NULL)) {
+        if (!ReadFile(hPipe, buf, sizeof(buf), &received, nullptr)) {
             throw ReadError("ReadFile failed");
         }
         if (received == 0) break;

@@ -106,7 +106,7 @@ class DocLenChunkReader {
     /// Update to use the chunk currently pointed to by @a cursor.
     bool update(HoneyCursor* cursor);
 
-    bool at_end() const { return p == NULL; }
+    bool at_end() const { return p == nullptr; }
 
     Xapian::docid get_docid() const { return did; }
 

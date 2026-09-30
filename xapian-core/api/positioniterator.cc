@@ -46,7 +46,7 @@ PositionIterator::PositionIterator(Internal *internal_) : internal(internal_)
     try {
         if (!internal->next()) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     } catch (...) {
         // The destructor only runs if the constructor completes, so we have to
@@ -91,7 +91,7 @@ PositionIterator::operator++()
     Assert(internal);
     if (!internal->next()) {
         decref();
-        internal = NULL;
+        internal = nullptr;
     }
     RETURN(*this);
 }
@@ -103,7 +103,7 @@ PositionIterator::skip_to(Xapian::termpos pos)
     if (internal) {
         if (!internal->skip_to(pos)) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     }
 }

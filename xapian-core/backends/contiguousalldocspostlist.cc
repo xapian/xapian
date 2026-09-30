@@ -65,7 +65,7 @@ ContiguousAllDocsPostList::next(double)
     } else {
         ++did;
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -79,7 +79,7 @@ ContiguousAllDocsPostList::skip_to(Xapian::docid target, double)
             did = target;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool

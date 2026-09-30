@@ -134,7 +134,7 @@ HoneyDatabase::get_doclength(Xapian::docid did) const
 {
     Assert(did != 0);
     if (usual(did <= version_file.get_last_docid())) {
-        if (doclen_cursor == NULL) {
+        if (doclen_cursor == nullptr) {
             doclen_cursor = get_postlist_cursor();
         } else {
             if (doclen_chunk_reader.find_doclength(did)) {
@@ -191,7 +191,7 @@ HoneyDatabase::get_wdfdocmax(Xapian::docid did) const
         (void)HoneyDatabase::get_doclength(did);
     }
     Xapian::termcount max_wdf = 0;
-    while (termlist.next() == NULL) {
+    while (termlist.next() == nullptr) {
         Xapian::termcount current_wdf = termlist.get_wdf();
         if (current_wdf > max_wdf) max_wdf = current_wdf;
     }
@@ -374,9 +374,9 @@ TermList*
 HoneyDatabase::open_spelling_wordlist() const
 {
     auto cursor = spelling_table.cursor_get();
-    if (rare(cursor == NULL)) {
+    if (rare(cursor == nullptr)) {
         // No spelling table.
-        return NULL;
+        return nullptr;
     }
     return new HoneySpellingWordsList(this, cursor);
 }
@@ -414,9 +414,9 @@ TermList*
 HoneyDatabase::open_synonym_keylist(string_view prefix) const
 {
     auto cursor = synonym_table.cursor_get();
-    if (rare(cursor == NULL)) {
+    if (rare(cursor == nullptr)) {
         // No synonym table.
-        return NULL;
+        return nullptr;
     }
     return new HoneySynonymTermList(this, cursor, prefix);
 }
@@ -454,7 +454,7 @@ TermList*
 HoneyDatabase::open_metadata_keylist(string_view prefix) const
 {
     auto cursor = postlist_table.cursor_get();
-    Assert(cursor != NULL);
+    Assert(cursor != nullptr);
     return new HoneyMetadataTermList(this, cursor, prefix);
 }
 

@@ -141,7 +141,7 @@ HoneySynonymTable::open_termlist(string_view term) const
     vector<string> synonyms;
 
     if (last_term == term) {
-        if (last_synonyms.empty()) return NULL;
+        if (last_synonyms.empty()) return nullptr;
 
         synonyms.reserve(last_synonyms.size());
         for (auto&& i : last_synonyms) {
@@ -149,7 +149,7 @@ HoneySynonymTable::open_termlist(string_view term) const
         }
     } else {
         string tag;
-        if (!get_exact_entry(term, tag)) return NULL;
+        if (!get_exact_entry(term, tag)) return nullptr;
 
         const char* p = tag.data();
         const char* end = p + tag.size();
@@ -198,7 +198,7 @@ HoneySynonymTermList::next()
     if (cursor->after_end()) {
         // This is the first action on a new HoneySynonymTermList.
         if (cursor->find_entry_ge(prefix))
-            RETURN(NULL);
+            RETURN(nullptr);
     } else {
         cursor->next();
     }
@@ -208,7 +208,7 @@ HoneySynonymTermList::next()
     }
     current_term = cursor->current_key;
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -234,5 +234,5 @@ HoneySynonymTermList::skip_to(string_view term)
         }
         current_term = cursor->current_key;
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

@@ -37,7 +37,7 @@ static testcase md5_testcases[] = {
     { "", "d41d8cd98f00b204e9800998ecf8427e" },
     { "test", "098f6bcd4621d373cade4e832627b4f6" },
     { "\x80\x81\x82", "b385760a988b494d3f9df43456928176" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 int main() {

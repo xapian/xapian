@@ -47,7 +47,7 @@ Document::Internal::ensure_terms_fetched() const
         return;
 
     unique_ptr<TermList> t(database->open_term_list(did));
-    while (t->next() == NULL) {
+    while (t->next() == nullptr) {
         ++termlist_size;
         auto&& r = terms->emplace_hint(terms->end(),
                                        t->get_termname(),
@@ -106,7 +106,7 @@ Document::Internal::open_term_list() const
         return new DocumentTermList(this);
 
     if (!database)
-        return NULL;
+        return nullptr;
 
     return database->open_term_list(did);
 }

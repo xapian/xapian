@@ -101,7 +101,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
         logger.searching_start("Match decider accepting " + str(i + 1) + "%");
         logger.search_start();
         enquire.set_query(query);
-        mset = enquire.get_mset(0, 10, 0, NULL, &md);
+        mset = enquire.get_mset(0, 10, 0, nullptr, &md);
         logger.search_end(query, mset);
         TEST_EQUAL(mset.size(), 10);
         TEST_REL(mset.get_matches_lower_bound(),<=,runsize * (i + 1) / 100);

@@ -120,7 +120,7 @@ class ValueCountTermList final : public TermList {
             return this;
         }
         current_term = it->first;
-        return NULL;
+        return nullptr;
     }
 
     TermList* skip_to(string_view term) {
@@ -132,7 +132,7 @@ class ValueCountTermList final : public TermList {
             return this;
         }
         current_term = it->first;
-        return NULL;
+        return nullptr;
     }
 
     Xapian::termcount get_approx_size() const { unsupported_method(); }
@@ -211,7 +211,7 @@ class StringAndFreqTermList final : public TermList {
             return this;
         }
         current_term = it->get_string();
-        return NULL;
+        return nullptr;
     }
 
     TermList* skip_to(string_view term) {
@@ -222,7 +222,7 @@ class StringAndFreqTermList final : public TermList {
         if (it != values.end()) {
             current_term = it->get_string();
         }
-        return NULL;
+        return nullptr;
     }
 
     Xapian::termcount get_approx_size() const { unsupported_method(); }

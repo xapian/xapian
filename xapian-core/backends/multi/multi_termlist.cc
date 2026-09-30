@@ -57,7 +57,7 @@ Xapian::doccount
 MultiTermList::get_termfreq() const
 {
     Xapian::doccount result;
-    db->get_freqs(real_termlist->get_termname(), &result, NULL);
+    db->get_freqs(real_termlist->get_termname(), &result, nullptr);
     return result;
 }
 
@@ -71,7 +71,7 @@ MultiTermList::next()
         return this;
     }
     current_term = real_termlist->get_termname();
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -84,7 +84,7 @@ MultiTermList::skip_to(std::string_view term)
         return this;
     }
     current_term = real_termlist->get_termname();
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount

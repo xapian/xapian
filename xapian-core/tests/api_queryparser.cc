@@ -711,7 +711,7 @@ static const test test_or_queries[] = {
     { "authortitle:\"richard boulton\"", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
     // Test FLAG_NGRAMS isn't on by default:
     { "久有归天愿", "Z久有归天愿@1" },
-    { NULL, "NGRAMS" }, // Enable FLAG_NGRAMS
+    { nullptr, "NGRAMS" }, // Enable FLAG_NGRAMS
     // Test queries which don't need word break finding still parse the same:
     { "gtk+ -gnome", "(Zgtk+@1 AND_NOT Zgnome@2)" },
     { "“curly quotes”", "(curly@1 PHRASE 2 quotes@2)" },
@@ -738,7 +738,7 @@ static const test test_or_queries[] = {
     // Test Khmer (added in 2.0.0).
     { "\"ថ្លៃណាស់ \"", "(ថ@1 PHRASE 8 ្@1 PHRASE 8 ល@1 PHRASE 8 ៃ@1 PHRASE 8 ណ@1 PHRASE 8 ា@1 PHRASE 8 ស@1 PHRASE 8 ់@1)" },
 
-    { NULL, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
+    { nullptr, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
     // Test word break finding
     { "久有归天愿", "(久@1 AND 有@1 AND 归天@1 AND 愿@1)" },
     { "久有 归天愿", "((久@1 AND 有@1) OR (归天@2 AND 愿@2))" },
@@ -780,7 +780,7 @@ static const test test_or_queries[] = {
     { "\"归天\"", "归天@1" },
     // FIXME: this should work: { "久 NEAR 有", "(久@1 NEAR 11 有@2)" },
     //
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(queryparser1, !backend) {
@@ -874,15 +874,15 @@ static const test test_and_queries[] = {
     // Add coverage for other cases similar to the above.
     { "a b site:xapian.org", "((Za@1 AND Zb@2) FILTER Hxapian.org)" },
     { "site:xapian.org a b", "((Za@1 AND Zb@2) FILTER Hxapian.org)" },
-    { NULL, "NGRAMS" }, // Enable FLAG_NGRAMS
+    { nullptr, "NGRAMS" }, // Enable FLAG_NGRAMS
     // Test n-gram generation:
     { "author:험가 OR subject:万众 hello world!", "((A험@1 AND A험가@1 AND A가@1) OR (XT万@2 AND XT万众@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛@1 AND 洛伊@1 AND 伊@1 AND Zone@2 AND (儿@3 AND 儿差@3 AND 差@3 AND 差点@3 AND 点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
-    { NULL, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
+    { nullptr, "WORD_BREAKS" }, // Enable FLAG_WORD_BREAKS
     // Test word break finding:
     { "author:험가 OR subject:万众 hello world!", "(A험가@1 OR (XT万@2 AND XT众@2 AND (Zhello@3 AND Zworld@4)))" },
     { "洛伊one儿差点two脸three", "(洛伊@1 AND Zone@2 AND (儿@3 AND 差点@3) AND Ztwo@4 AND 脸@5 AND Zthree@6)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // With default_op = OP_AND.
@@ -1232,20 +1232,20 @@ DEFINE_TESTCASE(qp_flag_wildcard4, !backend) {
         // wildcard which converts to <alldocuments>, but whether than happens
         // depends on what prefixes are active so doing that seems more
         // confusing than not.
-        {1, "", NULL, ""},
-        {0, "m", "WILDCARD SYNONYM m*", NULL},
-        {1, "m", "WILDCARD SYNONYM m*", NULL},
-        {1, "ê", "WILDCARD SYNONYM ê*", NULL},
-        {2, "m", NULL, "m@1"},
-        {2, "ê", NULL, "ê@1"},
-        {2, "\xe0\xa1\xa2", NULL, "\xe0\xa1\xa2@1"},
-        {2, "\xf0\x90\xb3\x97", NULL, "\xf0\x90\xb3\x97@1"},
-        {2, "mu", "WILDCARD SYNONYM mu*", NULL},
-        {2, "mus", "WILDCARD SYNONYM mus*", NULL},
-        {3, "mus", "WILDCARD SYNONYM mus*", NULL},
-        {2, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", "WILDCARD SYNONYM \xf0\x90\xb3\x97\xf0\x90\xb3\x83*", NULL},
-        {4, "mus", NULL, "mus@1"},
-        {3, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", NULL, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83@1"},
+        {1, "", nullptr, ""},
+        {0, "m", "WILDCARD SYNONYM m*", nullptr},
+        {1, "m", "WILDCARD SYNONYM m*", nullptr},
+        {1, "ê", "WILDCARD SYNONYM ê*", nullptr},
+        {2, "m", nullptr, "m@1"},
+        {2, "ê", nullptr, "ê@1"},
+        {2, "\xe0\xa1\xa2", nullptr, "\xe0\xa1\xa2@1"},
+        {2, "\xf0\x90\xb3\x97", nullptr, "\xf0\x90\xb3\x97@1"},
+        {2, "mu", "WILDCARD SYNONYM mu*", nullptr},
+        {2, "mus", "WILDCARD SYNONYM mus*", nullptr},
+        {3, "mus", "WILDCARD SYNONYM mus*", nullptr},
+        {2, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", "WILDCARD SYNONYM \xf0\x90\xb3\x97\xf0\x90\xb3\x83*", nullptr},
+        {4, "mus", nullptr, "mus@1"},
+        {3, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83", nullptr, "\xf0\x90\xb3\x97\xf0\x90\xb3\x83@1"},
     };
 
     constexpr auto FLAG_PARTIAL = Xapian::QueryParser::FLAG_PARTIAL;
@@ -1514,7 +1514,7 @@ DEFINE_TESTCASE(qp_flag_fuzzy1, !backend) {
         { "main -foo~ -bar", "(main@1 AND_NOT (EDIT_DISTANCE SYNONYM foo~2 OR bar@3))" },
         { "main -bar -foo~", "(main@1 AND_NOT (bar@2 OR EDIT_DISTANCE SYNONYM foo~2))" },
         // Switch default_op to OP_AND.
-        { NULL, NULL },
+        { nullptr, nullptr },
         { "foo~ main", "(EDIT_DISTANCE SYNONYM foo~2 AND main@2)" },
         { "main foo~", "(main@1 AND EDIT_DISTANCE SYNONYM foo~2)" },
         { "+foo~ main", "(EDIT_DISTANCE SYNONYM foo~2 AND main@2)" },
@@ -1531,7 +1531,7 @@ DEFINE_TESTCASE(qp_flag_fuzzy1, !backend) {
                      Xapian::QueryParser::FLAG_LOVEHATE;
 
     for (auto&& t : testcases) {
-        if (t.q == NULL) {
+        if (t.q == nullptr) {
             qp.set_default_op(Xapian::Query::OP_AND);
             continue;
         }
@@ -1744,7 +1744,7 @@ static const test test_stop_queries[] = {
     // Regression test for bug in initial version of the patch for the
     // "all-stopword" case.
     { "the AND a an", "(the@1 AND (a@2 AND an@3))" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_stopper1, !backend) {
@@ -1781,7 +1781,7 @@ static const test test_pure_not_queries[] = {
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_flag_pure_not1, !backend) {
@@ -1954,7 +1954,7 @@ static const test test_value_range1_queries[] = {
     { "a..", "VALUE_GE 1 a" },
     // Test for expanded set of characters allowed in range start:
     { "10:30+1300..11:00+1300", "VALUE_RANGE 1 10:30+1300 11:00+1300" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Simple test of RangeProcessor class.
@@ -2032,7 +2032,7 @@ static const test test_value_range2_queries[] = {
     // Test repeating without RP_REPEATED.
     { "date:2000-01-01..date:2001-01-01", "VALUE_RANGE 3 date:2000-01-01 date:2001-01-01" },
     { "1!..5!", "VALUE_RANGE 3 1! 5!" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test chaining of RangeProcessor classes.
@@ -2132,7 +2132,7 @@ static const test test_value_range4_queries[] = {
     { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
     { "hello:world", "0 * XHELLOworld" },
     { "hello:mum..world", "VALUE_RANGE 1 mum world" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 /** Test a boolean filter which happens to contain "..".
@@ -2187,7 +2187,7 @@ static const test test_unitrange1_queries[] = {
     { "size:10..100", "Unknown range operation" },
     { "size:..100", "Unknown range operation" },
     { "size:10..", "Unknown range operation" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Simple Test of UnitRangeProcessor class.
@@ -2224,7 +2224,7 @@ static const test test_value_daterange1_queries[] = {
     { "1999-03-12..2001-04-14", "VALUE_RANGE 1 19990312 20010414" },
     { "12/03/99..02", "Unknown range operation" },
     { "1999-03-12..2001", "Unknown range operation" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test DateRangeProcessor
@@ -2266,7 +2266,7 @@ static const test test_value_daterange2_queries[] = {
     { "12/03/99..12/04/01created:", "Unknown range operation" },
     { "12/03/99..02", "Unknown range operation" },
     { "1999-03-12..2001", "Unknown range operation" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Feature test DateRangeProcessor with prefixes (added in 1.1.2).
@@ -2309,7 +2309,7 @@ DEFINE_TESTCASE(qp_daterange2, !backend) {
 static const test test_value_stringrange1_queries[] = {
     { "tag:bar..foo", "VALUE_RANGE 1 bar foo" },
     { "bar..foo", "VALUE_RANGE 0 bar foo" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Feature test RangeProcessor with prefixes.
@@ -2343,7 +2343,7 @@ DEFINE_TESTCASE(qp_stringrange1, !backend) {
 
 static const test test_value_customrange1_queries[] = {
     { "mars author:Asimov..Bradbury", "(mars@1 FILTER VALUE_RANGE 4 asimov bradbury)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 struct AuthorRangeProcessor : public Xapian::RangeProcessor {
@@ -2412,7 +2412,7 @@ static const test test_fieldproc1_queries[] = {
     { "host2:Xapian.org", "0 * Hxapian.org" },
     { "host:*", "0 * <alldocuments>" },
     { "host:\"Space Station.Example.Org\"", "0 * Hspace station.example.org" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // FieldProcessor test.
@@ -2469,7 +2469,7 @@ class DateRangeFieldProcessor : public Xapian::FieldProcessor {
 static const test test_fieldproc2_queries[] = {
     { "date:\"this week\"", "VALUE_GE 1 20120723" },
     { "date:23/7/2012..25/7/2012", "VALUE_RANGE 1 20120723 20120725" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test using FieldProcessor and RangeProcessor together.
@@ -2543,7 +2543,7 @@ static const test test_mispelled_queries[] = {
     { "documento-searcho", "document-search" },
     { "test saerch", "test search" },
     { "paragraf search", "paragraph search" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test spelling correction in the QueryParser.
@@ -2626,7 +2626,7 @@ static const test test_mispelled_wildcard_queries[] = {
     { "doucment*", "" },
     { "doucment* seearch", "doucment* search" },
     { "doucment* search", "" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test spelling correction in the QueryParser with wildcards.
@@ -2665,7 +2665,7 @@ static const test test_mispelled_partial_queries[] = {
     { "documen ", "document " },
     { "seearch documen", "search documen" },
     { "search documen", "" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test spelling correction in the QueryParser with FLAG_PARTIAL.
@@ -2703,7 +2703,7 @@ static const test test_synonym_queries[] = {
     // Check that setting FLAG_AUTO_SYNONYMS doesn't enable multi-word
     // synonyms.  Regression test for bug fixed in 1.3.0 and 1.2.9.
     { "regression test", "(Zregress@1 OR Ztest@2)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test single term synonyms in the QueryParser.
@@ -2743,7 +2743,7 @@ static const test test_multi_synonym_queries[] = {
     { "beach sun tan holiday", "(Zbeach@1 OR ((Zsun@2 OR Ztan@3) SYNONYM bathe@2) OR Zholiday@4)" },
     { "sun tan sun tan cream", "(((Zsun@1 OR Ztan@2) SYNONYM bathe@1) OR ((Zsun@3 OR Ztan@4 OR Zcream@5) SYNONYM lotion@3))" },
     { "single", "(Zsingl@1 SYNONYM record@1)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test multi term synonyms in the QueryParser.
@@ -2796,7 +2796,7 @@ static const test test_synonym_op_queries[] = {
     { "~\"two words\"", "((two@1 PHRASE 2 words@2) SYNONYM biverbal@1)" },
     { "~\"  two  words  \"", "((two@1 PHRASE 2 words@2) SYNONYM biverbal@1)" },
     { "~foo:\"two words\"", "((XFOOtwo@1 PHRASE 2 XFOOwords@2) SYNONYM pair@1)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Test the synonym operator in the QueryParser.
@@ -2843,7 +2843,7 @@ static const test test_stem_all_queries[] = {
     { "chemical NEAR engineers", "(chemic@1 NEAR 11 engin@2)" },
     { "chemical engineers", "(chemic@1 OR engin@2)" },
     { "title:(chemical engineers)", "(XTchemic@1 OR XTengin@2)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_stem_all1, !backend) {
@@ -2878,7 +2878,7 @@ static const test test_stem_all_z_queries[] = {
     { "chemical NEAR engineers", "(Zchemic@1 NEAR 11 Zengin@2)" },
     { "chemical engineers", "(Zchemic@1 OR Zengin@2)" },
     { "title:(chemical engineers)", "(ZXTchemic@1 OR ZXTengin@2)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_stem_all_z1, !backend) {
@@ -3029,7 +3029,7 @@ static const test test_near_queries[] = {
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(hard@1 NEAR 11 space@2)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_near1, !backend) {
@@ -3104,7 +3104,7 @@ static const test test_phrase_queries[] = {
     // subqueries first might be the best approach.
     // FIXME: this isn't currently reimplemented:
     // { "(one AND two) three", "((Zone@1 PHRASE 11 Zthree@3) AND (Ztwo@2 PHRASE 11 Zthree@3))" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 DEFINE_TESTCASE(qp_phrase1, !backend) {
@@ -3154,7 +3154,7 @@ static const test test_stopword_group_or_queries[] = {
     { "this is a test*", "WILDCARD SYNONYM test" },
     { "this is a us* test*", "(WILDCARD SYNONYM us OR WILDCARD SYNONYM test)" },
     { "this is a user test*", "(user@4 OR WILDCARD SYNONYM test)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 static const test test_stopword_group_and_queries[] = {
@@ -3168,7 +3168,7 @@ static const test test_stopword_group_and_queries[] = {
     // Three stopwords + two wildcards failed in 1.0.16
     { "this is a us* test*", "(WILDCARD SYNONYM us AND WILDCARD SYNONYM test)" },
     { "this is a user test*", "(user@4 AND WILDCARD SYNONYM test)" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 // Regression test for bug fixed in 1.0.17 and 1.1.3.

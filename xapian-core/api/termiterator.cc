@@ -44,7 +44,7 @@ TermIterator::post_advance(Internal * res)
     if (res) {
         if (res == internal) {
             // No more items.
-            res = NULL;
+            res = nullptr;
         } else {
             // Prune - this can happen with iterating allterms from multiple
             // databases.

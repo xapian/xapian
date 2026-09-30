@@ -92,7 +92,7 @@ class GlassFreeList {
         revision = 0;
         first_unused_block = 0;
         flw_appending = false;
-        p = pw = NULL;
+        p = pw = nullptr;
     }
 
     void reset() {
@@ -106,7 +106,7 @@ class GlassFreeList {
     bool empty() const { return fl == fl_end; }
 
     uint4 get_block(const GlassTable * B, uint4 block_size,
-                    uint4 * blk_to_free = NULL);
+                    uint4* blk_to_free = nullptr);
 
     uint4 walk(const GlassTable *B, uint4 block_size, bool inclusive);
 

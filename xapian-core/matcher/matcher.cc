@@ -139,7 +139,7 @@ Matcher::for_all_remotes(Action action)
             if (fd >= nfds) nfds = fd + 1;
         }
 
-        int r = select(nfds, &fds, NULL, NULL, NULL);
+        int r = select(nfds, &fds, nullptr, nullptr, nullptr);
         if (r <= 0) {
             int eno = socket_errno();
             // We shouldn't get a timeout, but if we do retry.
@@ -216,7 +216,7 @@ Matcher::Matcher(const Xapian::Database& db_,
         }
         Assert(subdb);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-        if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
+        if (subdb->get_backend_info(nullptr) == BACKEND_REMOTE) {
             auto as_rem = static_cast<const RemoteDatabase*>(subdb);
             if (have_mdecider) {
                 unimplemented("Xapian::MatchDecider not supported by the "

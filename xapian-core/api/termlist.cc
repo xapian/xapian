@@ -41,7 +41,7 @@ TermIterator::Internal::accumulate_stats(Xapian::Internal::ExpandStats &) const
 const Xapian::VecCOWUniq<Xapian::termpos>*
 TermIterator::Internal::get_vec_termpos() const
 {
-    return NULL;
+    return nullptr;
 }
 
 }

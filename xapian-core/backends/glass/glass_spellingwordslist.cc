@@ -78,7 +78,7 @@ GlassSpellingWordsList::next()
         RETURN(this);
     }
     current_term.assign(cursor->current_key, 1);
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -99,5 +99,5 @@ GlassSpellingWordsList::skip_to(string_view term)
         }
         current_term.assign(cursor->current_key, 1);
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

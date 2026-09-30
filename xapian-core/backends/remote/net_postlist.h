@@ -39,8 +39,8 @@ class NetworkPostList : public LeafPostList {
 
     std::string postings;
     bool started = false;
-    const char* pos = NULL;
-    const char* pos_end = NULL;
+    const char* pos = nullptr;
+    const char* pos_end = nullptr;
 
     Xapian::docid lastdocid = 0;
     Xapian::termcount lastwdf = 0;

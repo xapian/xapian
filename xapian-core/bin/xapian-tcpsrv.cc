@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (syntax_error || argv[optind] == NULL) {
+    if (syntax_error || argv[optind] == nullptr) {
         show_usage();
         exit(1);
     }

@@ -31,7 +31,7 @@ SelectPostList::vet(double w_min)
 {
     if (pl->at_end()) {
         delete pl;
-        pl = NULL;
+        pl = nullptr;
         return true;
     }
 
@@ -75,7 +75,7 @@ SelectPostList::get_weight(Xapian::termcount doclen,
 bool
 SelectPostList::at_end() const
 {
-    return pl == NULL;
+    return pl == nullptr;
 }
 
 PostList*
@@ -88,7 +88,7 @@ SelectPostList::next(double w_min)
             pl = result;
         }
     } while (!vet(w_min));
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -105,7 +105,7 @@ SelectPostList::skip_to(Xapian::docid did, double w_min)
             return SelectPostList::next(w_min);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -120,5 +120,5 @@ SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
         // For check() we can simply indicate !valid if the vetting fails.
         valid = vet(w_min);
     }
-    return NULL;
+    return nullptr;
 }

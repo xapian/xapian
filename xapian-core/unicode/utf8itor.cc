@@ -107,7 +107,7 @@ Utf8Iterator::calculate_sequence_length() const noexcept
 }
 
 unsigned Utf8Iterator::operator*() const noexcept {
-    if (p == NULL) return unsigned(-1);
+    if (p == nullptr) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
     unsigned char ch = *p;
     if (seqlen == 1) return ch;
@@ -121,7 +121,7 @@ unsigned Utf8Iterator::operator*() const noexcept {
 unsigned
 Utf8Iterator::strict_deref() const noexcept
 {
-    if (p == NULL) return unsigned(-1);
+    if (p == nullptr) return unsigned(-1);
     if (seqlen == 0) {
         if (!calculate_sequence_length())
             return unsigned(*p) | 0x80000000;

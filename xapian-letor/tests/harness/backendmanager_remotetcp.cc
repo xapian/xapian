@@ -226,7 +226,7 @@ try_next_port:
 
     // Wrap the file descriptor in a FILE * so we can read lines using fgets().
     FILE * fh = fdopen(fds[0], "r");
-    if (fh == NULL) {
+    if (fh == nullptr) {
         string msg("Failed to run command '");
         msg += cmd;
         msg += "': ";
@@ -237,7 +237,7 @@ try_next_port:
     string output;
     while (true) {
         char buf[256];
-        if (fgets(buf, sizeof(buf), fh) == NULL) {
+        if (fgets(buf, sizeof(buf), fh) == nullptr) {
             fclose(fh);
             // Wait for the child to exit.
             int status;
@@ -348,7 +348,7 @@ try_next_port:
     FILE *fh = fdopen(_open_osfhandle(intptr_t(hRead), O_RDONLY), "r");
     while (true) {
         char buf[256];
-        if (fgets(buf, sizeof(buf), fh) == NULL) {
+        if (fgets(buf, sizeof(buf), fh) == nullptr) {
             fclose(fh);
             DWORD rc;
             // This doesn't seem to be necessary on the machine I tested on,

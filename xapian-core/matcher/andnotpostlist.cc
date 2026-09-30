@@ -37,7 +37,7 @@ AndNotPostList::next(double w_min)
         }
         if (pl->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             return result;
         }
         Xapian::docid l_did = pl->get_docid();
@@ -49,10 +49,10 @@ AndNotPostList::next(double w_min)
                 r = result;
             }
             if (!r_valid)
-                return NULL;
+                return nullptr;
             if (r->at_end()) {
                 result = pl;
-                pl = NULL;
+                pl = nullptr;
                 return result;
             }
             r_did = r->get_docid();
@@ -60,7 +60,7 @@ AndNotPostList::next(double w_min)
         if (l_did < r_did)
             break;
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -74,7 +74,7 @@ AndNotPostList::skip_to(Xapian::docid did, double w_min)
         }
         if (pl->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             return result;
         }
         Xapian::docid l_did = pl->get_docid();
@@ -86,10 +86,10 @@ AndNotPostList::skip_to(Xapian::docid did, double w_min)
                 r = result;
             }
             if (!r_valid)
-                return NULL;
+                return nullptr;
             if (r->at_end()) {
                 result = pl;
-                pl = NULL;
+                pl = nullptr;
                 return result;
             }
             r_did = r->get_docid();
@@ -99,7 +99,7 @@ AndNotPostList::skip_to(Xapian::docid did, double w_min)
             return AndNotPostList::next(w_min);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -113,7 +113,7 @@ AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
     if (valid) {
         if (pl->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             return result;
         }
         Xapian::docid l_did = pl->get_docid();
@@ -125,10 +125,10 @@ AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
                 r = result;
             }
             if (!r_valid)
-                return NULL;
+                return nullptr;
             if (r->at_end()) {
                 result = pl;
-                pl = NULL;
+                pl = nullptr;
                 return result;
             }
             r_did = r->get_docid();
@@ -138,7 +138,7 @@ AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
             valid = false;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 string

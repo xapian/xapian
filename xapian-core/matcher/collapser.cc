@@ -126,7 +126,7 @@ collapse_result
 Collapser::check(Result& result,
                  Xapian::Document::Internal& vsdoc)
 {
-    ptr = NULL;
+    ptr = nullptr;
     ++docs_considered;
     result.set_collapse_key(vsdoc.get_value(slot));
 

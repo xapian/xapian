@@ -28,7 +28,7 @@ class AtomParser : public XmlParser {
     enum { INACTIVE, OTHER, AUTHOR } state = INACTIVE;
     bool in_entry = false;
     bool html_content;
-    std::string* target = NULL;
+    std::string* target = nullptr;
     std::string active_tag;
 
   public:

@@ -78,7 +78,7 @@ PositionList *
 ValueRangePostList::read_position_list()
 {
     Assert(db);
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -96,13 +96,13 @@ ValueRangePostList::next(double)
         const string & v = valuelist->get_value();
         if (v >= begin && v <= end) {
             ++accepted;
-            return NULL;
+            return nullptr;
         }
         ++rejected;
         valuelist->next();
     }
-    db = NULL;
-    return NULL;
+    db = nullptr;
+    return nullptr;
 }
 
 PostList *
@@ -115,13 +115,13 @@ ValueRangePostList::skip_to(Xapian::docid did, double)
         const string & v = valuelist->get_value();
         if (v >= begin && v <= end) {
             ++accepted;
-            return NULL;
+            return nullptr;
         }
         ++rejected;
         valuelist->next();
     }
-    db = NULL;
-    return NULL;
+    db = nullptr;
+    return nullptr;
 }
 
 PostList *
@@ -132,7 +132,7 @@ ValueRangePostList::check(Xapian::docid did, double, bool &valid)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valid = valuelist->check(did);
     if (!valid) {
-        return NULL;
+        return nullptr;
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin && v <= end);
@@ -140,13 +140,13 @@ ValueRangePostList::check(Xapian::docid did, double, bool &valid)
         ++accepted;
     else
         ++rejected;
-    return NULL;
+    return nullptr;
 }
 
 bool
 ValueRangePostList::at_end() const
 {
-    return (db == NULL);
+    return (db == nullptr);
 }
 
 Xapian::termcount

@@ -123,7 +123,7 @@ MaxPostList::next(double w_min)
         return plist[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -163,7 +163,7 @@ MaxPostList::skip_to(Xapian::docid did_min, double w_min)
         return plist[0];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void
