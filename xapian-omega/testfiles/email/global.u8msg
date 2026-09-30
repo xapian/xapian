@@ -1,0 +1,12 @@
+Return-path: <o@example.org>
+Subject: internatıonal
+From: o@example.org (Ōriwa)
+To: Tāmati <t@example.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <3.141592@example.org>
+Date: Wed, 30 Sep 2026 18:42:53 -1300
+Content-Length: 28
+Lines: 1
+
+Test of message/global: āpōpō

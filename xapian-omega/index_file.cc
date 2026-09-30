@@ -210,6 +210,7 @@ index_add_default_libraries()
 #endif
 #if defined HAVE_GMIME
     Worker* omindex_gmime = new Worker("omindex_gmime");
+    index_library("message/global", omindex_gmime);
     index_library("message/rfc822", omindex_gmime);
     index_library("message/news", omindex_gmime);
 #endif
@@ -397,6 +398,9 @@ index_add_default_filters()
                          SEEK_DEV_STDIN));
     index_command("application/x-mimearchive",
                   Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
+                         PIPE_DEV_STDIN));
+    index_command("message/global",
+                  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
                          PIPE_DEV_STDIN));
     index_command("message/news",
                   Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",

@@ -116,6 +116,17 @@ index_test()
                     {VALUE_MD5,
                      "C\x7f\x17;;\x87\x91\x5c\x05?\x83\x14\xec\xaa\xad\x94"}
                    }}}});
+    tests.insert({"email/global.u8msg",
+                  {{"Aexample", "Ao", "Aorg", "Aōriwa", "Eu8msg",
+                    "Sinternatıonal", "Tmessage/global",
+                    "XMID:3.141592@example.org",
+                    "XTOexample", "XTOorg", "XTOt", "XTOtāmati",
+                    "global", "message", "test", "āpōpō"},
+                  {{{VALUE_CREATED, int_to_binary_string(1790840573)},
+                    {VALUE_SIZE, Xapian::sortable_serialise(305)},
+                    {VALUE_MD5,
+                     "\xa6\xb6\xe1\x44\x05\x03\x99\xee\x85%\x8f_\xdc\x95{\x08"}
+                   }}}});
 #endif
 #if defined HAVE_POPPLER
     tests.insert({"pdf/poppler.pdf",

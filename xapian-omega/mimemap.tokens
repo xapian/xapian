@@ -180,6 +180,9 @@ oft		application/vnd.ms-outlook
 # Outlook saved MIME message
 eml		message/rfc822
 
+# RFC6532 says "File extension(s):  The extension ".u8msg" is suggested".
+u8msg           message/global
+
 # Perl:
 pl		text/x-perl
 pm		text/x-perl
