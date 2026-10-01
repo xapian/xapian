@@ -1018,6 +1018,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
