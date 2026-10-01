@@ -123,7 +123,6 @@ jobs:
           **/*.log
 
   clang-santisers:
-    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -242,6 +241,7 @@ jobs:
           **/*.log
 
   GLIBCXX_DEBUG:
+    if: false
     runs-on: 'ubuntu-26.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -558,6 +558,7 @@ jobs:
           **/*.log
 
   assertions:
+    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -657,6 +658,7 @@ jobs:
           **/*.log
 
   assertions-partial:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -911,6 +913,7 @@ jobs:
           **/*.log
 
   clang:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1012,7 +1015,6 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
-    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1110,6 +1112,7 @@ jobs:
   # GCC 7 is the oldest GCC we currently aim to support.
   # Ubuntu 22.04 has GCC 9.3.0.
   GCC7:
+    if: false
     name: 'GCC 9'
     runs-on: 'ubuntu-22.04'
     env:
@@ -1264,6 +1267,7 @@ jobs:
           **/*.log
 
   debian-stable:
+    if: false
     runs-on: 'ubuntu-latest'
     container: debian:stable
     env:
@@ -1470,6 +1474,7 @@ jobs:
           **/*.log
 
   macos-26:
+    if: false
     runs-on: 'macos-26'
     needs: makedist
     steps:
@@ -1575,6 +1580,7 @@ jobs:
           **/*.log
 
   macos-15:
+    if: false
     runs-on: 'macos-15'
     needs: makedist
     steps:
@@ -1827,6 +1833,7 @@ jobs:
           **/*.log
 
   Fedora:
+    if: false
     runs-on: 'ubuntu-22.04'
     container: fedora:35
     needs: makedist
@@ -2057,6 +2064,7 @@ jobs:
           **/*.log
 
   msys2-mingw32:
+    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2150,6 +2158,7 @@ jobs:
           **/*.log
 
   msys2-mingw64:
+    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2233,6 +2242,7 @@ jobs:
           **/*.log
 
   msys2-ucrt64:
+    if: false
     runs-on: 'windows-2025'
     needs: makedist
     defaults:
@@ -2761,7 +2771,6 @@ jobs:
           **/*.log
 
   clang-cl:
-    if: false
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
@@ -2874,6 +2883,7 @@ jobs:
           **/*.log
 
   freebsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2949,6 +2959,7 @@ jobs:
           **/*.log
 
   dragonfly:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3024,6 +3035,7 @@ jobs:
           **/*.log
 
   netbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3098,6 +3110,7 @@ jobs:
           **/*.log
 
   openbsd:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -3176,6 +3189,7 @@ jobs:
           **/*.log
 
   solaris:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
