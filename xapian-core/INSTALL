@@ -167,8 +167,8 @@ build with older versions - probably as far back as GCC 3.1.
 Clang
 -----
 
-Clang 6.0 is known to work.  We haven't identified the exact minimum
-requirement, but it's probably at least Clang 4.0.
+The current hard minimum requirement is clang 6.0 (due to requiring good
+support for C++17).  The oldest we test with in CI is current clang 11.0.
 
 MSVC
 ----
