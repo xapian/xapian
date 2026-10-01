@@ -252,7 +252,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
             struct timeval tv;
             RealTime::to_timeval(time_diff, &tv);
-            int select_result = select(fdin + 1, &fdset, 0, 0, &tv);
+            int select_result = select(fdin + 1, &fdset, nullptr, nullptr, &tv);
             if (select_result > 0) break;
 
             if (select_result == 0)
@@ -398,7 +398,7 @@ RemoteConnection::send_message(char type, string_view message, double end_time)
 
         struct timeval tv;
         RealTime::to_timeval(time_diff, &tv);
-        int result = select(fdout + 1, 0, &fdset, 0, &tv);
+        int result = select(fdout + 1, nullptr, &fdset, nullptr, &tv);
 #  define POLLSELECT "select"
 # endif
 
@@ -551,7 +551,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 
         struct timeval tv;
         RealTime::to_timeval(time_diff, &tv);
-        int result = select(fdout + 1, 0, &fdset, 0, &tv);
+        int result = select(fdout + 1, nullptr, &fdset, nullptr, &tv);
 #  define POLLSELECT "select"
 # endif
 
@@ -774,7 +774,7 @@ RemoteConnection::shutdown()
             FD_SET(fdin, &fdset);
             int res;
             do {
-                res = select(fdin + 1, &fdset, 0, 0, nullptr);
+                res = select(fdin + 1, &fdset, nullptr, nullptr, nullptr);
             } while (res < 0 && (errno == EINTR || errno == EAGAIN));
         }
 # endif

@@ -227,7 +227,7 @@ ProgClient::run_program(string_view progname, string_view args,
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     BOOL ok = CreateProcessA(progname_string.c_str(), &cmdline[0],
-                             0, 0, TRUE, 0, 0, 0,
+                             nullptr, nullptr, TRUE, 0, nullptr, nullptr,
                              &startupinfo, &procinfo);
     if (!ok) {
         throw Xapian::NetworkError("CreateProcessA failed",

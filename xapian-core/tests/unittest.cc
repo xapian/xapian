@@ -761,14 +761,14 @@ static void test_movesupport1()
         Xapian::Internal::intrusive_ptr<A> p2(std::move(p1));
         TEST(p2);
         TEST_EQUAL(p2->get_x(), 5);
-        TEST_EQUAL(p1.get(), nullptr);
+        TEST(p1.get() == nullptr);
         TEST(!p1);
 
         // Test move assignment
         p3 = std::move(p2);
         TEST(p3);
         TEST_EQUAL(p3->get_x(), 5);
-        TEST_EQUAL(p2.get(), nullptr);
+        TEST(p2.get() == nullptr);
         TEST(!p2);
     }
 
@@ -800,7 +800,7 @@ static void test_movesupport1()
         Xapian::Internal::opt_intrusive_ptr<B> p2(std::move(p1));
         TEST(p2);
         TEST_EQUAL(p2->get_x(), 5);
-        TEST_EQUAL(p1.get(), nullptr);
+        TEST(p1.get() == nullptr);
         TEST(!p1);
         TEST_EQUAL(alive, true);
 
@@ -808,7 +808,7 @@ static void test_movesupport1()
         p3 = std::move(p2);
         TEST(p3);
         TEST_EQUAL(p3->get_x(), 5);
-        TEST_EQUAL(p2.get(), nullptr);
+        TEST(p2.get() == nullptr);
         TEST(!p2);
         TEST_EQUAL(alive, true);
     }

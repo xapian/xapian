@@ -256,7 +256,7 @@ posixy_rename(const char *from, const char *to)
     //
     // Note that the order of the filenames really is swapped here vs
     // MoveFileExA().
-    if (ReplaceFileA(to, from, nullptr, 0, 0, 0) != 0) {
+    if (ReplaceFileA(to, from, nullptr, 0, nullptr, nullptr) != 0) {
         return 0;
     }
 

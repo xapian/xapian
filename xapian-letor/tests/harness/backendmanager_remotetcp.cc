@@ -283,10 +283,10 @@ try_next_port:
 static void win32_throw_error_string(const char * str)
 {
     string msg(str);
-    char * error = 0;
+    char* error = nullptr;
     DWORD len;
     len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                         0, GetLastError(), 0, (CHAR*)&error, 0, 0);
+                         nullptr, GetLastError(), 0, (CHAR*)&error, 0, nullptr);
     if (error) {
         // Remove any trailing \r\n from output of FormatMessage.
         if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
@@ -315,7 +315,7 @@ try_next_port:
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
-    if (!CreatePipe(&hRead, &hWrite, 0, 0))
+    if (!CreatePipe(&hRead, &hWrite, nullptr, 0))
         win32_throw_error_string("Couldn't create pipe");
 
     // Set the write handle to be inherited by the child process.
@@ -335,8 +335,8 @@ try_next_port:
 
     // For some reason Windows wants a modifiable command line string
     // so pass a pointer to the first character rather than using c_str().
-    if (!CreateProcessA(XAPIAN_TCPSRV, &cmd[0], 0, 0, TRUE,
-                        CREATE_NEW_PROCESS_GROUP, 0, 0,
+    if (!CreateProcessA(XAPIAN_TCPSRV, &cmd[0], nullptr, nullptr, TRUE,
+                        CREATE_NEW_PROCESS_GROUP, nullptr, nullptr,
                         &startupinfo, &procinfo)) {
         win32_throw_error_string("Couldn't create child process");
     }

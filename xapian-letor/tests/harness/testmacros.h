@@ -29,7 +29,7 @@
 # define DEFINE_TESTCASE(T,C)   void test_##T()
 #endif
 #define TESTCASE(T)             { #T, test_##T }
-#define END_OF_TESTCASES        { 0, 0 }
+#define END_OF_TESTCASES        { nullptr, nullptr }
 
 /// Test a relation holds,e.g. TEST_REL(a,>,b);
 #define TEST_REL(A,REL,B) \

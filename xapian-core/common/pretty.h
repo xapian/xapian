@@ -75,6 +75,14 @@ operator<<(PrettyOStream<S>& ps, const Literal& t)
     return ps;
 }
 
+template<class S>
+inline PrettyOStream<S>&
+operator<<(PrettyOStream<S>& ps, decltype(nullptr))
+{
+    ps.os << "nullptr";
+    return ps;
+}
+
 template<class S, class T>
 inline PrettyOStream<S>&
 operator<<(PrettyOStream<S>& ps, const T* t)

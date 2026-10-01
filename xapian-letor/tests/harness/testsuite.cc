@@ -82,6 +82,15 @@ int verbose;
 static int vg_log_fd = -1;
 #endif
 
+#if defined __CYGWIN__ && defined __GNUC__
+// Cygwin sigsetjmp() and siglongjmp() seem to be macros which use 0 as a NULL
+// pointer constant which triggers -Wzero-as-null-pointer-constant.  Just turn
+// off this warning for this whole file for Cygwin - there's no Cygwin-specific
+// code here so genuine instances will be reported on other platforms.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
+
 #if HAVE_DECL_SIGSETJMP && HAVE_DECL_SIGLONGJMP
 # define SIGSETJMP(ENV, SAVESIGS) sigsetjmp(ENV, SAVESIGS)
 # define SIGLONGJMP(ENV, VAL) siglongjmp(ENV, VAL)
