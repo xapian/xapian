@@ -1098,7 +1098,6 @@ jobs:
             pcre2 \
             php \
             pkgconfig \
-            pygments \
             python \
             tcl-tk
         pip3 install --user --break-system-packages Sphinx
@@ -1183,7 +1182,6 @@ jobs:
             pcre2 \
             php \
             pkgconfig \
-            pygments \
             python \
             tcl-tk
         pip3 install --user --break-system-packages Sphinx
