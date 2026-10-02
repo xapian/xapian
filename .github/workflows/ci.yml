@@ -1503,6 +1503,7 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        brew unlink openssl@1.1 || true
         brew update
         brew install -q \
             gmime \
@@ -1518,6 +1519,7 @@ jobs:
             libspectre \
             lua \
             pcre2 \
+            php \
             pkgconfig \
             poppler \
             python \
@@ -1547,7 +1549,7 @@ jobs:
         # Homebrew package mono-mdk-for-visual-studio is pre-installed in the
         # image so we need to select the bindings we want except for csharp
         # as that currently fails on aarch64 macos.
-        ./configure --enable-werror --with-java --with-lua --with-perl --with-python3 --with-ruby --with-tcl
+        ./configure --enable-werror --with-java --with-lua --with-perl --with-php --with-python3 --with-ruby --with-tcl
         popd
         pushd xapian-letor
         ./configure --enable-werror
