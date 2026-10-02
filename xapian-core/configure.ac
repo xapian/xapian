@@ -1396,6 +1396,7 @@ if test yes = "$GXX"; then
 
       dnl These options work at least as far back as clang++ 3.0:
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wmissing-declarations -Winit-self"
+
       dnl -Wzero-as-null-pointer-constant was apparently added in clang 5.0.
       dnl However it's buggy in at least clang 11 (but OK in 12, 13 and 14)
       dnl and warns about std::string comparisons with no explicit null
@@ -1415,7 +1416,8 @@ if test yes = "$GXX"; then
       [[6-9]].*|10.*|11.*)
         ;;
       *)
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wzero-as-null-pointer-constant" ;;
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wzero-as-null-pointer-constant"
+        ;;
       esac
 
       WERROR=-Werror
