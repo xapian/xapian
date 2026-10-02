@@ -672,8 +672,18 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
 
-      dnl These options all work at least as far back as clang++ 3.0:
+      AC_MSG_CHECKING([for version of $CXX])
+      clangxx_version=`echo __clang_major__.__clang_minor__.__clang_patchlevel__|$CXX -xc++ -E -|$SED '/^#/d;s/ //g'`
+      AC_MSG_RESULT([clang $clangxx_version])
+
+      dnl These options work at least as far back as clang++ 3.0:
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wmissing-declarations -Winit-self"
+
+      case $clangxx_version in
+      [[0-5]].*)
+        AC_MSG_ERROR([Xapian requires clang 6.0 or later])
+        ;;
+      esac
 
       WERROR=-Werror
       ;;
