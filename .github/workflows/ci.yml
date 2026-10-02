@@ -1311,7 +1311,6 @@ jobs:
             php \
             pkgconfig \
             poppler \
-            pygments \
             python \
             tcl-tk \
             tesseract
@@ -1417,7 +1416,6 @@ jobs:
             php \
             pkgconfig \
             poppler \
-            pygments \
             python \
             tcl-tk \
             tesseract
@@ -1523,7 +1521,6 @@ jobs:
             php \
             pkgconfig \
             poppler \
-            pygments \
             python \
             tcl-tk \
             tesseract
