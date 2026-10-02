@@ -400,14 +400,13 @@ run_thread(void* param_)
 {
     thread_param* param(reinterpret_cast<thread_param*>(param_));
     int socket = param->connected_socket;
-
     TcpServer* tcp_server = param->server;
+    delete param;
+
     tcp_server->handle_one_connection(socket);
     closesocket(socket);
 
     if (tcp_server->get_verbose()) cout << "Connection closed.\n";
-
-    delete param;
 
     _endthreadex(0);
     return 0;
