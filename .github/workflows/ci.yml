@@ -1018,7 +1018,6 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
-    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1586,7 +1585,6 @@ jobs:
           **/*.log
 
   macos-15:
-    if: false
     runs-on: 'macos-15'
     needs: makedist
     steps:
@@ -1619,7 +1617,12 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        echo Try uninstall 1
+        brew uninstall openssl@1.1 || true
+        echo Try unlink
         brew unlink openssl@1.1 || true
+        echo Try uninstall 2
+        brew uninstall openssl@1.1 || true
         brew update
         brew install -q \
             gmime \
