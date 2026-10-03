@@ -1174,6 +1174,9 @@ jobs:
         popd
     - name: Install package dependencies
       run: |
+        # Uninstall openssl@1.1 as it prevents installing openssl@3 which is
+        # pulled in as an indirect dependency.
+        brew uninstall openssl@1.1 || true
         brew update
         brew install -q \
             libiconv \
