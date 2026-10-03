@@ -637,12 +637,14 @@ if test yes = "$GXX"; then
       dnl
       dnl -Wdouble-promotion was added in GCC 4.6.
       dnl
+      dnl -Wzero-as-null-pointer-constant was added in GCC 4.7.
+      dnl
       dnl -Wduplicated-cond was added in GCC 6.
       dnl
       dnl -Wduplicated-branches was added in GCC 7.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Wduplicated-cond -Wduplicated-branches"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Wduplicated-cond -Wduplicated-branches -Wzero-as-null-pointer-constant"
 
       case $gxx_version in
       [[0-6]].*)
@@ -679,9 +681,26 @@ if test yes = "$GXX"; then
       dnl These options work at least as far back as clang++ 3.0:
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wmissing-declarations -Winit-self"
 
+      dnl -Wzero-as-null-pointer-constant was apparently added in clang 5.0.
+      dnl However it's buggy in at least clang 11 (but OK in 12, 13 and 14)
+      dnl and warns about std::string comparisons with no explicit null
+      dnl pointer involved, e.g.:
+      dnl
+      dnl backends/honey/honey_table.cc:98:13: error: zero as null pointer constant
+      dnl     if (key <= last_key)
+      dnl             ^~
+      dnl             nullptr
+      dnl /usr/include/c++/12/string_view:561:5: note: while rewriting comparison as call to 'operator<=>' declared here
+      dnl     operator<=>(basic_string_view<_CharT, _Traits> __x,
+      dnl     ^
       case $clangxx_version in
       [[0-5]].*)
         AC_MSG_ERROR([Xapian requires clang 6.0 or later])
+        ;;
+      [[6-9]].*|10.*|11.*)
+        ;;
+      *)
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wzero-as-null-pointer-constant"
         ;;
       esac
 
