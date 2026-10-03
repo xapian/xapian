@@ -46,13 +46,13 @@ ValueGePostList::next(double)
         const string & v = valuelist->get_value();
         if (v >= begin) {
             ++accepted;
-            return NULL;
+            return nullptr;
         }
         ++rejected;
         valuelist->next();
     }
-    db = NULL;
-    return NULL;
+    db = nullptr;
+    return nullptr;
 }
 
 PostList *
@@ -65,13 +65,13 @@ ValueGePostList::skip_to(Xapian::docid did, double)
         const string & v = valuelist->get_value();
         if (v >= begin) {
             ++accepted;
-            return NULL;
+            return nullptr;
         }
         ++rejected;
         valuelist->next();
     }
-    db = NULL;
-    return NULL;
+    db = nullptr;
+    return nullptr;
 }
 
 PostList *
@@ -82,7 +82,7 @@ ValueGePostList::check(Xapian::docid did, double, bool &valid)
     if (!valuelist) valuelist = db->open_value_list(slot);
     valid = valuelist->check(did);
     if (!valid) {
-        return NULL;
+        return nullptr;
     }
     const string & v = valuelist->get_value();
     valid = (v >= begin);
@@ -90,7 +90,7 @@ ValueGePostList::check(Xapian::docid did, double, bool &valid)
         ++accepted;
     else
         ++rejected;
-    return NULL;
+    return nullptr;
 }
 
 string

@@ -126,7 +126,7 @@ RemoteServer::get_message(double timeout, string & result,
     // Handle "shutdown connection" message here.  Treat EOF here for a read-only
     // database the same way since a read-only client just closes the
     // connection when done.
-    if (type == MSG_SHUTDOWN || (type < 0 && wdb == NULL))
+    if (type == MSG_SHUTDOWN || (type < 0 && wdb == nullptr))
         throw ConnectionClosed();
     if (type < 0)
         throw Xapian::NetworkError("Connection closed unexpectedly");
@@ -568,7 +568,7 @@ RemoteServer::msg_query(string_view message_in)
     }
 
     const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
-    if (wttype == NULL) {
+    if (wttype == nullptr) {
         // Note: user weighting schemes should be registered by adding them to
         // a Registry, and setting the context using
         // RemoteServer::set_registry().
@@ -595,7 +595,7 @@ RemoteServer::msg_query(string_view message_in)
             throw Xapian::NetworkError("Bad MSG_QUERY");
         }
         const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
-        if (spyclass == NULL) {
+        if (spyclass == nullptr) {
             throw Xapian::InvalidArgumentError("Match spy " + spytype +
                                                " not registered");
         }
@@ -636,7 +636,7 @@ RemoteServer::msg_query(string_view message_in)
     unique_ptr<Xapian::KeyMaker> sorter;
     if (!sorter_type.empty()) {
         const Xapian::KeyMaker* sorterclass = reg.get_key_maker(sorter_type);
-        if (sorterclass == NULL) {
+        if (sorterclass == nullptr) {
             throw Xapian::InvalidArgumentError("KeyMaker " + sorter_type +
                                                " not registered");
         }
@@ -652,7 +652,8 @@ RemoteServer::msg_query(string_view message_in)
     unserialise_stats(p, p_end, *total_stats);
 
     Xapian::MSet mset = matcher.get_mset(first, maxitems, check_at_least,
-                                         *total_stats, *wt, 0, sorter.get(),
+                                         *total_stats, *wt, nullptr,
+                                         sorter.get(),
                                          collapse_key, collapse_max,
                                          percent_threshold, weight_threshold,
                                          order,

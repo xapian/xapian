@@ -93,7 +93,7 @@ static const testcase testcases[] = {
     { "\xed\xbf\xbf", "\xc3\xad\xc2\xbf\xc2\xbf" },
     { "\xed\xa0\x80" "\xed\xbf\xbf",
       "\xc3\xad\xc2\xa0\xc2\x80" "\xc3\xad\xc2\xbf\xc2\xbf" },
-    { 0, 0 }
+    { nullptr, nullptr }
 };
 
 // Test handling of invalid UTF-8 is as desired.
@@ -135,7 +135,7 @@ static const testcase2 testcases2[] = {
     { "\xf0\xa8\xa8\x8f", 166415 },
     { "\xf3\x80\x80\x80", 0x0c0000 },
     { "\xf4\x80\x80\x80", 0x100000 },
-    { 0, 0 }
+    { nullptr, 0 }
 };
 
 // Test decoding of UTF-8.

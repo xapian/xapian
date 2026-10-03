@@ -157,7 +157,7 @@ HoneyPostList::get_wdf() const
 bool
 HoneyPostList::at_end() const
 {
-    return cursor == NULL;
+    return cursor == nullptr;
 }
 
 PositionList*
@@ -171,19 +171,19 @@ HoneyPostList::next(double)
 {
     if (!started) {
         started = true;
-        return NULL;
+        return nullptr;
     }
 
     Assert(!reader.at_end());
 
     if (reader.next())
-        return NULL;
+        return nullptr;
 
     if (reader.get_docid() >= last_did) {
         // We've reached the end.
         delete cursor;
-        cursor = NULL;
-        return NULL;
+        cursor = nullptr;
+        return nullptr;
     }
 
     if (rare(!cursor->next()))
@@ -193,7 +193,7 @@ HoneyPostList::next(double)
     if (rare(!update_reader()))
         throw Xapian::DatabaseCorruptError("Missing postlist chunk");
 
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -205,19 +205,19 @@ HoneyPostList::skip_to(Xapian::docid did, double)
 
     if (rare(!cursor)) {
         // No-op if already at_end.
-        return NULL;
+        return nullptr;
     }
 
     Assert(!reader.at_end());
 
     if (reader.skip_to(did))
-        return NULL;
+        return nullptr;
 
     if (did > last_did) {
         // We've reached the end.
         delete cursor;
-        cursor = NULL;
-        return NULL;
+        cursor = nullptr;
+        return nullptr;
     }
 
     // At this point we know that skip_to() must succeed since last_did
@@ -238,7 +238,7 @@ HoneyPostList::skip_to(Xapian::docid did, double)
         throw Xapian::DatabaseCorruptError("Postlist chunk doesn't contain "
                                            "its last entry");
 
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount
@@ -332,7 +332,7 @@ PostingChunkReader::next()
             wdf = collfreq_info - wdf;
             return true;
         }
-        p = NULL;
+        p = nullptr;
         return false;
     }
 
@@ -359,14 +359,14 @@ PostingChunkReader::next()
 bool
 PostingChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL)
+    if (p == nullptr)
         return false;
 
     if (target <= did)
         return true;
 
     if (target > last_did) {
-        p = NULL;
+        p = nullptr;
         return false;
     }
 
@@ -399,7 +399,7 @@ PostingChunkReader::skip_to(Xapian::docid target)
     do {
         if (rare(p == end)) {
             // FIXME: Shouldn't happen unless last_did was wrong.
-            p = NULL;
+            p = nullptr;
             return false;
         }
 

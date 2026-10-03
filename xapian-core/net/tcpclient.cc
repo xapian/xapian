@@ -146,7 +146,7 @@ TcpClient::open_socket(std::string_view hostname, int port,
                 FD_SET(fd, &fdset);
                 struct timeval tv;
                 RealTime::to_timeval(timeout_connect, &tv);
-                retval = select(fd + 1, 0, &fdset, 0, &tv);
+                retval = select(fd + 1, nullptr, &fdset, nullptr, &tv);
             } while (retval < 0 && (errno == EINTR || errno == EAGAIN));
 # define FUNC_NAME "select()"
 #endif

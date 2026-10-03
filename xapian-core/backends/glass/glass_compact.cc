@@ -338,13 +338,13 @@ merge_postlists(Xapian::Compactor * compactor,
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string>> tags;
     while (true) {
-        PostlistCursor * cur = NULL;
+        PostlistCursor* cur = nullptr;
         if (!pq.empty()) {
             cur = pq.top();
             pq.pop();
         }
-        Assert(cur == NULL || !is_user_metadata_key(cur->key));
-        if (cur == NULL || cur->key != last_key) {
+        Assert(cur == nullptr || !is_user_metadata_key(cur->key));
+        if (cur == nullptr || cur->key != last_key) {
             if (!tags.empty()) {
                 string first_tag;
                 pack_uint(first_tag, tf);
@@ -371,7 +371,7 @@ merge_postlists(Xapian::Compactor * compactor,
                 }
             }
             tags.clear();
-            if (cur == NULL) break;
+            if (cur == nullptr) break;
             tf = cf = 0;
             last_key = cur->key;
         }
@@ -633,7 +633,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
                 for (unsigned int k = i; k < j; ++k) {
                     unlink(tmp[k]->get_path().c_str());
                     delete tmp[k];
-                    tmp[k] = NULL;
+                    tmp[k] = nullptr;
                 }
             }
             tmpout.push_back(tmptab);
@@ -650,7 +650,7 @@ multimerge_postlists(Xapian::Compactor * compactor,
         for (size_t k = 0; k < tmp.size(); ++k) {
             unlink(tmp[k]->get_path().c_str());
             delete tmp[k];
-            tmp[k] = NULL;
+            tmp[k] = nullptr;
         }
     }
 }

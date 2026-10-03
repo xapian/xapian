@@ -70,7 +70,7 @@ PostingSource::check(Xapian::docid did, double min_wt)
 PostingSource *
 PostingSource::clone() const
 {
-    return NULL;
+    return nullptr;
 }
 
 string

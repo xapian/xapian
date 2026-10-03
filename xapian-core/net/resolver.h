@@ -31,7 +31,7 @@
 #include "xapian/error.h"
 
 class Resolver {
-    struct addrinfo* result = NULL;
+    struct addrinfo* result = nullptr;
 
     int eai_to_xapian(int e) {
         // Under WIN32, the EAI_* constants are defined to be WSA_* constants
@@ -177,7 +177,7 @@ class Resolver {
     }
 
     const_iterator end() const {
-        return const_iterator(NULL);
+        return const_iterator(nullptr);
     }
 };
 

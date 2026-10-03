@@ -48,7 +48,7 @@ class AndMaybePostList : public WrapperPostList {
 
     PostList* decay_to_and(Xapian::docid did,
                            double w_min,
-                           bool* valid_ptr = NULL);
+                           bool* valid_ptr = nullptr);
 
   public:
     AndMaybePostList(PostList* left, PostList* right, PostListTree* pltree_)

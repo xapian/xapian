@@ -57,7 +57,7 @@ RemoteAllTermsList::next()
         !unpack_uint(&p, p_end, &current_termfreq)) {
         unpack_throw_serialisation_error(p);
     }
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -71,5 +71,5 @@ RemoteAllTermsList::skip_to(std::string_view term)
         if (RemoteAllTermsList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }

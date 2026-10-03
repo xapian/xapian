@@ -86,7 +86,7 @@ MultiDatabase::open_leaf_post_list(string_view, bool) const
 {
     // This should never get called.
     Assert(false);
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -197,11 +197,11 @@ MultiDatabase::get_freqs(string_view term,
     Assert(!term.empty());
 
     Xapian::doccount shard_tf;
-    Xapian::doccount* shard_tf_ptr = tf_ptr ? &shard_tf : NULL;
+    Xapian::doccount* shard_tf_ptr = tf_ptr ? &shard_tf : nullptr;
     Xapian::doccount total_tf = 0;
 
     Xapian::termcount shard_cf;
-    Xapian::termcount* shard_cf_ptr = cf_ptr ? &shard_cf : NULL;
+    Xapian::termcount* shard_cf_ptr = cf_ptr ? &shard_cf : nullptr;
     Xapian::termcount total_cf = 0;
 
     for (auto&& shard : shards) {

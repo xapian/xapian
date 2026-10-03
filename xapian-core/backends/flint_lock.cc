@@ -147,7 +147,7 @@ retry:
     // and also byte-range locking for when we implement MVCC.  But is there a
     // way to interwork with the CreateFile()-based locking while doing so?
     hFile = CreateFileA(fnm, GENERIC_WRITE, FILE_SHARE_READ,
-                        NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+                        nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         if (wait) {
@@ -393,7 +393,7 @@ report_dup_failure:
         }
 
         // FIXME: use special statically linked helper instead of cat.
-        execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
+        execl("/bin/cat", "/bin/cat", nullptr);
         // Emulate cat ourselves (we try to avoid this to reduce VM overhead).
         char ch;
         while (read(0, &ch, 1) != 0) {

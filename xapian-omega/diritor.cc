@@ -61,7 +61,7 @@ CommitAndExit::CommitAndExit(const char * msg_, const char * error)
 uid_t DirectoryIterator::euid = geteuid();
 #endif
 
-magic_t DirectoryIterator::magic_cookie = NULL;
+magic_t DirectoryIterator::magic_cookie = nullptr;
 
 void
 DirectoryIterator::call_stat()
@@ -166,7 +166,7 @@ DirectoryIterator::start(const std::string & path_)
     path = path_;
     path_len = path.length();
     dir = opendir(path.c_str());
-    if (dir == NULL) {
+    if (dir == nullptr) {
         if (errno == ENOENT || errno == ENOTDIR)
             throw FileNotFound();
         if (errno == EACCES)
@@ -192,7 +192,7 @@ DirectoryIterator::next_failed() const
 string
 DirectoryIterator::get_magic_mimetype()
 {
-    if (rare(magic_cookie == NULL)) {
+    if (rare(magic_cookie == nullptr)) {
 #ifdef MAGIC_MIME_TYPE
         magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
 #else
@@ -200,19 +200,19 @@ DirectoryIterator::get_magic_mimetype()
         // have it then use MAGIC_MIME instead and trim any encoding off below.
         magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
 #endif
-        if (magic_cookie == NULL) {
+        if (magic_cookie == nullptr) {
             // Commit changes to files processed so far.
             throw CommitAndExit("Failed to initialise the file magic library",
                                 errno);
         }
-        if (magic_load(magic_cookie, NULL) == -1) {
+        if (magic_load(magic_cookie, nullptr) == -1) {
             // Commit changes to files processed so far.
             const char * err = magic_error(magic_cookie);
             throw CommitAndExit("Failed to load the file magic database", err);
         }
     }
 
-    const char * res = NULL;
+    const char* res = nullptr;
     // Prior to 5.15, magic_descriptor() closed the fd passed, so avoid it.
 #if defined MAGIC_VERSION && MAGIC_VERSION - 0 >= 515
     if (fd >= 0) {

@@ -45,7 +45,7 @@ GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
     if (!db->termlist_table.get_exact_entry(GlassTermListTable::make_key(did),
                                             data)) {
         if (!throw_if_not_present) {
-            pos = NULL;
+            pos = nullptr;
             return;
         }
         throw Xapian::DocNotFoundError("No termlist for document " + str(did));
@@ -111,7 +111,7 @@ void
 GlassTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     LOGCALL_VOID(DB, "GlassTermList::accumulate_stats", stats);
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
     stats.accumulate(shard_index,
                      current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
@@ -128,7 +128,7 @@ GlassTermList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
-        db->get_freqs(current_term, &current_termfreq, NULL);
+        db->get_freqs(current_term, &current_termfreq, nullptr);
     RETURN(current_termfreq);
 }
 
@@ -136,7 +136,7 @@ TermList *
 GlassTermList::next()
 {
     LOGCALL(DB, TermList *, "GlassTermList::next", NO_ARGS);
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
     if (pos == end) {
         RETURN(this);
     }
@@ -174,7 +174,7 @@ GlassTermList::next()
         throw Xapian::DatabaseCorruptError(msg);
     }
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -185,7 +185,7 @@ GlassTermList::skip_to(string_view term)
         if (GlassTermList::next())
             RETURN(this);
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 Xapian::termcount

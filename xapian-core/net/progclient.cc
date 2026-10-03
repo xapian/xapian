@@ -177,7 +177,7 @@ ProgClient::run_program(string_view progname, string_view args,
                                     PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
                                     0,
                                     1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
-                                    NULL);
+                                    nullptr);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
         throw Xapian::NetworkError("CreateNamedPipeA failed",
@@ -186,9 +186,9 @@ ProgClient::run_program(string_view progname, string_view args,
     }
 
     HANDLE hClient = CreateFileA(pipename,
-                                 GENERIC_READ|GENERIC_WRITE, 0, NULL,
+                                 GENERIC_READ|GENERIC_WRITE, 0, nullptr,
                                  OPEN_EXISTING,
-                                 FILE_FLAG_OVERLAPPED, NULL);
+                                 FILE_FLAG_OVERLAPPED, nullptr);
 
     if (hClient == INVALID_HANDLE_VALUE) {
         throw Xapian::NetworkError("CreateFileA failed",
@@ -196,7 +196,7 @@ ProgClient::run_program(string_view progname, string_view args,
                                    -int(GetLastError()));
     }
 
-    if (!ConnectNamedPipe(hPipe, NULL) &&
+    if (!ConnectNamedPipe(hPipe, nullptr) &&
         GetLastError() != ERROR_PIPE_CONNECTED) {
         throw Xapian::NetworkError("ConnectNamedPipe failed",
                                    context,
@@ -227,7 +227,7 @@ ProgClient::run_program(string_view progname, string_view args,
     // For some reason Windows wants a modifiable command line so we
     // pass `&cmdline[0]` rather than `cmdline.c_str()`.
     BOOL ok = CreateProcessA(progname_string.c_str(), &cmdline[0],
-                             0, 0, TRUE, 0, 0, 0,
+                             nullptr, nullptr, TRUE, 0, nullptr, nullptr,
                              &startupinfo, &procinfo);
     if (!ok) {
         throw Xapian::NetworkError("CreateProcessA failed",
@@ -255,7 +255,7 @@ ProgClient::~ProgClient()
 
     // Wait for the child process to exit.
 #ifndef __WIN32__
-    waitpid(child, 0, 0);
+    waitpid(child, nullptr, 0);
 #else
     WaitForSingleObject(child, INFINITE);
 #endif

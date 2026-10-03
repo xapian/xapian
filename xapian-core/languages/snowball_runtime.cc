@@ -36,8 +36,8 @@ typedef int sizeof_symbol_divides_head[(HEAD % sizeof(symbol) == 0) ? 1 : -1];
 extern symbol * create_s(void) {
     symbol * p;
     void * mem = malloc(HEAD + (CREATE_SIZE + 1) * sizeof(symbol));
-    if (mem == NULL)
-        SNOWBALL_RETURN_OR_THROW(NULL, std::bad_alloc());
+    if (mem == nullptr)
+        SNOWBALL_RETURN_OR_THROW(nullptr, std::bad_alloc());
     p = (symbol *) (HEAD + (char *) mem);
     CAPACITY(p) = CREATE_SIZE;
     SET_SIZE(p, 0);
@@ -45,7 +45,7 @@ extern symbol * create_s(void) {
 }
 
 extern void lose_s(symbol * p) {
-    if (p == NULL) return;
+    if (p == nullptr) return;
     free((char *) p - HEAD);
 }
 
@@ -491,7 +491,7 @@ static int increase_size(symbol ** p, int n) {
     void * mem = realloc((char *) *p - HEAD,
                          HEAD + (new_size + 1) * sizeof(symbol));
     symbol * q;
-    if (mem == NULL) return -1;
+    if (mem == nullptr) return -1;
     q = (symbol *) (HEAD + (char *)mem);
     CAPACITY(q) = new_size;
     *p = q;

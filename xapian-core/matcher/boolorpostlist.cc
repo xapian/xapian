@@ -93,13 +93,13 @@ BoolOrPostList::next(double)
 
     did = plist[0].did;
 
-    return NULL;
+    return nullptr;
 }
 
 PostList*
 BoolOrPostList::skip_to(Xapian::docid did_min, double)
 {
-    if (rare(did_min <= did)) return NULL;
+    if (rare(did_min <= did)) return nullptr;
     did = Xapian::docid(-1);
     size_t j = 0;
     for (size_t i = 0; i < n_kids; ++i) {
@@ -142,7 +142,7 @@ BoolOrPostList::skip_to(Xapian::docid did_min, double)
     // Restore the heap invariant.
     Heap::make(plist, plist + n_kids, std::greater<PostListAndDocID>());
 
-    return NULL;
+    return nullptr;
 }
 
 bool

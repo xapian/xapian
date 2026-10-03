@@ -39,11 +39,11 @@ using namespace std;
 
 static const char * opts = "t:w";
 static const struct option long_opts[] = {
-    {"timeout",         required_argument,      0, 't'},
-    {"writable",        no_argument,            0, 'w'},
-    {"help",            no_argument,            0, OPT_HELP},
-    {"version",         no_argument,            0, OPT_VERSION},
-    {NULL, 0, 0, 0}
+    {"timeout",         required_argument,      nullptr, 't'},
+    {"writable",        no_argument,            nullptr, 'w'},
+    {"help",            no_argument,            nullptr, OPT_HELP},
+    {"version",         no_argument,            nullptr, OPT_VERSION},
+    {nullptr, 0, nullptr, 0}
 };
 
 static void show_usage() {
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case OPT_HELP:
                 cout << PROG_NAME " - " PROG_DESC "\n\n";

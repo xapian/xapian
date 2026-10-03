@@ -91,7 +91,7 @@ MultiAllTermsList::next()
         // earliest sorting term is at the top of the heap.
         size_t j = 0;
         for (size_t i = 0; i != count; ++i) {
-            if (termlists[i]->next() == NULL) {
+            if (termlists[i]->next() == nullptr) {
                 if (i != j)
                     swap(termlists[i], termlists[j]);
                 ++j;
@@ -133,7 +133,7 @@ MultiAllTermsList::next()
     }
 
     current_term = termlists[0]->get_termname();
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -144,7 +144,7 @@ MultiAllTermsList::skip_to(std::string_view term)
     // approach more like that next() uses if this ever gets heavy use.
     size_t j = 0;
     for (size_t i = 0; i != count; ++i) {
-        if (termlists[i]->skip_to(term) == NULL) {
+        if (termlists[i]->skip_to(term) == nullptr) {
             if (i != j)
                 swap(termlists[i], termlists[j]);
             ++j;
@@ -167,5 +167,5 @@ MultiAllTermsList::skip_to(std::string_view term)
     Heap::make(termlists, termlists + count, CompareTermListsByTerm());
 
     current_term = termlists[0]->get_termname();
-    return NULL;
+    return nullptr;
 }

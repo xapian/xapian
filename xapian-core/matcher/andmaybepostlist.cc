@@ -32,7 +32,7 @@ AndMaybePostList::decay_to_and(Xapian::docid did,
                                bool* valid_ptr)
 {
     pl = new AndPostList(pl, r, pl_max, r_max, pltree, termfreq);
-    r = NULL;
+    r = nullptr;
     PostList* result;
     if (valid_ptr) {
         result = pl->check(did, w_min, *valid_ptr);
@@ -41,7 +41,7 @@ AndMaybePostList::decay_to_and(Xapian::docid did,
     }
     if (!result) {
         result = pl;
-        pl = NULL;
+        pl = nullptr;
     }
     pltree->force_recalc();
     return result;
@@ -85,7 +85,7 @@ AndMaybePostList::next(double w_min)
     }
     if (pl->at_end()) {
         result = pl;
-        pl = NULL;
+        pl = nullptr;
         pltree->force_recalc();
         return result;
     }
@@ -99,16 +99,16 @@ AndMaybePostList::next(double w_min)
             r = result;
         }
         if (!r_valid)
-            return NULL;
+            return nullptr;
         if (r->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             pltree->force_recalc();
             return result;
         }
         r_did = r->get_docid();
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -116,7 +116,7 @@ AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 {
     // skip_to(pl_did) happens after decay from OR
     if (did < pl_did)
-        return NULL;
+        return nullptr;
 
     if (w_min > pl_max) {
         // We dealt with did <= pl_did just above.
@@ -130,7 +130,7 @@ AndMaybePostList::skip_to(Xapian::docid did, double w_min)
     }
     if (pl->at_end()) {
         result = pl;
-        pl = NULL;
+        pl = nullptr;
         pltree->force_recalc();
         return result;
     }
@@ -143,16 +143,16 @@ AndMaybePostList::skip_to(Xapian::docid did, double w_min)
             r = result;
         }
         if (!r_valid)
-            return NULL;
+            return nullptr;
         if (r->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             pltree->force_recalc();
             return result;
         }
         r_did = r->get_docid();
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -169,7 +169,7 @@ AndMaybePostList::check(Xapian::docid did, double w_min, bool& valid)
     if (valid) {
         if (pl->at_end()) {
             result = pl;
-            pl = NULL;
+            pl = nullptr;
             pltree->force_recalc();
             return result;
         }
@@ -182,17 +182,17 @@ AndMaybePostList::check(Xapian::docid did, double w_min, bool& valid)
                 r = result;
             }
             if (!r_valid)
-                return NULL;
+                return nullptr;
             if (r->at_end()) {
                 result = pl;
-                pl = NULL;
+                pl = nullptr;
                 pltree->force_recalc();
                 return result;
             }
             r_did = r->get_docid();
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 string

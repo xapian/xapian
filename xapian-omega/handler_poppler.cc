@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using poppler.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022,2023 Olly Betts
+ * Copyright (C) 2022,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,10 +21,19 @@
 
 #include <config.h>
 #include "handler.h"
+
 #include "str.h"
 
+#ifdef __GNUC__
+// Glib headers trigger -Wzero-as-null-pointer-constant
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
 #include <poppler-document.h>
 #include <poppler-page.h>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 using namespace std;
 
@@ -32,18 +41,18 @@ static gchar*
 convert_to_uri(const string& filename, GError** e)
 {
 #if GLIB_CHECK_VERSION(2,58,0)
-    gchar* abs_filename = g_canonicalize_filename(filename.c_str(), NULL);
+    gchar* abs_filename = g_canonicalize_filename(filename.c_str(), nullptr);
 #else
     gchar* abs_filename;
     if (g_path_is_absolute(filename.c_str())) {
         abs_filename = g_strdup(filename.c_str());
     } else {
         gchar* cwd = g_get_current_dir();
-        abs_filename = g_build_filename(cwd, filename.c_str(), NULL);
+        abs_filename = g_build_filename(cwd, filename.c_str(), nullptr);
         g_free(cwd);
     }
 #endif
-    gchar* uri = g_filename_to_uri(abs_filename, NULL, e);
+    gchar* uri = g_filename_to_uri(abs_filename, nullptr, e);
     g_free(abs_filename);
     return uri;
 }
@@ -74,7 +83,7 @@ extract(const string& filename, const string&)
         return;
     }
 
-    PopplerDocument* doc = poppler_document_new_from_file(uri, NULL, &e);
+    PopplerDocument* doc = poppler_document_new_from_file(uri, nullptr, &e);
     g_free(uri);
     if (!doc) {
         send_field(FIELD_ERROR,

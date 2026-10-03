@@ -65,7 +65,7 @@ class PrefixCompressedStringItor {
         if (left) {
             operator++();
         } else {
-            p = NULL;
+            p = nullptr;
         }
     }
 
@@ -97,7 +97,7 @@ class PrefixCompressedStringItor {
         if (left) {
             operator++();
         } else {
-            p = NULL;
+            p = nullptr;
         }
     }
 
@@ -113,7 +113,7 @@ class PrefixCompressedStringItor {
 
     PrefixCompressedStringItor & operator++() {
         if (left == 0) {
-            p = NULL;
+            p = nullptr;
         } else {
             size_t keep = 0;
             if (rare(tail < 0)) {
@@ -135,7 +135,7 @@ class PrefixCompressedStringItor {
     }
 
     bool at_end() const {
-        return p == NULL;
+        return p == nullptr;
     }
 };
 

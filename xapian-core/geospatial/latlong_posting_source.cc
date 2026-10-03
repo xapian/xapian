@@ -235,7 +235,7 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
 
     const Xapian::LatLongMetric * metric_type =
             registry.get_lat_long_metric(new_metric_name);
-    if (metric_type == NULL) {
+    if (metric_type == nullptr) {
         string msg("LatLongMetric ");
         msg += new_metric_name;
         msg += " not registered";

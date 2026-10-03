@@ -1,7 +1,7 @@
 /** @file
  * @brief Extract text and metadata using libgepub
  */
-/* Copyright (C) 2023 Olly Betts
+/* Copyright (C) 2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,15 @@
 
 #include "htmlparser.h"
 
+#ifdef __GNUC__
+// Glib headers trigger -Wzero-as-null-pointer-constant
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
 #include <gepub-doc.h>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #include <string_view>
 

@@ -222,22 +222,22 @@ DEFINE_TESTCASE(matchspy4, backend)
         "|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
         "|",
         "|2:16|1:9|",
-        NULL
+        nullptr
     };
     std::vector<Xapian::ValueCountMatchSpy *> spies;
     spies.push_back(&spya0);
     spies.push_back(&spya1);
-    spies.push_back(NULL);
+    spies.push_back(nullptr);
     spies.push_back(&spya3);
     spies.push_back(&spyb0);
     spies.push_back(&spyb1);
-    spies.push_back(NULL);
+    spies.push_back(nullptr);
     spies.push_back(&spyb3);
     for (Xapian::valueno v = 0; results[v]; ++v) {
         tout << "value " << v << '\n';
         Xapian::ValueCountMatchSpy * spy = spies[v];
         string allvals_str("|");
-        if (spy != NULL) {
+        if (spy != nullptr) {
             size_t allvals_size = 0;
             for (Xapian::TermIterator i = spy->top_values_begin(100);
                  i != spy->top_values_end(100);

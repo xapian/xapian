@@ -71,7 +71,7 @@ Xapian::docid min_hits = 0;
 // percentage cut-off
 int threshold = 0;
 
-Xapian::MultiValueKeyMaker* sort_keymaker = NULL;
+Xapian::MultiValueKeyMaker* sort_keymaker = nullptr;
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
 bool reverse_sort = true;
 bool sort_after = false;
@@ -197,10 +197,10 @@ try {
     option["stemmer"] = DEFAULT_STEM_LANGUAGE;
 
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
-    // setvbuf(stdout, NULL, _IOLBF, 0);
+    // setvbuf(stdout, nullptr, _IOLBF, 0);
 
     const char * method = getenv("REQUEST_METHOD");
-    if (method == NULL) {
+    if (method == nullptr) {
         if (argc > 1 && (argv[1][0] != '-' || strchr(argv[1], '='))) {
             // omega 'P=information retrieval' DB=papers
             // check for a leading '-' on the first arg so "omega --version",
@@ -228,7 +228,7 @@ try {
         }
         enquire = new Xapian::Enquire(db);
     } catch (const Xapian::Error &) {
-        enquire = NULL;
+        enquire = nullptr;
         db = Xapian::Database();
     }
 
@@ -356,7 +356,7 @@ try {
             }
         }
         sort(filter_v.begin(), filter_v.end());
-        const string* prev = NULL;
+        const string* prev = nullptr;
         for (const string& bterm : filter_v) {
             filters_append(bterm, prev);
             prev = &bterm;
@@ -407,7 +407,7 @@ try {
         if (!filter_v.empty()) {
             filters += '!';
             sort(filter_v.begin(), filter_v.end());
-            const string* prev = NULL;
+            const string* prev = nullptr;
             for (const string& nterm : filter_v) {
                 old_filters += '!';
                 filters_append(nterm, prev);

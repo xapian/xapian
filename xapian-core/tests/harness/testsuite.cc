@@ -82,6 +82,15 @@ int verbose;
 static int vg_log_fd = -1;
 #endif
 
+#if defined __CYGWIN__ && defined __GNUC__
+// Cygwin sigsetjmp() and siglongjmp() seem to be macros which use 0 as a NULL
+// pointer constant which triggers -Wzero-as-null-pointer-constant.  Just turn
+// off this warning for this whole file for Cygwin - there's no Cygwin-specific
+// code here so genuine instances will be reported on other platforms.
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
+
 #if HAVE_DECL_SIGSETJMP && HAVE_DECL_SIGLONGJMP
 # define SIGSETJMP(ENV, SAVESIGS) sigsetjmp(ENV, SAVESIGS)
 # define SIGLONGJMP(ENV, VAL) siglongjmp(ENV, VAL)
@@ -96,7 +105,7 @@ static int vg_log_fd = -1;
 //  We use this to attempt to diagnose when the code fails to catch an
 //  exception when it should (due to a compiler or runtime fault in
 //  GCC 2.95 it seems)
-const char * expected_exception = NULL;
+const char* expected_exception = nullptr;
 
 const char* expected_failure;
 
@@ -135,7 +144,7 @@ string
 test_driver::get_srcdir()
 {
     char *p = getenv("srcdir");
-    if (p != NULL) return string(p);
+    if (p != nullptr) return string(p);
 
     // Default srcdir to the pathname of argv[0].
     string srcdir(argv0);
@@ -181,7 +190,7 @@ test_driver::test_driver(const test_desc *tests_)
 
 static SIGJMP_BUF jb;
 static int signum = 0;
-static void * sigaddr = NULL;
+static void* sigaddr = nullptr;
 
 // Needs C linkage so we can pass it to sigaction()/signal() without problems.
 extern "C" {
@@ -198,17 +207,17 @@ static void handle_sig(int signum_, siginfo_t *si, void *)
     sa.sa_flags = 0;
     // We set the handlers with SA_RESETHAND, but that will only reset the
     // handler for the signal which fired.
-    if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, NULL);
-    if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, NULL);
-    if (signum_ != SIGILL) sigaction(SIGILL, &sa, NULL);
+    if (signum_ != SIGSEGV) sigaction(SIGSEGV, &sa, nullptr);
+    if (signum_ != SIGFPE) sigaction(SIGFPE, &sa, nullptr);
+    if (signum_ != SIGILL) sigaction(SIGILL, &sa, nullptr);
 # ifdef SIGBUS
-    if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, NULL);
+    if (signum_ != SIGBUS) sigaction(SIGBUS, &sa, nullptr);
 # endif
 # ifdef SIGPIPE
-    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, NULL);
+    if (signum_ != SIGPIPE) sigaction(SIGPIPE, &sa, nullptr);
 # endif
 # ifdef SIGSTKFLT
-    if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, NULL);
+    if (signum_ != SIGSTKFLT) sigaction(SIGSTKFLT, &sa, nullptr);
 # endif
     signum = signum_;
     sigaddr = si->si_addr;
@@ -249,7 +258,7 @@ class SignalRedirector {
     void activate() {
         active = true;
         signum = 0;
-        sigaddr = NULL;
+        sigaddr = nullptr;
         // SA_SIGINFO is not universal (e.g. not present on Linux < 2.2 or
         // older Hurd).  If we have it, we use it to report the address
         // associated with the signal (for signals where that makes sense).
@@ -262,17 +271,17 @@ class SignalRedirector {
         // Linux, SA_RESETHAND is 0x80000000 which is implicitly unsigned
         // because its value isn't representable as a signed `int`.
         sa.sa_flags = int(SA_RESETHAND|SA_SIGINFO);
-        sigaction(SIGSEGV, &sa, NULL);
-        sigaction(SIGFPE, &sa, NULL);
-        sigaction(SIGILL, &sa, NULL);
+        sigaction(SIGSEGV, &sa, nullptr);
+        sigaction(SIGFPE, &sa, nullptr);
+        sigaction(SIGILL, &sa, nullptr);
 # ifdef SIGBUS
-        sigaction(SIGBUS, &sa, NULL);
+        sigaction(SIGBUS, &sa, nullptr);
 # endif
 # ifdef SIGPIPE
-        sigaction(SIGPIPE, &sa, NULL);
+        sigaction(SIGPIPE, &sa, nullptr);
 # endif
 # ifdef SIGSTKFLT
-        sigaction(SIGSTKFLT, &sa, NULL);
+        sigaction(SIGSTKFLT, &sa, nullptr);
 # endif
 #else
         signal(SIGSEGV, handle_sig);
@@ -296,17 +305,17 @@ class SignalRedirector {
             sa.sa_handler = SIG_DFL;
             sigemptyset(&sa.sa_mask);
             sa.sa_flags = 0;
-            sigaction(SIGSEGV, &sa, NULL);
-            sigaction(SIGFPE, &sa, NULL);
-            sigaction(SIGILL, &sa, NULL);
+            sigaction(SIGSEGV, &sa, nullptr);
+            sigaction(SIGFPE, &sa, nullptr);
+            sigaction(SIGILL, &sa, nullptr);
 # ifdef SIGBUS
-            sigaction(SIGBUS, &sa, NULL);
+            sigaction(SIGBUS, &sa, nullptr);
 # endif
 # ifdef SIGPIPE
-            sigaction(SIGPIPE, &sa, NULL);
+            sigaction(SIGPIPE, &sa, nullptr);
 # endif
 # ifdef SIGSTKFLT
-            sigaction(SIGSTKFLT, &sa, NULL);
+            sigaction(SIGSTKFLT, &sa, nullptr);
 # endif
 #else
             signal(SIGSEGV, SIG_DFL);
@@ -358,11 +367,11 @@ test_driver::runtest(const test_desc *test)
 #endif
             SignalRedirector sig; // use object so signal handlers are reset
             static bool catch_signals =
-                (getenv("XAPIAN_TESTSUITE_SIG_DFL") == NULL);
+                (getenv("XAPIAN_TESTSUITE_SIG_DFL") == nullptr);
             if (catch_signals) sig.activate();
             try {
-                expected_exception = NULL;
-                expected_failure = NULL;
+                expected_exception = nullptr;
+                expected_failure = nullptr;
 #ifdef HAVE_VALGRIND
                 int vg_errs = 0;
                 long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
@@ -453,7 +462,7 @@ test_driver::runtest(const test_desc *test)
                                 const char *p;
                                 p = static_cast<const char*>(
                                         memchr(start, '\n', c));
-                                if (p != NULL) c = p - start;
+                                if (p != nullptr) c = p - start;
                             }
 
                             memmove(buf, start, c);
@@ -559,7 +568,7 @@ test_driver::runtest(const test_desc *test)
                     return SKIP;
                 }
                 if (errclass == "NetworkError" &&
-                    err.get_error_string() != NULL &&
+                    err.get_error_string() != nullptr &&
                     err.get_error_string() == errno_to_string(ECHILD)) {
                     // ECHILD suggests we've run out of processes, and that's
                     // much more likely to be a system issue than a Xapian bug.
@@ -606,8 +615,8 @@ test_driver::runtest(const test_desc *test)
 # ifdef HAVE_CXXABI_H
                 // __cxa_demangle() apparently requires GCC >= 3.1.
                 // Demangle the name which GCC returns for type_info::name().
-                int status;
-                char * realname = abi::__cxa_demangle(name, NULL, 0, &status);
+                char* realname =
+                    abi::__cxa_demangle(name, nullptr, nullptr, nullptr);
                 if (realname) {
                     out << realname;
                     free(realname);
@@ -872,7 +881,7 @@ test_driver::parse_command_line(int argc, char **argv)
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-        if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
+        if (getenv("XAPIAN_TESTSUITE_VALGRIND") != nullptr) {
             // Open the valgrind log file, and unlink it.
             string fname = ".valgrind.log." + str(getpid());
             vg_log_fd = open(fname.c_str(), O_RDONLY|O_NONBLOCK|O_CLOEXEC);
@@ -885,7 +894,7 @@ test_driver::parse_command_line(int argc, char **argv)
     {
         bool colourise = true;
         const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
-        if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+        if (p == nullptr || !*p || strcmp(p, "auto") == 0) {
             colourise = isatty(1);
         } else if (strcmp(p, "plain") == 0) {
             colourise = false;
@@ -901,10 +910,10 @@ test_driver::parse_command_line(int argc, char **argv)
 #endif
 
     static const struct option long_opts[] = {
-        {"verbose",         no_argument, 0, 'v'},
-        {"abort-on-error",  no_argument, 0, 'o'},
-        {"help",            no_argument, 0, 'h'},
-        {NULL,              0, 0, 0}
+        {"verbose",         no_argument, nullptr, 'v'},
+        {"abort-on-error",  no_argument, nullptr, 'o'},
+        {"help",            no_argument, nullptr, 'h'},
+        {nullptr,           0, nullptr, 0}
     };
 
     string short_opts_string = "voh";
@@ -916,7 +925,7 @@ test_driver::parse_command_line(int argc, char **argv)
     const char * opts = short_opts_string.c_str();
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'v':
                 ++verbose;

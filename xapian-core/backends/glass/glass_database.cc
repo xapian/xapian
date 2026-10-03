@@ -517,7 +517,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
             start_uuid = get_uuid();
 
             send_whole_database(conn, 0.0);
-            if (info != NULL)
+            if (info != nullptr)
                 ++(info->fullcopy_count);
 
             need_whole_db = false;
@@ -532,7 +532,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
                 needed_rev_num = glass_revision_number_t(get_revision());
                 pack_uint(buf, needed_rev_num);
                 conn.send_message(REPL_REPLY_DB_FOOTER, buf, 0.0);
-                if (info != NULL && start_rev_num == needed_rev_num)
+                if (info != nullptr && start_rev_num == needed_rev_num)
                     info->changed = true;
             } else {
                 // Database has been replaced since we did the copy.  Send a
@@ -581,7 +581,7 @@ GlassDatabase::write_changesets_to_fd(int fd,
 
                 conn.send_file(REPL_REPLY_CHANGESET, fd_changes, 0.0);
                 start_rev_num = changeset_end_rev_num;
-                if (info != NULL) {
+                if (info != nullptr) {
                     ++(info->changeset_count);
                     if (start_rev_num >= needed_rev_num)
                         info->changed = true;
@@ -747,7 +747,7 @@ GlassDatabase::get_wdfdocmax(Xapian::docid did) const
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
     GlassTermList termlist(ptrtothis, did);
     Xapian::termcount max_wdf = 0;
-    while (termlist.next() == NULL) {
+    while (termlist.next() == nullptr) {
         Xapian::termcount current_wdf = termlist.get_wdf();
         if (current_wdf > max_wdf) max_wdf = current_wdf;
     }
@@ -802,7 +802,7 @@ GlassDatabase::get_wdf_upper_bound(string_view term) const
 {
     Assert(!term.empty());
     Xapian::termcount wdfub;
-    postlist_table.get_freqs(term, NULL, NULL, &wdfub);
+    postlist_table.get_freqs(term, nullptr, nullptr, &wdfub);
     return min(wdfub, version_file.get_wdf_upper_bound());
 }
 
@@ -941,7 +941,7 @@ TermList *
 GlassDatabase::open_spelling_wordlist() const
 {
     GlassCursor * cursor = spelling_table.cursor_get();
-    if (!cursor) return NULL;
+    if (!cursor) return nullptr;
     return new GlassSpellingWordsList(intrusive_ptr<const GlassDatabase>(this),
                                       cursor);
 }
@@ -962,7 +962,7 @@ TermList *
 GlassDatabase::open_synonym_keylist(string_view prefix) const
 {
     GlassCursor * cursor = synonym_table.cursor_get();
-    if (!cursor) return NULL;
+    if (!cursor) return nullptr;
     return new GlassSynonymTermList(intrusive_ptr<const GlassDatabase>(this),
                                     cursor, prefix);
 }
@@ -983,7 +983,7 @@ GlassDatabase::open_metadata_keylist(std::string_view prefix) const
 {
     LOGCALL(DB, TermList*, "GlassDatabase::open_metadata_keylist", prefix);
     GlassCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) RETURN(NULL);
+    if (!cursor) RETURN(nullptr);
     RETURN(new GlassMetadataTermList(intrusive_ptr<const GlassDatabase>(this),
                                      cursor, prefix));
 }
@@ -1070,7 +1070,7 @@ GlassWritableDatabase::GlassWritableDatabase(string_view dir, int flags,
         : GlassDatabase(dir, flags, block_size),
           change_count(0),
           flush_threshold(0),
-          modify_shortcut_document(NULL),
+          modify_shortcut_document(nullptr),
           modify_shortcut_docid(0)
 {
     LOGCALL_CTOR(DB, "GlassWritableDatabase", dir | flags | block_size);
@@ -1229,7 +1229,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
     if (rare(modify_shortcut_docid == did)) {
         // The modify_shortcut document can't be used for a modification
         // shortcut now, because it's been deleted!
-        modify_shortcut_document = NULL;
+        modify_shortcut_document = nullptr;
         modify_shortcut_docid = 0;
         doc_really_existed = true;
     }
@@ -1249,7 +1249,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 
         version_file.delete_document(termlist.get_doclength());
 
-        while (termlist.next() == NULL) {
+        while (termlist.next() == nullptr) {
             string term = termlist.get_termname();
             inverter.delete_positionlist(did, term);
 
@@ -1319,7 +1319,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
                 // The modify_shortcut document can't be used for a
                 // modification shortcut now, because it's about to be
                 // modified.
-                modify_shortcut_document = NULL;
+                modify_shortcut_document = nullptr;
                 modify_shortcut_docid = 0;
             }
         }
@@ -1344,7 +1344,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 
             string old_term, new_term;
 
-            bool termlist_at_end = (termlist.next() != NULL);
+            bool termlist_at_end = (termlist.next() != nullptr);
             while (!termlist_at_end || t != document.termlist_end()) {
                 int cmp;
                 if (termlist_at_end) {
@@ -1367,7 +1367,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
                     inverter.remove_posting(did, old_term, old_wdf);
                     if (pos_modified)
                         inverter.delete_positionlist(did, old_term);
-                    termlist_at_end = (termlist.next() != NULL);
+                    termlist_at_end = (termlist.next() != nullptr);
                 } else if (cmp > 0) {
                     // Term new_term as been added.
                     termcount new_wdf = t.get_wdf();
@@ -1403,7 +1403,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
                     }
 
                     ++t;
-                    termlist_at_end = (termlist.next() != NULL);
+                    termlist_at_end = (termlist.next() != nullptr);
                 }
             }
             LOGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
@@ -1534,7 +1534,7 @@ GlassWritableDatabase::term_exists(string_view term) const
         RETURN(get_doccount() != 0);
     }
     Xapian::doccount tf;
-    get_freqs(term, &tf, NULL);
+    get_freqs(term, &tf, nullptr);
     RETURN(tf != 0);
 }
 
@@ -1730,7 +1730,7 @@ void
 GlassWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) const
 {
     if (obj == modify_shortcut_document) {
-        modify_shortcut_document = NULL;
+        modify_shortcut_document = nullptr;
         modify_shortcut_docid = 0;
     }
 }

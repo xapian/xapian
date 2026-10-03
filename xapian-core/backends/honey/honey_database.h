@@ -81,7 +81,7 @@ class HoneyDatabase : public Xapian::Database::Internal {
 
     mutable Honey::DocLenChunkReader doclen_chunk_reader;
 
-    mutable HoneyCursor* doclen_cursor = NULL;
+    mutable HoneyCursor* doclen_cursor = nullptr;
 
     [[noreturn]]
     void throw_termlist_table_close_exception() const;

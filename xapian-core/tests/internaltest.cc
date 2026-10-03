@@ -335,7 +335,7 @@ static const test_desc tests[] = {
     TESTCASE(stringcomp1),
     TESTCASE(temporarydtor1),
     TESTCASE(chartype1),
-    {0, 0}
+    {nullptr, nullptr}
 };
 
 int main(int argc, char** argv)

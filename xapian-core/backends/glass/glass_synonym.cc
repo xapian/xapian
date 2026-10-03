@@ -139,7 +139,7 @@ GlassSynonymTable::open_termlist(string_view term)
     vector<string> synonyms;
 
     if (last_term == term) {
-        if (last_synonyms.empty()) return NULL;
+        if (last_synonyms.empty()) return nullptr;
 
         synonyms.reserve(last_synonyms.size());
         for (const auto& i : last_synonyms) {
@@ -147,7 +147,7 @@ GlassSynonymTable::open_termlist(string_view term)
         }
     } else {
         string tag;
-        if (!get_exact_entry(term, tag)) return NULL;
+        if (!get_exact_entry(term, tag)) return nullptr;
 
         const char * p = tag.data();
         const char * end = p + tag.size();
@@ -200,7 +200,7 @@ GlassSynonymTermList::next()
     }
     current_term = cursor->current_key;
 
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -221,5 +221,5 @@ GlassSynonymTermList::skip_to(string_view term)
         }
         current_term = cursor->current_key;
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

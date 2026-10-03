@@ -44,7 +44,7 @@ class FDTracker {
      *  We store this cast to void* here to minimise the header we have to
      *  include here.
      */
-    void * dir_void;
+    void* dir_void = nullptr;
 
     std::string message;
 
@@ -53,7 +53,7 @@ class FDTracker {
     bool check_fd(int fd) const;
 
   public:
-    FDTracker() : dir_void(NULL) { }
+    FDTracker() { }
 
     ~FDTracker();
 

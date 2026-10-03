@@ -313,7 +313,7 @@ Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
             destdir += '_';
         }
         size_t sfx = destdir.size();
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         while (true) {
             destdir.resize(sfx);
             destdir += str(now++);
@@ -360,7 +360,7 @@ Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
                                            block_size, compaction, flags,
                                            last_docid);
                 } else {
-                    GlassDatabase::compact(compactor, NULL, fd,
+                    GlassDatabase::compact(compactor, nullptr, fd,
                                            internals, offset,
                                            block_size, compaction, flags,
                                            last_docid);
@@ -383,7 +383,7 @@ Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
                                            compaction, flags,
                                            last_docid);
                 } else {
-                    HoneyDatabase::compact(compactor, NULL, fd,
+                    HoneyDatabase::compact(compactor, nullptr, fd,
                                            Xapian::DB_BACKEND_GLASS,
                                            internals, offset,
                                            compaction, flags,
@@ -415,7 +415,7 @@ Database::compact_(const string_view* output_ptr, int fd, unsigned flags,
                                            compaction, flags,
                                            last_docid);
                 } else {
-                    HoneyDatabase::compact(compactor, NULL, fd,
+                    HoneyDatabase::compact(compactor, nullptr, fd,
                                            Xapian::DB_BACKEND_HONEY,
                                            internals, offset,
                                            compaction, flags,

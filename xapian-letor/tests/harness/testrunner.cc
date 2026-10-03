@@ -102,7 +102,7 @@ TestRunner::set_properties_for_backend(const string & backend_name)
             BACKEND|POSITIONAL|METADATA|SPELLING|SYNONYMS|VALUESTATS|
             CHECK|COMPACT|PATH
         },
-        { NULL, 0 }
+        { nullptr, 0 }
     };
 
     for (const BackendProperties * i = backend_properties; i->name; ++i) {
@@ -123,7 +123,7 @@ TestRunner::do_tests_for_backend_(BackendManager* manager)
         cout << "Running tests with backend \"" << backend_name << "\"...\n";
         backendmanager = manager;
         result_so_far = max(result_so_far, run());
-        backendmanager = NULL;
+        backendmanager = nullptr;
     }
 }
 

@@ -70,7 +70,7 @@ GlassValueList::get_value() const
 bool
 GlassValueList::at_end() const
 {
-    return cursor == NULL;
+    return cursor == nullptr;
 }
 
 void
@@ -94,7 +94,7 @@ GlassValueList::next()
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
+    cursor = nullptr;
 }
 
 void
@@ -126,7 +126,7 @@ GlassValueList::skip_to(Xapian::docid did)
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
+    cursor = nullptr;
 }
 
 bool

@@ -77,24 +77,24 @@ inline double now() {
     struct timespec ts;
     if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
         return ts.tv_sec + (ts.tv_nsec * 1e-9);
-    return double(std::time(NULL));
+    return double(std::time(nullptr));
 #elif !defined __WIN32__
 # if defined HAVE_GETTIMEOFDAY
     struct timeval tv;
-    if (usual(gettimeofday(&tv, NULL) == 0))
+    if (usual(gettimeofday(&tv, nullptr) == 0))
         return tv.tv_sec + (tv.tv_usec * 1e-6);
-    return double(std::time(NULL));
+    return double(std::time(nullptr));
 # elif defined HAVE_FTIME
     struct timeb tp;
 #  ifdef FTIME_RETURNS_VOID
     ftime(&tp);
 #  else
     if (rare(ftime(&tp) != 0))
-        return double(std::time(NULL));
+        return double(std::time(nullptr));
 #  endif
     return tp.time + (tp.millitm * 1e-3);
 # else
-    return double(std::time(NULL));
+    return double(std::time(nullptr));
 # endif
 #else
     // For __WIN32__.
@@ -158,7 +158,7 @@ inline void sleep(double t) {
         if (delta <= 0.0)
             return;
         to_timeval(delta, &tv);
-    } while (select(0, NULL, NULL, NULL, &tv) < 0 &&
+    } while (select(0, nullptr, nullptr, nullptr, &tv) < 0 &&
              (errno == EINTR || errno == EAGAIN));
 #else
     double delta = t - RealTime::now();

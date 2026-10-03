@@ -74,19 +74,19 @@ main(int argc, char **argv)
 {
     const char * opts = "h:p:m:i:r:t:ofqv";
     static const struct option long_opts[] = {
-        {"host",        required_argument,  0, 'h'},
-        {"port",        required_argument,  0, 'p'},
-        {"master",      required_argument,  0, 'm'},
-        {"interval",    required_argument,  0, 'i'},
-        {"reader-time", required_argument,  0, 'r'},
-        {"timeout",     required_argument,  0, 't'},
-        {"one-shot",    no_argument,        0, 'o'},
-        {"force-copy",  no_argument,        0, 'f'},
-        {"quiet",       no_argument,        0, 'q'},
-        {"verbose",     no_argument,        0, 'v'},
-        {"help",        no_argument,        0, OPT_HELP},
-        {"version",     no_argument,        0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"host",        required_argument,  nullptr, 'h'},
+        {"port",        required_argument,  nullptr, 'p'},
+        {"master",      required_argument,  nullptr, 'm'},
+        {"interval",    required_argument,  nullptr, 'i'},
+        {"reader-time", required_argument,  nullptr, 'r'},
+        {"timeout",     required_argument,  nullptr, 't'},
+        {"one-shot",    no_argument,        nullptr, 'o'},
+        {"force-copy",  no_argument,        nullptr, 'f'},
+        {"quiet",       no_argument,        nullptr, 'q'},
+        {"verbose",     no_argument,        nullptr, 'v'},
+        {"help",        no_argument,        nullptr, OPT_HELP},
+        {"version",     no_argument,        nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     string host;
@@ -100,7 +100,7 @@ main(int argc, char **argv)
     int timeout = DEFAULT_TIMEOUT;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'h':
                 host.assign(optarg);

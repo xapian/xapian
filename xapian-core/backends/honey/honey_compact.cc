@@ -66,7 +66,7 @@ static void
 throw_database_corrupt(const char* item, const char* pos)
 {
     string message;
-    if (pos != NULL) {
+    if (pos != nullptr) {
         message = "Value overflow unpacking termlist: ";
     } else {
         message = "Out of data unpacking termlist: ";
@@ -1126,7 +1126,7 @@ merge_postlists(Xapian::Compactor* compactor,
     Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
 
     while (true) {
-        cursor_type* cur = NULL;
+        cursor_type* cur = nullptr;
         if (!pq.empty()) {
             cur = pq.top();
             pq.pop();
@@ -1134,7 +1134,7 @@ merge_postlists(Xapian::Compactor* compactor,
         if (cur) {
             AssertEq(key_type(cur->key), Honey::KEY_POSTING_CHUNK);
         }
-        if (cur == NULL || cur->key != last_key) {
+        if (cur == nullptr || cur->key != last_key) {
             if (!tags.empty()) {
                 Xapian::termcount first_wdf = tags[0].first_wdf;
                 Xapian::docid chunk_lastdid = tags[0].last;
@@ -1261,7 +1261,7 @@ merge_postlists(Xapian::Compactor* compactor,
                 }
             }
             tags.clear();
-            if (cur == NULL) break;
+            if (cur == nullptr) break;
             tf = cf = 0;
             last_key = cur->key;
         }
@@ -1805,7 +1805,7 @@ multimerge_postlists(Xapian::Compactor* compactor,
                 for (unsigned int k = i; k < j; ++k) {
                     // FIXME: unlink(tmp[k]->get_path().c_str());
                     delete tmp[k];
-                    tmp[k] = NULL;
+                    tmp[k] = nullptr;
                 }
             }
             tmpout.push_back(tmptab);
@@ -1821,7 +1821,7 @@ multimerge_postlists(Xapian::Compactor* compactor,
         for (size_t k = 0; k < tmp.size(); ++k) {
             // FIXME: unlink(tmp[k]->get_path().c_str());
             delete tmp[k];
-            tmp[k] = NULL;
+            tmp[k] = nullptr;
         }
     }
 }
@@ -2147,12 +2147,12 @@ next_without_next:
                             current_term.resize(reuse);
 
                             if (pos == end)
-                                throw_database_corrupt("term", NULL);
+                                throw_database_corrupt("term", nullptr);
                         }
 
                         size_t append = static_cast<unsigned char>(*pos++);
                         if (size_t(end - pos) < append)
-                            throw_database_corrupt("term", NULL);
+                            throw_database_corrupt("term", nullptr);
 
                         current_term.append(pos, append);
                         pos += append;

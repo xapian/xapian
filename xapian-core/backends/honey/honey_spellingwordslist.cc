@@ -92,7 +92,7 @@ HoneySpellingWordsList::next()
     } else {
         current_term.assign(key, 1);
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -120,5 +120,5 @@ HoneySpellingWordsList::skip_to(string_view term)
             current_term.assign(key, 1);
         }
     }
-    RETURN(NULL);
+    RETURN(nullptr);
 }

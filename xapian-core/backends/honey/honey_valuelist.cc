@@ -70,7 +70,7 @@ HoneyValueList::get_value() const
 bool
 HoneyValueList::at_end() const
 {
-    return cursor == NULL;
+    return cursor == nullptr;
 }
 
 void
@@ -94,7 +94,7 @@ HoneyValueList::next()
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
+    cursor = nullptr;
 }
 
 void
@@ -130,7 +130,7 @@ HoneyValueList::skip_to(Xapian::docid did)
 
     // We've reached the end.
     delete cursor;
-    cursor = NULL;
+    cursor = nullptr;
 }
 
 string

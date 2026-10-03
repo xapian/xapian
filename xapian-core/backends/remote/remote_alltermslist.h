@@ -37,7 +37,7 @@ class RemoteAllTermsList : public AllTermsList {
 
     std::string data;
 
-    const char* p = NULL;
+    const char* p = nullptr;
 
   public:
     /// Construct.

@@ -72,14 +72,14 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:f:m:s:p:b:h:v";
     static const struct option long_opts[] = {
-        { "db",                 required_argument,  0, 'd' },
-        { "msize",              required_argument,  0, 'm' },
-        { "stemmer",            required_argument,  0, 's' },
-        { "prefix",             required_argument,  0, 'p' },
-        { "boolean-prefix",     required_argument,  0, 'b' },
-        { "help",               no_argument,        0, OPT_HELP },
-        { "version",            no_argument,        0, OPT_VERSION },
-        { NULL,                 0, 0, 0}
+        { "db",                 required_argument, nullptr, 'd' },
+        { "msize",              required_argument, nullptr, 'm' },
+        { "stemmer",            required_argument, nullptr, 's' },
+        { "prefix",             required_argument, nullptr, 'p' },
+        { "boolean-prefix",     required_argument, nullptr, 'b' },
+        { "help",               no_argument,       nullptr, OPT_HELP },
+        { "version",            no_argument,       nullptr, OPT_VERSION },
+        { nullptr,              0, nullptr, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, std::end(sw));
@@ -94,7 +94,7 @@ try {
     parser.add_prefix("subject", "S");
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'd':
                 db_path = optarg;
@@ -118,7 +118,7 @@ try {
                 break;
             case 'p': case 'b': {
                 const char * colon = strchr(optarg, ':');
-                if (colon == NULL) {
+                if (colon == nullptr) {
                     cerr << argv[0] << ": need ':' when setting prefix\n";
                     exit(1);
                 }

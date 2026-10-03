@@ -117,13 +117,13 @@ class PostingChunkReader {
 
     /// Initialise already at_end().
     void init() {
-        p = NULL;
+        p = nullptr;
         termfreq = 0;
     }
 
     /// Initialise.
     void init(Xapian::doccount tf, Xapian::termcount cf_info) {
-        p = NULL;
+        p = nullptr;
         termfreq = tf;
         collfreq_info = cf_info;
     }
@@ -134,7 +134,7 @@ class PostingChunkReader {
                 Xapian::docid last_did_in_chunk,
                 Xapian::termcount wdf_);
 
-    bool at_end() const { return p == NULL; }
+    bool at_end() const { return p == nullptr; }
 
     Xapian::docid get_docid() const { return did; }
 

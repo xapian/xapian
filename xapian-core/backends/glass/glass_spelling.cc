@@ -414,7 +414,7 @@ GlassSpellingTermList::next()
         throw Xapian::DatabaseCorruptError("Bad spelling termlist");
     current_term.append(data.data() + p + 1, add);
     p += add + 1;
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -424,7 +424,7 @@ GlassSpellingTermList::skip_to(string_view term)
         if (GlassSpellingTermList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount

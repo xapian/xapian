@@ -68,7 +68,7 @@ cdb_init(struct cdb *cdbp, int fd)
   hFile = (HANDLE) _get_osfhandle(fd);
   if (hFile == (HANDLE) -1)
     return -1;
-  hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+  hMapping = CreateFileMapping(hFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
   if (!hMapping)
     return -1;
   LPVOID ret = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
@@ -76,7 +76,7 @@ cdb_init(struct cdb *cdbp, int fd)
   mem = static_cast<unsigned char *>(ret);
 #else
   // No mmap, so take the very crude approach of malloc and read the whole file in!
-  if ((mem = static_cast<unsigned char *>(malloc(fsize))) == NULL)
+  if ((mem = static_cast<unsigned char *>(malloc(fsize))) == nullptr)
     return -1;
   size_t size = fsize;
   unsigned char *p = mem;
@@ -89,7 +89,7 @@ cdb_init(struct cdb *cdbp, int fd)
   }
 #endif
 #else
-  void * ret = mmap(NULL, fsize, PROT_READ, MAP_SHARED, fd, 0);
+  void * ret = mmap(nullptr, fsize, PROT_READ, MAP_SHARED, fd, 0);
   if (ret == MAP_FAILED)
     return -1;
   mem = static_cast<unsigned char *>(ret);
@@ -159,7 +159,7 @@ cdb_free(struct cdb *cdbp)
 #endif
     munmap(p, cdbp->cdb_fsize);
 #endif /* _WIN32 */
-    cdbp->cdb_mem = NULL;
+    cdbp->cdb_mem = nullptr;
   }
   cdbp->cdb_fsize = 0;
 }
@@ -169,7 +169,7 @@ cdb_get(const struct cdb *cdbp, unsigned len, unsigned pos)
 {
   if (pos > cdbp->cdb_fsize || cdbp->cdb_fsize - pos < len) {
     errno = EPROTO;
-    return NULL;
+    return nullptr;
   }
   return cdbp->cdb_mem + pos;
 }

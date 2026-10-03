@@ -71,7 +71,7 @@ class DirectoryIterator {
     std::string path;
     std::string::size_type path_len;
 
-    DIR * dir = NULL;
+    DIR* dir = nullptr;
     struct dirent *entry;
     struct stat statbuf;
     bool statbuf_valid;
@@ -130,8 +130,8 @@ class DirectoryIterator {
             entry = readdir(dir);
         } while (entry && entry->d_name[0] == '.');
         statbuf_valid = false;
-        if (entry == NULL && errno != 0) next_failed();
-        return (entry != NULL);
+        if (entry == nullptr && errno != 0) next_failed();
+        return (entry != nullptr);
     }
 
     [[noreturn]]
@@ -192,9 +192,9 @@ class DirectoryIterator {
 #ifndef __WIN32__
         ensure_statbuf_valid();
         struct passwd * pwentry = getpwuid(statbuf.st_uid);
-        return pwentry ? pwentry->pw_name : NULL;
+        return pwentry ? pwentry->pw_name : nullptr;
 #else
-        return NULL;
+        return nullptr;
 #endif
     }
 
@@ -202,9 +202,9 @@ class DirectoryIterator {
 #ifndef __WIN32__
         ensure_statbuf_valid();
         struct group * grentry = getgrgid(statbuf.st_gid);
-        return grentry ? grentry->gr_name : NULL;
+        return grentry ? grentry->gr_name : nullptr;
 #else
-        return NULL;
+        return nullptr;
 #endif
     }
 
@@ -261,7 +261,7 @@ class DirectoryIterator {
             throw ReadError("dup() failed");
         }
         gzFile zfh = gzdopen(dup_fd, "rb");
-        if (zfh == NULL) {
+        if (zfh == nullptr) {
             throw ReadError("gzdopen() failed");
         }
         std::string out;

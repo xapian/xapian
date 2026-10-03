@@ -185,7 +185,7 @@ static const test_desc tests[] = {
     {"stemrandom",              test_stemrandom},
     {"stemjunk",                test_stemjunk},
     {"stemdict",                test_stemdict},
-    {0, 0}
+    {nullptr, nullptr}
 };
 
 int main(int argc, char **argv)

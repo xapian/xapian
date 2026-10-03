@@ -34,7 +34,7 @@
 std::string
 positions_to_string(Xapian::PositionIterator & it,
                     const Xapian::PositionIterator & end,
-                    Xapian::termcount * count = NULL);
+                    Xapian::termcount* count = nullptr);
 
 /** Convert the list of postings in a postlist to a string.
  *

@@ -94,7 +94,7 @@ register_object(map<string, opt_intrusive_ptr<T>, std::less<>>& registry,
                                             "string");
     }
 
-    auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
+    auto r = registry.try_emplace(name, nullptr);
     r.first->second = std::move(obj);
 }
 
@@ -108,7 +108,7 @@ register_object(map<string, T*, std::less<>>& registry, const T& obj)
         throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
     }
 
-    auto r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
+    auto r = registry.try_emplace(name, nullptr);
     if (!r.second) {
         // Existing element with this key, so replace the pointer with NULL
         // and delete the existing pointer.
@@ -118,7 +118,7 @@ register_object(map<string, T*, std::less<>>& registry, const T& obj)
         // anyway.  The memory used will be leaked if the dtor throws, but
         // throwing exceptions from the dtor is bad form, so that's not a big
         // problem.
-        T * p = NULL;
+        T* p = nullptr;
         swap(p, r.first->second);
         delete p;
     }
@@ -139,7 +139,7 @@ lookup_object(map<string, opt_intrusive_ptr<T>, std::less<>> registry,
 {
     auto i = registry.find(name);
     if (i == registry.end()) {
-        return NULL;
+        return nullptr;
     }
     return i->second.get();
 }
@@ -151,7 +151,7 @@ lookup_object(map<string, T*, std::less<>> registry, string_view name)
 {
     auto i = registry.find(name);
     if (i == registry.end()) {
-        return NULL;
+        return nullptr;
     }
     return i->second;
 }

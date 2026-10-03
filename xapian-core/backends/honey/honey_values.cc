@@ -63,7 +63,7 @@ void
 ValueChunkReader::next()
 {
     if (p == end) {
-        p = NULL;
+        p = nullptr;
         return;
     }
 
@@ -80,7 +80,7 @@ ValueChunkReader::next()
 void
 ValueChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL || target <= did)
+    if (p == nullptr || target <= did)
         return;
 
     size_t value_len;
@@ -113,7 +113,7 @@ ValueChunkReader::skip_to(Xapian::docid target)
         }
         p += value_len;
     }
-    p = NULL;
+    p = nullptr;
 }
 
 void
@@ -604,7 +604,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot,
         const char* end = pos + tag.size();
 
         if (!unpack_uint(&pos, end, &(stats.freq))) {
-            if (pos == 0) {
+            if (pos == nullptr) {
                 throw Xapian::DatabaseCorruptError("Incomplete stats item in "
                                                    "value table");
             }
@@ -612,7 +612,7 @@ HoneyValueManager::get_value_stats(Xapian::valueno slot,
                                      "too large");
         }
         if (!unpack_string(&pos, end, stats.lower_bound)) {
-            if (pos == 0) {
+            if (pos == nullptr) {
                 throw Xapian::DatabaseCorruptError("Incomplete stats item in "
                                                    "value table");
             }

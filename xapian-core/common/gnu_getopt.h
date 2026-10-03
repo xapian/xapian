@@ -1,7 +1,7 @@
 /** @file
  * @brief Wrappers to allow GNU getopt to be used cleanly from C++ code.
  */
-/* Copyright (C) 2004,2009,2010 Olly Betts
+/* Copyright (C) 2004,2009,2010,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -87,9 +87,7 @@ gnu_getopt_internal_(int, char *const *, const char *, const struct option *,
 
 inline int
 gnu_getopt(int argc_, char *const *argv_, const char *shortopts_) {
-    return gnu_getopt_internal_(argc_, argv_, shortopts_,
-                                reinterpret_cast<const struct option *>(0),
-                                reinterpret_cast<int *>(0), 0);
+    return gnu_getopt_internal_(argc_, argv_, shortopts_, nullptr, nullptr, 0);
 }
 
 inline int

@@ -226,21 +226,21 @@ main(int argc, char **argv)
 try {
     const char * opts = "d:m:c:s:S:p:b:f:o:w:FPhv";
     static const struct option long_opts[] = {
-        { "db",             required_argument, 0, 'd' },
-        { "msize",          required_argument, 0, 'm' },
-        { "check-at-least", required_argument, 0, 'c' },
-        { "stemmer",        required_argument, 0, 's' },
-        { "stem-strategy",  required_argument, 0, 'S' },
-        { "prefix",         required_argument, 0, 'p' },
-        { "boolean-prefix", required_argument, 0, 'b' },
-        { "flags",          required_argument, 0, 'f' },
-        { "default-op",     required_argument, 0, 'o' },
-        { "weight",         required_argument, 0, 'w' },
-        { "freqs",          no_argument, 0, 'F' },
-        { "percentage",     no_argument, 0, 'P' },
-        { "help",           no_argument, 0, 'h' },
-        { "version",        no_argument, 0, 'v' },
-        { NULL,             0, 0, 0}
+        { "db",             required_argument, nullptr, 'd' },
+        { "msize",          required_argument, nullptr, 'm' },
+        { "check-at-least", required_argument, nullptr, 'c' },
+        { "stemmer",        required_argument, nullptr, 's' },
+        { "stem-strategy",  required_argument, nullptr, 'S' },
+        { "prefix",         required_argument, nullptr, 'p' },
+        { "boolean-prefix", required_argument, nullptr, 'b' },
+        { "flags",          required_argument, nullptr, 'f' },
+        { "default-op",     required_argument, nullptr, 'o' },
+        { "weight",         required_argument, nullptr, 'w' },
+        { "freqs",          no_argument, nullptr, 'F' },
+        { "percentage",     no_argument, nullptr, 'P' },
+        { "help",           no_argument, nullptr, 'h' },
+        { "version",        no_argument, nullptr, 'v' },
+        { nullptr,          0, nullptr, 0}
     };
 
     Xapian::SimpleStopper mystopper(begin(sw), end(sw));
@@ -259,7 +259,7 @@ try {
     const char* weighting_scheme = "bm25";
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'm': {
                 char * p;
@@ -299,7 +299,7 @@ try {
                 break;
             case 'b': case 'p': {
                 const char * colon = strchr(optarg, ':');
-                if (colon == NULL) {
+                if (colon == nullptr) {
                     cerr << argv[0] << ": need ':' when setting prefix\n";
                     exit(1);
                 }

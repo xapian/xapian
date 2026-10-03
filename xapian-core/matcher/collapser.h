@@ -170,7 +170,7 @@ class Collapser {
     MSetCmp mcmp;
 
     /** Pointer to CollapseData when NEW or ADD is in progress. */
-    CollapseData* ptr = NULL;
+    CollapseData* ptr = nullptr;
 
     /// Adapt @a mcmp to be usable with min_heap.
     bool operator()(Xapian::doccount a, Xapian::doccount b) const {

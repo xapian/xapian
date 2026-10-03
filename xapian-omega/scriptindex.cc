@@ -1399,7 +1399,7 @@ run_actions(vector<Action>::const_iterator action_it,
                 struct tm tm;
                 memset(&tm, 0, sizeof(tm));
                 auto ret = strptime(value.c_str(), dateformat.c_str(), &tm);
-                if (ret == NULL) {
+                if (ret == nullptr) {
                     report_location(DIAG_WARN, fname, line_no);
                     cerr << "\"" << value << "\" doesn't match format "
                             "\"" << dateformat << '\"' << '\n';
@@ -1591,17 +1591,17 @@ try {
     constexpr auto NO_ARG = no_argument;
     constexpr auto REQ_ARG = required_argument;
     static const struct option longopts[] = {
-        { "help",       NO_ARG,         NULL, 'h' },
-        { "version",    NO_ARG,         NULL, 'V' },
-        { "stemmer",    REQ_ARG,        NULL, 's' },
-        { "overwrite",  NO_ARG,         NULL, 'o' },
-        { "verbose",    NO_ARG,         NULL, 'v' },
-        { 0, 0, NULL, 0 }
+        { "help",       NO_ARG,      nullptr, 'h' },
+        { "version",    NO_ARG,      nullptr, 'V' },
+        { "stemmer",    REQ_ARG,     nullptr, 's' },
+        { "overwrite",  NO_ARG,      nullptr, 'o' },
+        { "verbose",    NO_ARG,      nullptr, 'v' },
+        { nullptr, 0, nullptr, 0 }
     };
 
     int getopt_ret;
     while ((getopt_ret = gnu_getopt_long(argc, argv, "vs:hV",
-                                         longopts, NULL)) != -1) {
+                                         longopts, nullptr)) != -1) {
         switch (getopt_ret) {
             default:
                 show_help(1);

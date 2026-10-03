@@ -50,7 +50,7 @@ class Worker {
     /** Socket for supporting communication between the worker
      *  and its assistant.
      */
-    std::FILE* sockt = NULL;
+    std::FILE* sockt = nullptr;
 
     /** Pathname of the assistant program.
      *

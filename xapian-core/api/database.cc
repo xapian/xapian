@@ -265,7 +265,7 @@ Database::get_termfreq(string_view term) const
         return get_doccount();
 
     Xapian::doccount result;
-    internal->get_freqs(term, &result, NULL);
+    internal->get_freqs(term, &result, nullptr);
     return result;
 }
 
@@ -276,7 +276,7 @@ Database::get_collection_freq(string_view term) const
         return get_doccount();
 
     Xapian::termcount result;
-    internal->get_freqs(term, NULL, &result);
+    internal->get_freqs(term, nullptr, &result);
     return result;
 }
 

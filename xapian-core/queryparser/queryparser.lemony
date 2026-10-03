@@ -205,7 +205,7 @@ class State {
 
   public:
     Query query;
-    const char* error = NULL;
+    const char* error = nullptr;
     unsigned flags;
     unsigned int should_stem_mask =
         (1 << Unicode::LOWERCASE_LETTER) |
@@ -265,7 +265,7 @@ class State {
                     return new Term(range_query, string());
             }
         }
-        return NULL;
+        return nullptr;
     }
 
     Query::op default_op() const {
@@ -368,12 +368,12 @@ class SynonymIterator {
   public:
     SynonymIterator(const Xapian::TermIterator & i_,
                     Xapian::termpos pos_ = 0,
-                    const Xapian::Query * first_ = NULL)
+                    const Xapian::Query* first_ = nullptr)
         : i(i_), pos(pos_), first(first_) { }
 
     SynonymIterator & operator++() {
         if (first)
-            first = NULL;
+            first = nullptr;
         else
             ++i;
         return *this;
@@ -632,13 +632,13 @@ is_phrase_generator(unsigned ch)
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
     // running the testcases in api_queryparser.cc.
-    return (ch && ch < 128 && strchr(".-/:\\@", ch) != NULL);
+    return (ch && ch < 128 && strchr(".-/:\\@", ch) != nullptr);
 }
 
 inline bool
 is_stem_preventer(unsigned ch)
 {
-    return (ch && ch < 128 && strchr("(/\\@<>=*[{\"", ch) != NULL);
+    return (ch && ch < 128 && strchr("(/\\@<>=*[{\"", ch) != nullptr);
 }
 
 inline bool
@@ -1244,7 +1244,7 @@ just_had_operator_needing_term:
                         // consistency with quoted boolean terms.
                         break;
                     }
-                    Parse(&parser, QUOTE, NULL, &state);
+                    Parse(&parser, QUOTE, nullptr, &state);
                     if (mode == DEFAULT) {
                         mode = IN_QUOTES;
                     } else {
@@ -1279,7 +1279,7 @@ just_had_operator_needing_term:
                     } else {
                         token = HATE;
                     }
-                    Parse(&parser, token, NULL, &state);
+                    Parse(&parser, token, nullptr, &state);
                     goto just_had_operator_needing_term;
                 }
                 // Need to prevent the term after a LOVE or HATE starting a
@@ -1291,7 +1291,7 @@ just_had_operator_needing_term:
                 it = find_if_not(it, end, is_whitespace);
                 // Ignore ( at the end of the query string.
                 if (it == end) goto done;
-                if (prev > ' ' && strchr("()+-", prev) == NULL) {
+                if (prev > ' ' && strchr("()+-", prev) == nullptr) {
                     // Or if not after whitespace or a bracket or '+' or '-'.
                     break;
                 }
@@ -1302,7 +1302,7 @@ just_had_operator_needing_term:
                 }
                 if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
                     prefix_stack.push_back(prefix_stack.back());
-                    Parse(&parser, BRA, NULL, &state);
+                    Parse(&parser, BRA, nullptr, &state);
                 }
                 break;
 
@@ -1312,7 +1312,7 @@ just_had_operator_needing_term:
                     // If brackets are unmatched, it's a syntax error, but
                     // that's no excuse to SEGV!
                     if (prefix_stack.size() > 1) prefix_stack.pop_back();
-                    Parse(&parser, KET, NULL, &state);
+                    Parse(&parser, KET, nullptr, &state);
                 }
                 break;
 
@@ -1320,7 +1320,7 @@ just_had_operator_needing_term:
                 // Ignore at the end of the query string.
                 if (it == end) goto done;
                 if (mode == DEFAULT && (flags & FLAG_SYNONYM)) {
-                    if (prev > ' ' && strchr("+-(", prev) == NULL) {
+                    if (prev > ' ' && strchr("+-(", prev) == nullptr) {
                         // Or if not after whitespace, +, -, or an open bracket.
                         break;
                     }
@@ -1328,7 +1328,7 @@ just_had_operator_needing_term:
                         // Ignore if not followed by a word character.
                         break;
                     }
-                    Parse(&parser, SYNONYM, NULL, &state);
+                    Parse(&parser, SYNONYM, nullptr, &state);
                     mode = EXPLICIT_SYNONYM;
                     if (!is_double_quote(*it))
                         goto just_had_operator_needing_term;
@@ -1350,7 +1350,7 @@ just_had_operator_needing_term:
                         newprev = *it++;
                         break;
                     }
-                    Parse(&parser, QUOTE, NULL, &state);
+                    Parse(&parser, QUOTE, nullptr, &state);
                     mode = IN_QUOTES;
                 }
                 break;
@@ -1379,7 +1379,7 @@ leading_wildcard:
         newprev = 'A'; // Any letter will do...
 
         // A term, a prefix, or a boolean operator.
-        const FieldInfo * field_info = NULL;
+        const FieldInfo* field_info = nullptr;
         if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2 || mode == EXPLICIT_SYNONYM) &&
             !field_map.empty()) {
             // Check for a fieldname prefix (e.g. title:historical).
@@ -1433,7 +1433,7 @@ leading_wildcard:
                         field += ':';
                         field += name;
                         // Clear any pending range error.
-                        state.error = NULL;
+                        state.error = nullptr;
                         Term * token = new Term(&state, name, field_info, field);
                         Parse(&parser, BOOLEAN_FILTER, token, &state);
                         continue;
@@ -1442,7 +1442,7 @@ leading_wildcard:
                     if ((flags & FLAG_PHRASE) && is_double_quote(ch)) {
                         // Prefixed phrase, e.g.: subject:"space flight"
                         mode = IN_PREFIXED_QUOTES;
-                        Parse(&parser, QUOTE, NULL, &state);
+                        Parse(&parser, QUOTE, nullptr, &state);
                         it = p;
                         newprev = ch;
                         ++it;
@@ -1453,7 +1453,7 @@ leading_wildcard:
                     if (ch == '(' && (flags & FLAG_BOOLEAN)) {
                         // Prefixed subexpression, e.g.: title:(fast NEAR food)
                         mode = DEFAULT;
-                        Parse(&parser, BRA, NULL, &state);
+                        Parse(&parser, BRA, nullptr, &state);
                         it = p;
                         newprev = ch;
                         ++it;
@@ -1477,7 +1477,7 @@ leading_wildcard:
 not_prefix:
                         // It looks like a prefix but isn't, so parse it as
                         // text instead.
-                        field_info = NULL;
+                        field_info = nullptr;
                     }
                 }
             }
@@ -1560,7 +1560,7 @@ handle_positional_token:
                         }
                     } else {
 handle_token:
-                        Parse(&parser, token, NULL, &state);
+                        Parse(&parser, token, nullptr, &state);
                         goto just_had_operator;
                     }
                 }
@@ -1614,7 +1614,7 @@ handle_token:
                     // Drop out of IN_GROUP and flag that the group
                     // can be empty if all members are stopwords.
                     if (mode == IN_GROUP2)
-                        Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
+                        Parse(&parser, EMPTY_GROUP_OK, nullptr, &state);
                     mode = DEFAULT;
                 }
                 Parse(&parser,
@@ -1641,7 +1641,7 @@ handle_token:
                             // Drop out of IN_GROUP and flag that the group
                             // can be empty if all members are stopwords.
                             if (mode == IN_GROUP2)
-                                Parse(&parser, EMPTY_GROUP_OK, NULL, &state);
+                                Parse(&parser, EMPTY_GROUP_OK, nullptr, &state);
                             mode = DEFAULT;
                         }
                         // Final term of a partial match query, with no
@@ -1745,14 +1745,14 @@ done:
     if (!state.error) {
         // Implicitly close any unclosed quotes.
         if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
-            Parse(&parser, QUOTE, NULL, &state);
+            Parse(&parser, QUOTE, nullptr, &state);
 
         // Implicitly close all unclosed brackets.
         while (prefix_stack.size() > 1) {
-            Parse(&parser, KET, NULL, &state);
+            Parse(&parser, KET, nullptr, &state);
             prefix_stack.pop_back();
         }
-        Parse(&parser, 0, NULL, &state);
+        Parse(&parser, 0, nullptr, &state);
     }
 
     errmsg = state.error;
@@ -1763,9 +1763,9 @@ done:
 %include {
 
 struct ProbQuery {
-    Query* query = NULL;
-    Query* love = NULL;
-    Query* hate = NULL;
+    Query* query = nullptr;
+    Query* love = nullptr;
+    Query* hate = nullptr;
     // filter is a map from prefix to a query for that prefix.  Queries with
     // the same prefix are combined with OR, and the results of this are
     // combined with AND to get the full filter.
@@ -1977,11 +1977,11 @@ reprocess:
         // This group is all stopwords, so roll-back, disable stopper
         // temporarily, and reprocess this group.
         state->stoplist_resize(stoplist_size);
-        stopper = NULL;
+        stopper = nullptr;
         goto reprocess;
     }
 
-    Query * q = NULL;
+    Query* q = nullptr;
     if (!subqs.empty()) {
         if (default_op_is_positional) {
             auto w = clamp_cast<Xapian::termcount>(subqs.size() + 9);
@@ -2034,7 +2034,7 @@ class Terms {
                              Xapian::termcount w_delta,
                              State* state) const {
         if (state->flags & QueryParser::FLAG_NO_POSITIONS) op = Query::OP_AND;
-        Query * q = NULL;
+        Query* q = nullptr;
         size_t n_terms = terms.size();
         Xapian::termcount w;
         if (add_overflows(w_delta, n_terms, w)) {
@@ -2089,7 +2089,7 @@ class Terms {
             prefixes = &term_prefixes;
         } else if (uniform_prefixes && prefixes != &term_prefixes) {
             if (*prefixes != term_prefixes)  {
-                prefixes = NULL;
+                prefixes = nullptr;
                 uniform_prefixes = false;
             }
         }
@@ -2352,7 +2352,7 @@ bool_arg(A) ::= . [ERROR] {
     // Set the argument to NULL, which enables the bool_arg-using rules in
     // expr above to report uses of AND, OR, etc which don't have two
     // arguments.
-    A = NULL;
+    A = nullptr;
 }
 
 // prob_expr - a single compound term, or a prob.
@@ -2362,7 +2362,7 @@ bool_arg(A) ::= . [ERROR] {
 
 prob_expr(E) ::= prob(P). {
     E = P->query;
-    P->query = NULL;
+    P->query = nullptr;
     // Handle any "+ terms".
     if (P->love) {
         if (P->love->empty()) {
@@ -2375,7 +2375,7 @@ prob_expr(E) ::= prob(P). {
         } else {
             E = P->love;
         }
-        P->love = NULL;
+        P->love = nullptr;
     }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
@@ -2531,7 +2531,7 @@ stop_prob(P) ::= stop_term(T). {
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
-        T = NULL;
+        T = nullptr;
         state->add_to_stoplist(U);
     } else {
         T = new Query(U->get_query_with_auto_synonyms());

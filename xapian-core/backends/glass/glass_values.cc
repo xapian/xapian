@@ -82,7 +82,7 @@ void
 ValueChunkReader::next()
 {
     if (p == end) {
-        p = NULL;
+        p = nullptr;
         return;
     }
 
@@ -97,7 +97,7 @@ ValueChunkReader::next()
 void
 ValueChunkReader::skip_to(Xapian::docid target)
 {
-    if (p == NULL || target <= did)
+    if (p == nullptr || target <= did)
         return;
 
     size_t value_len;
@@ -126,7 +126,7 @@ ValueChunkReader::skip_to(Xapian::docid target)
         }
         p += value_len;
     }
-    p = NULL;
+    p = nullptr;
 }
 
 void
@@ -548,11 +548,17 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
         const char * end = pos + tag.size();
 
         if (!unpack_uint(&pos, end, &(stats.freq))) {
-            if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+            if (pos == nullptr) {
+                throw Xapian::DatabaseCorruptError("Incomplete stats item in "
+                                                   "value table");
+            }
             throw Xapian::RangeError("Frequency statistic in value table is too large");
         }
         if (!unpack_string(&pos, end, stats.lower_bound)) {
-            if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+            if (pos == nullptr) {
+                throw Xapian::DatabaseCorruptError("Incomplete stats item in "
+                                                   "value table");
+            }
             throw Xapian::RangeError("Lower bound in value table is too large");
         }
         if (stats.lower_bound.empty() && stats.freq != 0) {

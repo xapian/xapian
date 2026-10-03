@@ -2,7 +2,7 @@
  * @brief Extract text and metadata using gmime.
  */
 /* Copyright (C) 2019 Bruno Baruffaldi
- * Copyright (C) 2022,2023 Olly Betts
+ * Copyright (C) 2022,2023,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +18,7 @@
  * along with this program; if not, see
  * <https://www.gnu.org/licenses/>.
  */
+
 #include <config.h>
 #include "handler.h"
 
@@ -26,10 +27,18 @@
 #include "stringutils.h"
 #include "utf8convert.h"
 
+#ifdef __GNUC__
+// Glib headers trigger -Wzero-as-null-pointer-constant
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
 #include <glib.h>
 #include <gmime/gmime.h>
-#include <string.h>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
+#include <string.h>
 #include "safefcntl.h"
 
 using namespace std;
@@ -330,7 +339,7 @@ static void
 extract_addresses(Field field, InternetAddressList* address_list)
 {
 #if GMIME_MAJOR_VERSION >= 3
-    auto value = internet_address_list_to_string(address_list, NULL, false);
+    auto value = internet_address_list_to_string(address_list, nullptr, false);
 #else
     auto value = internet_address_list_to_string(address_list, false);
 #endif
@@ -441,7 +450,7 @@ extract(const string& filename, const string&)
 {
     FILE* fp = fopen(filename.c_str(), "r");
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         send_field(FIELD_ERROR, "fopen() failed");
         return;
     }
@@ -449,7 +458,7 @@ extract(const string& filename, const string&)
     GMimeStream* stream = g_mime_stream_file_new(fp);
     GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 #if GMIME_MAJOR_VERSION >= 3
-    GMimeMessage* message = g_mime_parser_construct_message(parser, NULL);
+    GMimeMessage* message = g_mime_parser_construct_message(parser, nullptr);
 #else
     GMimeMessage* message = g_mime_parser_construct_message(parser);
 #endif

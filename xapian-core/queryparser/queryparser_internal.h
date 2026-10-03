@@ -84,7 +84,7 @@ struct RangeProc {
     RangeProc(RangeProcessor * range_proc, const std::string* grouping_)
         : proc(range_proc),
           grouping(grouping_ ? *grouping_ : std::string()),
-          default_grouping(grouping_ == NULL) { }
+          default_grouping(grouping_ == nullptr) { }
 };
 
 class QueryParser::Internal : public Xapian::Internal::intrusive_base {

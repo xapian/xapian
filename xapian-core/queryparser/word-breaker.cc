@@ -43,7 +43,7 @@ bool
 is_ngram_enabled()
 {
     const char * p;
-    static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != NULL && *p);
+    static bool result = ((p = getenv("XAPIAN_CJK_NGRAM")) != nullptr && *p);
     return result;
 }
 
@@ -191,7 +191,8 @@ WordIterator::WordIterator(const char* ptr, size_t len)
 {
     UErrorCode err = U_ZERO_ERROR;
     UText utext = UTEXT_INITIALIZER;
-    brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
+    // Pass nullptr which means "unknown locale".
+    brk = icu::BreakIterator::createWordInstance(nullptr, err);
     if (usual(U_SUCCESS(err))) {
         utext_openUTF8(&utext, ptr, len, &err);
         if (usual(U_SUCCESS(err)))

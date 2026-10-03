@@ -59,7 +59,7 @@ unserialise_error(const string &serialised_error, const string &prefix,
             unpack_throw_serialisation_error(p);
         }
 
-        const char * error_string = (p == end) ? NULL : p;
+        const char* error_string = (p == end) ? nullptr : p;
 
         if (!new_context.empty()) {
             if (!context.empty()) {

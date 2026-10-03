@@ -55,7 +55,7 @@ class Cursor {
     uint8_t * init(unsigned block_size) {
         if (data && refs() > 1) {
             --refs();
-            data = NULL;
+            data = nullptr;
         }
         if (!data)
             data = new char[block_size + 8];
@@ -85,7 +85,7 @@ class Cursor {
         if (data) {
             if (--refs() == 0)
                 delete [] data;
-            data = NULL;
+            data = nullptr;
             rewrite = false;
         }
     }
@@ -115,12 +115,12 @@ class Cursor {
      * Returns NULL if no block is currently loaded.
      */
     const uint8_t * get_p() const {
-        if (rare(!data)) return NULL;
+        if (rare(!data)) return nullptr;
         return reinterpret_cast<uint8_t*>(data + 8);
     }
 
     uint8_t * get_modifiable_p(unsigned block_size) {
-        if (rare(!data)) return NULL;
+        if (rare(!data)) return nullptr;
         if (refs() > 1) {
             char * new_data = new char[block_size + 8];
             std::memcpy(new_data, data, block_size + 8);
@@ -219,8 +219,8 @@ class GlassCursor {
      *  attached to is destroyed.  It's safe to destroy the GlassCursor
      *  after the Btree though, you just may not use the GlassCursor.
      */
-    explicit GlassCursor(const GlassTable *B,
-                         const Glass::Cursor * C_ = NULL);
+    explicit GlassCursor(const GlassTable* B,
+                         const Glass::Cursor* C_ = nullptr);
 
     /** Clone a cursor.
      *

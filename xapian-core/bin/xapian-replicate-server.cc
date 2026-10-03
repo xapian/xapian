@@ -53,12 +53,12 @@ main(int argc, char **argv)
 {
     const char * opts = "I:p:o";
     static const struct option long_opts[] = {
-        {"interface",   required_argument,  0, 'I'},
-        {"port",        required_argument,  0, 'p'},
-        {"one-shot",    no_argument,        0, 'o'},
-        {"help",        no_argument,        0, OPT_HELP},
-        {"version",     no_argument,        0, OPT_VERSION},
-        {NULL,          0, 0, 0}
+        {"interface",   required_argument,  nullptr, 'I'},
+        {"port",        required_argument,  nullptr, 'p'},
+        {"one-shot",    no_argument,        nullptr, 'o'},
+        {"help",        no_argument,        nullptr, OPT_HELP},
+        {"version",     no_argument,        nullptr, OPT_VERSION},
+        {nullptr,       0, nullptr, 0}
     };
 
     string host;
@@ -67,7 +67,7 @@ main(int argc, char **argv)
     bool one_shot = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case 'I':
                 host.assign(optarg);

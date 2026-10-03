@@ -94,7 +94,7 @@ OrTermList::next()
         TermList* lret = left->next();
         if (lret == left) {
             TermList *ret = right;
-            right = NULL;
+            right = nullptr;
             // Prune.
             RETURN(ret);
         }
@@ -106,7 +106,7 @@ OrTermList::next()
         TermList* rret = right->next();
         if (rret == right) {
             TermList *ret = left;
-            left = NULL;
+            left = nullptr;
             // Prune.
             RETURN(ret);
         }
@@ -119,32 +119,32 @@ OrTermList::next()
         if (lret && lret != left) {
             delete left;
             left = lret;
-            lret = NULL;
+            lret = nullptr;
         }
         TermList* rret = right->next();
         if (rret && rret != right) {
             delete right;
             right = rret;
-            rret = NULL;
+            rret = nullptr;
         }
         if (lret) {
             if (rret)
                 return this;
             TermList *ret = right;
-            right = NULL;
+            right = nullptr;
             // Prune.
             RETURN(ret);
         }
         if (rret) {
             TermList *ret = left;
-            left = NULL;
+            left = nullptr;
             // Prune.
             RETURN(ret);
         }
     }
     cmp = left->get_termname().compare(right->get_termname());
     current_term = cmp < 0 ? left->get_termname() : right->get_termname();
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 TermList*
@@ -155,13 +155,13 @@ OrTermList::skip_to(string_view term)
     if (lret && lret != left) {
         delete left;
         left = lret;
-        lret = NULL;
+        lret = nullptr;
     }
     TermList* rret = right->skip_to(term);
     if (rret && rret != right) {
         delete right;
         right = rret;
-        rret = NULL;
+        rret = nullptr;
     }
     if (lret) {
         // Left at end.
@@ -170,20 +170,20 @@ OrTermList::skip_to(string_view term)
             RETURN(this);
         }
         TermList *ret = right;
-        right = NULL;
+        right = nullptr;
         // Prune.
         RETURN(ret);
     }
     if (rret) {
         // Right at end.
         TermList *ret = left;
-        left = NULL;
+        left = nullptr;
         // Prune.
         RETURN(ret);
     }
     cmp = left->get_termname().compare(right->get_termname());
     current_term = cmp < 0 ? left->get_termname() : right->get_termname();
-    RETURN(NULL);
+    RETURN(nullptr);
 }
 
 Xapian::termcount
@@ -197,7 +197,7 @@ PositionList*
 OrTermList::positionlist_begin() const
 {
     Assert(false);
-    return NULL;
+    return nullptr;
 }
 
 

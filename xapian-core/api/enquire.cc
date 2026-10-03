@@ -103,7 +103,7 @@ void
 Enquire::set_sort_by_value(valueno sort_key, bool reverse)
 {
     internal->sort_by = Internal::VAL;
-    internal->sort_functor = NULL;
+    internal->sort_functor = nullptr;
     internal->sort_key = sort_key;
     internal->sort_val_reverse = reverse;
 }
@@ -111,7 +111,7 @@ Enquire::set_sort_by_value(valueno sort_key, bool reverse)
 void
 Enquire::set_sort_by_key(KeyMaker* sorter, bool reverse)
 {
-    if (sorter == NULL) {
+    if (sorter == nullptr) {
         throw_invalid_arg("Enquire::set_sort_by_key(): sorter cannot be NULL");
     }
     internal->sort_by = Internal::VAL;
@@ -123,7 +123,7 @@ void
 Enquire::set_sort_by_value_then_relevance(valueno sort_key, bool reverse)
 {
     internal->sort_by = Internal::VAL_REL;
-    internal->sort_functor = NULL;
+    internal->sort_functor = nullptr;
     internal->sort_key = sort_key;
     internal->sort_val_reverse = reverse;
 }
@@ -131,7 +131,7 @@ Enquire::set_sort_by_value_then_relevance(valueno sort_key, bool reverse)
 void
 Enquire::set_sort_by_key_then_relevance(KeyMaker* sorter, bool reverse)
 {
-    if (sorter == NULL) {
+    if (sorter == nullptr) {
         throw_invalid_arg("Enquire::set_sort_by_key_then_relevance(): "
                           "sorter cannot be NULL");
     }
@@ -144,7 +144,7 @@ void
 Enquire::set_sort_by_relevance_then_value(valueno sort_key, bool reverse)
 {
     internal->sort_by = Internal::REL_VAL;
-    internal->sort_functor = NULL;
+    internal->sort_functor = nullptr;
     internal->sort_key = sort_key;
     internal->sort_val_reverse = reverse;
 }
@@ -152,7 +152,7 @@ Enquire::set_sort_by_relevance_then_value(valueno sort_key, bool reverse)
 void
 Enquire::set_sort_by_relevance_then_key(KeyMaker* sorter, bool reverse)
 {
-    if (sorter == NULL) {
+    if (sorter == nullptr) {
         throw_invalid_arg("Enquire::set_sort_by_relevance_then_key(): "
                           "sorter cannot be NULL");
     }
@@ -179,7 +179,7 @@ void
 Enquire::add_matchspy(MatchSpy* spy)
 {
     using Xapian::Internal::opt_intrusive_ptr;
-    if (spy == NULL)
+    if (spy == nullptr)
         throw_invalid_arg("Enquire::add_matchspy(): spy cannot be NULL");
     internal->matchspies.push_back(opt_intrusive_ptr<MatchSpy>(spy));
 }
@@ -297,7 +297,7 @@ Enquire::Internal::get_mset(doccount first,
                     rset,
                     *stats,
                     *weight,
-                    (mdecider != NULL),
+                    (mdecider != nullptr),
                     collapse_key,
                     collapse_max,
                     percent_threshold,

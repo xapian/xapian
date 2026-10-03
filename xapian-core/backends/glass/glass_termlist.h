@@ -99,7 +99,7 @@ class GlassTermList : public TermList {
      *  need to call this method to check if the term is present before you
      *  call other methods.
      */
-    bool not_present() const { return pos == NULL; }
+    bool not_present() const { return pos == nullptr; }
 
     /** Return the length of this document.
      *

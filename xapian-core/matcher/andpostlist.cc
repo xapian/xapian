@@ -36,7 +36,7 @@ AndPostList::allocate_plist_and_max_wt()
         max_wt = new double [n_kids]();
     } catch (...) {
         delete [] plist;
-        plist = NULL;
+        plist = nullptr;
         throw;
     }
 }
@@ -95,7 +95,7 @@ AndPostList::find_next_match(double w_min)
 advanced_plist0:
     if (plist[0]->at_end()) {
         did = 0;
-        return NULL;
+        return nullptr;
     }
     did = plist[0]->get_docid();
     for (size_t i = 1; i < n_kids; ++i) {
@@ -107,7 +107,7 @@ advanced_plist0:
         }
         if (plist[i]->at_end()) {
             did = 0;
-            return NULL;
+            return nullptr;
         }
         Xapian::docid new_did = plist[i]->get_docid();
         if (new_did != did) {
@@ -115,7 +115,7 @@ advanced_plist0:
             goto advanced_plist0;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList *

@@ -60,7 +60,7 @@ ExtraWeightPostList::next(double w_min)
         pl = res;
         pltree->force_recalc();
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList*
@@ -69,7 +69,7 @@ ExtraWeightPostList::skip_to(Xapian::docid, double)
     // ExtraWeightPostList's parent will be PostListTree which doesn't
     // call skip_to() or check().
     Assert(false);
-    return NULL;
+    return nullptr;
 }
 
 string

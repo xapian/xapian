@@ -341,7 +341,7 @@ TcpServer::run()
  *
  *  FIXME - is there any way to avoid using a global variable here?
  */
-static const int* pShutdownSocket = NULL;
+static const int* pShutdownSocket = nullptr;
 
 extern "C" {
 
@@ -382,7 +382,7 @@ CtrlHandler(DWORD fdwCtrlType)
         return FALSE;
     }
 
-    pShutdownSocket = NULL;
+    pShutdownSocket = nullptr;
     return TRUE; // Tell the OS that we've handled the event.
 }
 
@@ -436,15 +436,16 @@ TcpServer::run()
             // this->handle_one_connection() on a new thread. There might be a
             // better way...)
             thread_param* param = new thread_param(this, connected_socket);
-            HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread,
-                                                    param, 0, NULL);
-            if (hthread == 0) {
+            auto r = _beginthreadex(nullptr, 0, ::run_thread,
+                                    param, 0, nullptr);
+            if (r == 0) {
                 // errno holds the error code from _beginthreadex, and
                 // closesocket() doesn't set errno.
                 closesocket(connected_socket);
                 throw Xapian::NetworkError("_beginthreadex failed", errno);
             }
 
+            HANDLE hthread = (HANDLE)r;
             // FIXME: keep track of open thread handles so we can gracefully
             // close each thread down.  OTOH, when we want to kill them all its
             // likely to mean the process is on its way down, so it doesn't

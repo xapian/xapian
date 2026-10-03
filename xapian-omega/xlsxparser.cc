@@ -40,7 +40,7 @@ XlsxParser::opening_tag(const string &tag)
         } else {
             mode = MODE_C_LITERAL;
             if (get_attribute("s", type)) {
-                unsigned long style_id = strtoul(type.c_str(), NULL, 10);
+                unsigned long style_id = strtoul(type.c_str(), nullptr, 10);
                 if (date_style.find(style_id) != date_style.end()) {
                     mode = MODE_C_DATE;
                 }
@@ -59,7 +59,7 @@ XlsxParser::opening_tag(const string &tag)
     } else if (tag == "sst") {
         string unique_count;
         if (get_attribute("uniqueCount", unique_count)) {
-            unsigned long c = strtoul(unique_count.c_str(), NULL, 10);
+            unsigned long c = strtoul(unique_count.c_str(), nullptr, 10);
             // This reserving is just a performance tweak, so don't go
             // reserving ludicrous amounts of space just because an XML
             // attribute told us to.
@@ -79,7 +79,7 @@ XlsxParser::opening_tag(const string &tag)
                 strchr(formatcode.c_str(), 'y')) {
                 string v;
                 if (get_attribute("numFmtId", v)) {
-                    unsigned long id = strtoul(v.c_str(), NULL, 10);
+                    unsigned long id = strtoul(v.c_str(), nullptr, 10);
                     date_format.insert(id);
                 }
             }
@@ -90,7 +90,7 @@ XlsxParser::opening_tag(const string &tag)
         if (mode == MODE_CELLXFS) {
             string v;
             if (get_attribute("numFmtId", v)) {
-                unsigned long id = strtoul(v.c_str(), NULL, 10);
+                unsigned long id = strtoul(v.c_str(), nullptr, 10);
                 if ((id >= 14 && id <= 17) ||
                     date_format.find(id) != date_format.end()) {
                     date_style.insert(style_index);
@@ -108,7 +108,7 @@ XlsxParser::process_content(const string& content)
     switch (mode) {
         case MODE_V_DATE: {
             // Date field.
-            unsigned long c = strtoul(content.c_str(), NULL, 10);
+            unsigned long c = strtoul(content.c_str(), nullptr, 10);
             if (date1904) {
                 c -= 24107;
             } else {
@@ -129,7 +129,7 @@ XlsxParser::process_content(const string& content)
         }
         case MODE_V_STRING: {
             // Shared string use.
-            unsigned long c = strtoul(content.c_str(), NULL, 10);
+            unsigned long c = strtoul(content.c_str(), nullptr, 10);
             if (c < sst.size()) {
                 append_field(sst[c]);
             }

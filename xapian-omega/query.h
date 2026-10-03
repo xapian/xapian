@@ -80,7 +80,7 @@ class OmegaExpandDecider : public Xapian::ExpandDecider {
     std::set<std::string> exclude_stems;
   public:
     OmegaExpandDecider(const Xapian::Database& db_,
-                       std::set<std::string>* querytermset = NULL);
+                       std::set<std::string>* querytermset = nullptr);
     bool operator()(const std::string& term) const override;
 };
 

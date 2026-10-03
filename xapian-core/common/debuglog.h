@@ -426,7 +426,8 @@ class DebugLogFuncVoid {
         xapian_logcall_stream_ << PARAMS; \
         xapian_logcall_parameters_ = xapian_logcall_ostream_.str(); \
     } \
-    DebugLogFunc xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, FUNC, xapian_logcall_parameters_)
+    DebugLogFunc xapian_logcall_(nullptr, DEBUGLOG_CATEGORY_##CATEGORY, #TYPE, \
+                                 FUNC, xapian_logcall_parameters_)
 
 /// Log a call to a static method returning void.
 #define LOGCALL_STATIC_VOID(CATEGORY, FUNC, PARAMS) \
@@ -437,7 +438,8 @@ class DebugLogFuncVoid {
         xapian_logcall_stream_ << PARAMS; \
         xapian_logcall_parameters_ = xapian_logcall_ostream_.str(); \
     } \
-    DebugLogFuncVoid xapian_logcall_(0, DEBUGLOG_CATEGORY_##CATEGORY, FUNC, xapian_logcall_parameters_)
+    DebugLogFuncVoid xapian_logcall_(nullptr, DEBUGLOG_CATEGORY_##CATEGORY, \
+                                     FUNC, xapian_logcall_parameters_)
 
 /// Log returning a value.
 /* Use __VA_ARGS__ so things like `RETURN({1, 2})` work. */

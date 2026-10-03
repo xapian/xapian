@@ -356,7 +356,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     GrepMatchDecider myfunctor("This is");
 
-    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
+    Xapian::MSet mymset = enquire.get_mset(0, 100, nullptr, &myfunctor);
 
     vector<bool> docid_checked(db.get_lastdocid());
 
@@ -384,7 +384,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     // Check that the bounds are appropriate even if we don't ask for any
     // actual matches.
-    mymset = enquire.get_mset(0, 0, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 0, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 6);
@@ -398,7 +398,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // Check that the bounds are appropriate if we ask for only one hit.
     // (Regression test - until SVN 10256, we didn't reduce the lower_bound
     // appropriately, and returned 6 here.)
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -423,7 +423,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // Check that the bounds are appropriate if a collapse key is used.
     // Use a value which is never set so we don't actually discard anything.
     enquire.set_collapse_key(99);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -442,7 +442,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
     // use.  Set a 1% threshold so we don't actually discard anything.
     enquire.set_collapse_key(Xapian::BAD_VALUENO);
     enquire.set_cutoff(1);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -459,7 +459,7 @@ DEFINE_TESTCASE(matchdecider1, backend && !remote) {
 
     // And now with both a collapse key and percentage cutoff.
     enquire.set_collapse_key(99);
-    mymset = enquire.get_mset(0, 1, 0, &myfunctor);
+    mymset = enquire.get_mset(0, 1, nullptr, &myfunctor);
     TEST_EQUAL(mymset.size(), 1);
     TEST_REL(mymset.get_matches_lower_bound(),>=,1);
     TEST_REL(mymset.get_matches_lower_bound(),<=,3);
@@ -483,7 +483,7 @@ DEFINE_TESTCASE(matchdecider2, backend && !remote) {
 
     GrepMatchDecider myfunctor("This is");
 
-    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &myfunctor);
+    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, nullptr, &myfunctor);
 
     vector<bool> docid_checked(db.get_lastdocid());
 
@@ -516,8 +516,8 @@ DEFINE_TESTCASE(matchdecider3, backend && !remote) {
 
     GrepMatchDecider myfunctor("We produce");
 
-    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, NULL, &myfunctor);
-    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, NULL, &myfunctor);
+    Xapian::MSet mset1 = enquire.get_mset(0, 2, 0, nullptr, &myfunctor);
+    Xapian::MSet mset2 = enquire.get_mset(0, 1000, 0, nullptr, &myfunctor);
 
     // mset2 should contain all the hits, so the statistics should be exact.
     TEST_EQUAL(mset2.get_matches_estimated(), mset2.size());
@@ -1788,8 +1788,8 @@ DEFINE_TESTCASE(valuesetmatchdecider2, backend && !remote) {
 
     Xapian::MSet mymset = enq.get_mset(0, 20);
     mset_expect_order(mymset, 8, 6, 4, 5, 7, 10, 12, 11, 13, 9, 14);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd1);
+    mymset = enq.get_mset(0, 20, 0, nullptr, &vsmd1);
     mset_expect_order(mymset, 6, 12);
-    mymset = enq.get_mset(0, 20, 0, NULL, &vsmd2);
+    mymset = enq.get_mset(0, 20, 0, nullptr, &vsmd2);
     mset_expect_order(mymset, 8, 4, 5, 7, 10, 11, 13, 9, 14);
 }

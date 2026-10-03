@@ -57,7 +57,7 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     if (!out || out_len < size) {
         out_len = size;
         delete [] out;
-        out = NULL;
+        out = nullptr;
         out = new char[size];
     }
     deflate_zstream->avail_in = static_cast<uInt>(size);
@@ -71,12 +71,12 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     int zerr = deflate(deflate_zstream, Z_FINISH);
     if (zerr != Z_STREAM_END) {
         // Deflate failed - presumably the data wasn't compressible.
-        return NULL;
+        return nullptr;
     }
 
     if (deflate_zstream->total_out >= size) {
         // It didn't get smaller.
-        return NULL;
+        return nullptr;
     }
 
     *p_size = deflate_zstream->total_out;
@@ -124,9 +124,9 @@ CompressionStream::lazy_alloc_deflate_zstream() {
 
     deflate_zstream = new z_stream;
 
-    deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = static_cast<voidpf>(0);
+    deflate_zstream->zalloc = static_cast<alloc_func>(nullptr);
+    deflate_zstream->zfree = static_cast<free_func>(nullptr);
+    deflate_zstream->opaque = static_cast<voidpf>(nullptr);
 
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)
@@ -135,7 +135,7 @@ CompressionStream::lazy_alloc_deflate_zstream() {
     if (rare(err != Z_OK)) {
         if (err == Z_MEM_ERROR) {
             delete deflate_zstream;
-            deflate_zstream = 0;
+            deflate_zstream = nullptr;
             throw std::bad_alloc();
         }
         string msg = "deflateInit2 failed (";
@@ -146,7 +146,7 @@ CompressionStream::lazy_alloc_deflate_zstream() {
         }
         msg += ')';
         delete deflate_zstream;
-        deflate_zstream = 0;
+        deflate_zstream = nullptr;
         throw Xapian::DatabaseError(msg);
     }
 }
@@ -161,17 +161,17 @@ CompressionStream::lazy_alloc_inflate_zstream() {
 
     inflate_zstream = new z_stream;
 
-    inflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
-    inflate_zstream->zfree = reinterpret_cast<free_func>(0);
+    inflate_zstream->zalloc = static_cast<alloc_func>(nullptr);
+    inflate_zstream->zfree = static_cast<free_func>(nullptr);
 
-    inflate_zstream->next_in = Z_NULL;
+    inflate_zstream->next_in = nullptr;
     inflate_zstream->avail_in = 0;
 
     int err = inflateInit2(inflate_zstream, -15);
     if (rare(err != Z_OK)) {
         if (err == Z_MEM_ERROR) {
             delete inflate_zstream;
-            inflate_zstream = 0;
+            inflate_zstream = nullptr;
             throw std::bad_alloc();
         }
         string msg = "inflateInit2 failed (";
@@ -182,7 +182,7 @@ CompressionStream::lazy_alloc_inflate_zstream() {
         }
         msg += ')';
         delete inflate_zstream;
-        inflate_zstream = 0;
+        inflate_zstream = nullptr;
         throw Xapian::DatabaseError(msg);
     }
 }

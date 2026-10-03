@@ -138,7 +138,7 @@ class WordIterator {
         : WordIterator(s.data(), s.size()) { }
 
     WordIterator()
-        : p(done), brk(NULL) { }
+        : p(done), brk(nullptr) { }
 
     ~WordIterator() { delete brk; }
 

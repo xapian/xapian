@@ -58,7 +58,7 @@ class GlassPostList : public LeafPostList {
     Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db;
 
     /// The position list object for this posting list.
-    GlassRePositionList* positionlist = NULL;
+    GlassRePositionList* positionlist = nullptr;
 
     /// Whether we've started reading the list yet.
     bool have_started;
@@ -237,7 +237,7 @@ class GlassPostListTable : public GlassTable {
 
     void open(int flags_, const RootInfo & root_info,
               glass_revision_number_t rev) {
-        doclen_pl.reset(0);
+        doclen_pl.reset();
         GlassTable::open(flags_, root_info, rev);
     }
 
@@ -282,7 +282,7 @@ class GlassPostListTable : public GlassTable {
     void get_freqs(std::string_view term,
                    Xapian::doccount* termfreq_ptr,
                    Xapian::termcount* collfreq_ptr,
-                   Xapian::termcount* wdfub_ptr = NULL) const;
+                   Xapian::termcount* wdfub_ptr = nullptr) const;
 
     /** Returns the length of document @a did. */
     Xapian::termcount get_doclength(Xapian::docid did,

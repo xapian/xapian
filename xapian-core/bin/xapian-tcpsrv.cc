@@ -57,17 +57,17 @@ static void register_user_weighting_schemes(RemoteTcpServer &server) {
 
 static const char * opts = "I:p:a:i:t:oqw";
 static const struct option long_opts[] = {
-    {"interface",       required_argument,  0, 'I'},
-    {"port",            required_argument,  0, 'p'},
-    {"active-timeout",  required_argument,  0, 'a'},
-    {"idle-timeout",    required_argument,  0, 'i'},
-    {"timeout",         required_argument,  0, 't'},
-    {"one-shot",        no_argument,        0, 'o'},
-    {"quiet",           no_argument,        0, 'q'},
-    {"writable",        no_argument,        0, 'w'},
-    {"help",            no_argument,        0, OPT_HELP},
-    {"version",         no_argument,        0, OPT_VERSION},
-    {NULL, 0, 0, 0}
+    {"interface",       required_argument,  nullptr, 'I'},
+    {"port",            required_argument,  nullptr, 'p'},
+    {"active-timeout",  required_argument,  nullptr, 'a'},
+    {"idle-timeout",    required_argument,  nullptr, 'i'},
+    {"timeout",         required_argument,  nullptr, 't'},
+    {"one-shot",        no_argument,        nullptr, 'o'},
+    {"quiet",           no_argument,        nullptr, 'q'},
+    {"writable",        no_argument,        nullptr, 'w'},
+    {"help",            no_argument,        nullptr, OPT_HELP},
+    {"version",         no_argument,        nullptr, OPT_VERSION},
+    {nullptr, 0, nullptr, 0}
 };
 
 static void show_usage() {
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
+    while ((c = gnu_getopt_long(argc, argv, opts, long_opts, nullptr)) != -1) {
         switch (c) {
             case OPT_HELP:
                 cout << PROG_NAME " - " PROG_DESC "\n\n";
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (syntax_error || argv[optind] == NULL) {
+    if (syntax_error || argv[optind] == nullptr) {
         show_usage();
         exit(1);
     }

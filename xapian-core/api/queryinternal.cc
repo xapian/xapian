@@ -279,7 +279,7 @@ done_skip_to:
             --expansions_left;
         }
 
-        add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
+        add_postlist(qopt->open_lazy_post_list(term, 1, factor), nullptr);
         // Generate a single EstimateOp to avoid overhead for wildcards
         // which expand to a lot of terms? (FIXME)
     }
@@ -367,7 +367,7 @@ done_skip_to:
             --expansions_left;
         }
 
-        add_postlist(qopt->open_lazy_post_list(term, 1, factor), NULL);
+        add_postlist(qopt->open_lazy_post_list(term, 1, factor), nullptr);
     }
 
     if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
@@ -719,7 +719,7 @@ class AndContext : public Context {
         }
         shrink(0);
         match_all = false;
-        return termfreqs != NULL;
+        return termfreqs != nullptr;
     }
 
     bool add_postlist(PostListAndEstimate p, TermFreqs* termfreqs) {
@@ -850,8 +850,8 @@ AndContext::postlist(TermFreqs* termfreqs)
             // stack.
         } else {
             TermFreqs r_freqs;
-            auto [rhs, rhs_est] = not_ctx->postlist(termfreqs ? &r_freqs : NULL,
-                                                    true);
+            auto [rhs, rhs_est] =
+                not_ctx->postlist(termfreqs ? &r_freqs : nullptr, true);
             if (termfreqs) {
                 TermFreqs& freqs = *termfreqs;
                 auto& stats = *qopt->get_stats();
@@ -983,7 +983,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
                              const Registry & reg)
 {
     if (*p == end)
-        return NULL;
+        return nullptr;
     unsigned char ch = static_cast<unsigned char>(*(*p)++);
     switch (ch >> 5) {
         case 4: case 5: case 6: case 7: {
@@ -1594,7 +1594,7 @@ QueryValueRange::postlist(QueryOptimiser* qopt, double factor,
                                           value_freq, slot, string());
             RETURN({pl, std::move(est)});
         }
-        auto tf_est = estimate_range_freq(lb, ub, begin, NULL, value_freq);
+        auto tf_est = estimate_range_freq(lb, ub, begin, nullptr, value_freq);
         unique_ptr<EstimateOp> est;
         if (!qopt->get_no_estimates())
             est.reset(new EstimateOp(Estimates{0, tf_est, value_freq}));
@@ -1796,7 +1796,7 @@ QueryValueGE::postlist(QueryOptimiser* qopt, double factor,
                                       value_freq, slot, string());
         RETURN({pl, std::move(est)});
     }
-    auto tf_est = estimate_range_freq(lb, ub, limit, NULL, value_freq);
+    auto tf_est = estimate_range_freq(lb, ub, limit, nullptr, value_freq);
     unique_ptr<EstimateOp> est;
     if (!qopt->get_no_estimates())
         est.reset(new EstimateOp(Estimates{0, tf_est, value_freq}));
@@ -2583,7 +2583,7 @@ QueryAndLike::done()
 {
     // Empty AndLike gives MatchNothing.
     if (subqueries.empty())
-        return NULL;
+        return nullptr;
     // We handle any subquery being MatchNothing in add_subquery() by leaving
     // a single MatchNothing subquery, and so this check results in AndLike
     // giving MatchNothing.
@@ -2634,7 +2634,7 @@ QueryOrLike::done()
     // An empty OrLike gives MatchNothing.  Note that add_subquery() drops any
     // subqueries which are MatchNothing.
     if (subqueries.empty())
-        return NULL;
+        return nullptr;
     if (subqueries.size() == 1)
         return subqueries[0].internal.get();
     return this;
@@ -2889,7 +2889,7 @@ QueryWindowed::postlist_windowed(Query::op op,
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
         // MatchNothing subqueries should have been removed by done().
         Assert((*i).internal);
-        PostListAndEstimate plest = (*i).internal->postlist(qopt, factor, NULL);
+        auto plest = (*i).internal->postlist(qopt, factor, nullptr);
         if (plest.pl && (*i).internal->get_type() != Query::LEAF_TERM) {
             plest.pl = new OrPosPostList(plest.pl);
         }
@@ -2903,7 +2903,7 @@ QueryWindowed::postlist_windowed(Query::op op,
                 // FIXME: Can we handle this more gracefully?
                 Assert((*i).internal);
                 qopt->destroy_postlist((*i).internal->postlist(qopt, factor,
-                                                               NULL).pl);
+                                                               nullptr).pl);
             }
             break;
         }
@@ -2979,7 +2979,7 @@ QuerySynonym::done()
     // An empty Synonym gives MatchNothing.  Note that add_subquery() drops any
     // subqueries which are MatchNothing.
     if (subqueries.empty())
-        return NULL;
+        return nullptr;
     if (subqueries.size() == 1) {
         Query::op sub_type = subqueries[0].get_type();
         // Synonym of a single subquery should only be simplified if that

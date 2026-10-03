@@ -41,7 +41,7 @@ const char *
 built_in_mime_map(const string & ext)
 {
     int k = keyword2(tab, ext.data(), ext.size());
-    return k >= 0 ? default_mime_map[k] : NULL;
+    return k >= 0 ? default_mime_map[k] : nullptr;
 }
 
 string

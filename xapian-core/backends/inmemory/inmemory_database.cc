@@ -151,7 +151,7 @@ InMemoryPostList::next(double /*w_min*/)
     } else {
         started = true;
     }
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -171,7 +171,7 @@ InMemoryPostList::skip_to(Xapian::docid did, double w_min)
     while (!at_end() && (*pos).did < did) {
         (void) next(w_min);
     }
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -272,7 +272,7 @@ InMemoryTermList::get_termfreq() const
     Assert(pos != end);
 
     Xapian::doccount tf;
-    db->get_freqs((*pos).term, &tf, NULL);
+    db->get_freqs((*pos).term, &tf, nullptr);
     return tf;
 }
 
@@ -308,7 +308,7 @@ InMemoryTermList::next()
     if (pos == end)
         return this;
     current_term = pos->term;
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -325,7 +325,7 @@ InMemoryTermList::skip_to(string_view term)
     if (pos == end)
         return this;
     current_term = pos->term;
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount
@@ -388,7 +388,7 @@ InMemoryAllDocsPostList::next(double /*w_min*/)
     do {
         ++did;
     } while (did <= db->termlists.size() && !db->termlists[did - 1].is_valid);
-    return NULL;
+    return nullptr;
 }
 
 PostList *
@@ -402,7 +402,7 @@ InMemoryAllDocsPostList::skip_to(Xapian::docid did_, double /*w_min*/)
             ++did;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -571,7 +571,7 @@ InMemoryDatabase::get_wdf_upper_bound(string_view term) const
     // Not a very tight bound in general, but InMemory isn't really built for
     // performance.
     Xapian::termcount cf;
-    get_freqs(term, NULL, &cf);
+    get_freqs(term, nullptr, &cf);
     return cf;
 }
 
@@ -682,7 +682,7 @@ TermList *
 InMemoryDatabase::open_metadata_keylist(string_view) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
-    if (metadata.empty()) return NULL;
+    if (metadata.empty()) return nullptr;
     // FIXME: nobody implemented this yet...
     throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");
 }

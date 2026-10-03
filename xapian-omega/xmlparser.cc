@@ -260,7 +260,7 @@ XmlParser::parse(string_view text)
                 // XML declaration looks something like this:
                 // <?xml version="1.0" encoding="UTF-8"?>
                 if (p[2] != 'x' || p[3] != 'm' || p[4] != 'l') break;
-                if (strchr(" \t\r\n", p[5]) == NULL) break;
+                if (strchr(" \t\r\n", p[5]) == nullptr) break;
 
                 // If parsing HTML switch to XHTML mode.
                 if (state >= HTML) state = XHTML;

@@ -77,7 +77,7 @@ RemoteTermList::next()
         !unpack_uint(&p, p_end, &current_termfreq)) {
         unpack_throw_serialisation_error(p);
     }
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -91,7 +91,7 @@ RemoteTermList::skip_to(std::string_view term)
         if (RemoteTermList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount

@@ -101,7 +101,7 @@ class HoneyFreeList {
     bool empty() const { return fl == fl_end; }
 
     uint4 get_block(const HoneyTable* B, uint4 block_size,
-                    uint4* blk_to_free = NULL);
+                    uint4* blk_to_free = nullptr);
 
     uint4 walk(const HoneyTable* B, uint4 block_size, bool inclusive);
 

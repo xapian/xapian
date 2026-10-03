@@ -88,7 +88,7 @@ MultiValueList::next()
             valuelists[i]->next();
             if (valuelists[i]->at_end()) {
                 delete valuelists[i];
-                valuelists[i] = 0;
+                valuelists[i] = nullptr;
             } else {
                 if (i != j)
                     swap(valuelists[i], valuelists[j]);
@@ -131,7 +131,7 @@ MultiValueList::skip_to(Xapian::docid did)
         valuelists[i]->skip_to(did, n_shards);
         if (valuelists[i]->at_end()) {
             delete valuelists[i];
-            valuelists[i] = 0;
+            valuelists[i] = nullptr;
         } else {
             if (i != j)
                 swap(valuelists[i], valuelists[j]);

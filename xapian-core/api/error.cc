@@ -50,7 +50,7 @@ const char *
 Xapian::Error::get_error_string() const
 {
     if (error_string.empty()) {
-        if (my_errno == 0) return NULL;
+        if (my_errno == 0) return nullptr;
 #ifdef __WIN32__
         if (my_errno < 0 || my_errno >= WSABASEERR) {
             int e = abs(my_errno);
@@ -58,7 +58,7 @@ Xapian::Error::get_error_string() const
             char * error;
             len = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|
                                  FORMAT_MESSAGE_ALLOCATE_BUFFER,
-                                 0, e, 0, (CHAR*)&error, 0, 0);
+                                 nullptr, e, 0, (CHAR*)&error, 0, nullptr);
             if (error) {
                 // Remove any trailing \r\n from output of FormatMessage.
                 if (len >= 2 && memcmp(error + len - 2, "\r\n", 2) == 0)

@@ -49,7 +49,7 @@ class BackendManagerHoney : public BackendManager {
   public:
     BackendManagerHoney(const std::string& datadir_)
         : BackendManager(datadir_, "honey"),
-          generated_sub_manager(NULL) { }
+          generated_sub_manager(nullptr) { }
 
     BackendManagerHoney(const std::string& datadir_,
                         BackendManager* generated_sub_manager_)

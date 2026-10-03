@@ -204,7 +204,7 @@ PointTermIterator::next()
         return this;
     }
     current_term = i->first;
-    return NULL;
+    return nullptr;
 }
 
 TermIterator

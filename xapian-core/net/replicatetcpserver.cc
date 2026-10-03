@@ -58,7 +58,7 @@ ReplicateTcpServer::handle_one_connection(int socket)
         dbpath += '/';
         dbpath += dbname;
         Xapian::DatabaseMaster master(dbpath);
-        master.write_changesets_to_fd(socket, start_revision, NULL);
+        master.write_changesets_to_fd(socket, start_revision, nullptr);
     } catch (...) {
         // Ignore exceptions.
     }

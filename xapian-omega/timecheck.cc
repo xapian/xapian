@@ -28,9 +28,9 @@ using namespace std;
 int
 main()
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     struct tm* t = gmtime(&now);
-    if (t == NULL) return 1;
+    if (t == nullptr) return 1;
     cout << t->tm_year + 1900 << '\n';
     return 0;
 }

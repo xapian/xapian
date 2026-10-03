@@ -54,7 +54,7 @@ class HoneyAllTermsList : public AllTermsList {
      *  We also set this to NULL to signal the iterator has reached the
      *  end - in this case database will also be NULL.
      */
-    HoneyCursor* cursor = NULL;
+    HoneyCursor* cursor = nullptr;
 
     /// The prefix to restrict the terms to.
     std::string prefix;

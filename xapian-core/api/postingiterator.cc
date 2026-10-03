@@ -46,7 +46,7 @@ PostingIterator::PostingIterator(Internal *internal_) : internal(internal_)
         ++internal->_refs;
         if (!internal->next()) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     } catch (...) {
         // The destructor only runs if the constructor completes, so we have to
@@ -91,7 +91,7 @@ PostingIterator::operator++()
     Assert(internal);
     if (!internal->next()) {
         decref();
-        internal = NULL;
+        internal = nullptr;
     }
     RETURN(*this);
 }
@@ -153,7 +153,7 @@ PostingIterator::skip_to(Xapian::docid did)
     if (internal) {
         if (!internal->skip_to(did)) {
             decref();
-            internal = NULL;
+            internal = nullptr;
         }
     }
 }

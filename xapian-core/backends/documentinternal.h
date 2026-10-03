@@ -208,7 +208,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  compared to the version read, otherwise it means modifications
      *  compared to an empty database.
      */
-    bool data_modified() const { return data != NULL; }
+    bool data_modified() const { return data != nullptr; }
 
     /** Return true if the document's terms might have been modified.
      *
@@ -216,7 +216,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  compared to the version read, otherwise it means modifications
      *  compared to an empty database.
      */
-    bool terms_modified() const { return terms != NULL; }
+    bool terms_modified() const { return terms != nullptr; }
 
     /** Return true if the document's values might have been modified.
      *
@@ -224,7 +224,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
      *  compared to the version read, otherwise it means modifications
      *  compared to an empty database.
      */
-    bool values_modified() const { return values != NULL; }
+    bool values_modified() const { return values != nullptr; }
 
     /** Return true if the document might have been modified in any way.
      *

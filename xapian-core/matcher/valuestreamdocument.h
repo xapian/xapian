@@ -47,7 +47,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
     Xapian::doccount n_shards;
 
-    mutable Xapian::Document::Internal * doc = NULL;
+    mutable Xapian::Document::Internal* doc = nullptr;
 
     /** Private constructor.
      *
@@ -74,7 +74,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
         if (did != shard_did) {
             did = shard_did;
             delete doc;
-            doc = NULL;
+            doc = nullptr;
         }
     }
 

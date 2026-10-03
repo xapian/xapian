@@ -74,7 +74,7 @@ static enc_testcase urlenc_testcases[] = {
     { "\xE8\xE9\xEA\xEB\xEC\xED\xEE\xEF", "%E8%E9%EA%EB%EC%ED%EE%EF" },
     { "\xF0\xF1\xF2\xF3\xF4\xF5\xF6\xF7", "%F0%F1%F2%F3%F4%F5%F6%F7" },
     { "\xF8\xF9\xFA\xFB\xFC\xFD\xFE\xFF", "%F8%F9%FA%FB%FC%FD%FE%FF" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 struct dec_testcase {
@@ -83,22 +83,22 @@ struct dec_testcase {
 };
 
 static dec_testcase urldec_testcases[] = {
-    { "", { 0 } },
-    { "foo=bar", { "foo", "bar", 0 } },
-    { "foo=a%20b&", { "foo", "a b", 0 } },
-    { "&foo=hello+world", { "foo", "hello world", 0 } },
-    { "&foo=1&", { "foo", "1", 0 } },
-    { "foo=1&&bar=2", { "bar", "2", "foo", "1", 0 } },
-    { "a+1=bar%", { "a 1", "bar%", 0 } },
-    { "a%201=bar%0", { "a 1", "bar%0", 0 } },
-    { "a%2x1=bar%x", { "a%2x1", "bar%x", 0 } },
-    { "a%2x1%%40=bar%x", { "a%2x1%@", "bar%x", 0 } },
+    { "", { nullptr } },
+    { "foo=bar", { "foo", "bar", nullptr } },
+    { "foo=a%20b&", { "foo", "a b", nullptr } },
+    { "&foo=hello+world", { "foo", "hello world", nullptr } },
+    { "&foo=1&", { "foo", "1", nullptr } },
+    { "foo=1&&bar=2", { "bar", "2", "foo", "1", nullptr } },
+    { "a+1=bar%", { "a 1", "bar%", nullptr } },
+    { "a%201=bar%0", { "a 1", "bar%0", nullptr } },
+    { "a%2x1=bar%x", { "a%2x1", "bar%x", nullptr } },
+    { "a%2x1%%40=bar%x", { "a%2x1%@", "bar%x", nullptr } },
     { "a%01%1f%2A%30%4d%5a%9A%9f%Aa%bF%C0%De%E2%FF=bar%0%",
-      { "a\x01\x1f*0MZ\x9a\x9f\xaa\xbf\xc0\xde\xe2\xff", "bar%0%", 0 } },
-    { "a=1&b=2&a=1", { "a", "1", "a", "1", "b", "2", 0 } },
+      { "a\x01\x1f*0MZ\x9a\x9f\xaa\xbf\xc0\xde\xe2\xff", "bar%0%", nullptr } },
+    { "a=1&b=2&a=1", { "a", "1", "a", "1", "b", "2", nullptr } },
     // Regression test for bug fixed in 1.2.13 and 1.3.1:
     { "price=10%24", { "price", "10$" } },
-    { NULL, { 0 } }
+    { nullptr, { nullptr } }
 };
 
 struct pretty_testcase {
@@ -108,53 +108,53 @@ struct pretty_testcase {
 
 // 0 for result means "same as input" here.
 struct pretty_testcase pretty_testcases[] = {
-    { "", 0 },
-    { "http://localhost/", 0 },
-    { "%", 0 },
-    { "%x", 0 },
-    { "%xy", 0 },
-    { "%xyz", 0 },
-    { "%25", 0 },
+    { "", nullptr },
+    { "http://localhost/", nullptr },
+    { "%", nullptr },
+    { "%x", nullptr },
+    { "%xy", nullptr },
+    { "%xyz", nullptr },
+    { "%25", nullptr },
     { "%20", " " },
     { "%20hello", " hello" },
     { "http://example.com/%7ehello%20world/",
       "http://example.com/~hello world/" },
     { "http://example.com/%25/a%20b%80/100%",
       "http://example.com/%25/a b%80/100%" },
-    { "http:http.html", 0 },
-    { "http%3ahttp.html", 0 },
-    { "/foo.html?a%3db=c%2bd", 0 },
-    { "/foo.html#%31", 0 },
+    { "http:http.html", nullptr },
+    { "http%3ahttp.html", nullptr },
+    { "/foo.html?a%3db=c%2bd", nullptr },
+    { "/foo.html#%31", nullptr },
     { "/x%3dy.html", "/x=y.html" },
     { "/XML%3a%3aSimple.html", "/XML::Simple.html" },
     { "back%20slash%2fco%3alon", "back slash%2fco%3alon" },
     { "%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "%5b%5D%40!$&'()*+,;=" },
     { "/%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "/[]@!$&'()*+,;=" },
-    { "https://x%3ax%40x%5b%5dx/", 0 },
-    { "//x%3ax%40x%5b%5dx/", 0 },
+    { "https://x%3ax%40x%5b%5dx/", nullptr },
+    { "//x%3ax%40x%5b%5dx/", nullptr },
     { "/f%c3%bcr", "/f\xc3\xbcr" },
     { "%c3%bc", "\xc3\xbc" },
-    { "%c3%b", 0 },
-    { "%c3%", 0 },
-    { "%c3", 0 },
-    { "%c3x", 0 },
-    { "%80", 0 },
-    { "%bf", 0 },
-    { "/%ff", 0 },
+    { "%c3%b", nullptr },
+    { "%c3%", nullptr },
+    { "%c3", nullptr },
+    { "%c3x", nullptr },
+    { "%80", nullptr },
+    { "%bf", nullptr },
+    { "/%ff", nullptr },
     { "/%fe%ff%20/", "/%fe%ff /" },
     { "/%c3%20.htm", "/%c3 .htm" },
     { "hellip%e2%80%a6.gif", "hellip\xe2\x80\xa6.gif" },
-    { "hellip%e2%80%a", 0 },
-    { "hellip%e2%80", 0 },
+    { "hellip%e2%80%a", nullptr },
+    { "hellip%e2%80", nullptr },
     // Example from #644:
     { "Szerz%C5%91d%C3%A9sek", "Szerz\xc5\x91""d\xc3\xa9sek" },
     // Overlong sequences:
-    { "/%C080.nul", 0 },
-    { "%e0%9f%88/index.html", 0 },
-    { "%e0%81%9e/f0%82%81%80-fyi", 0 },
+    { "/%C080.nul", nullptr },
+    { "%e0%9f%88/index.html", nullptr },
+    { "%e0%81%9e/f0%82%81%80-fyi", nullptr },
     // Code point above Unicode range:
-    { "/%f4%90%80%80/", 0 },
-    { NULL, NULL }
+    { "/%f4%90%80%80/", nullptr },
+    { nullptr, nullptr }
 };
 
 static multimap<string, string> params;

@@ -111,8 +111,8 @@ static bool date_filter_set = false;
 static Xapian::Query date_filter;
 
 static Xapian::QueryParser qp;
-static Xapian::NumberRangeProcessor * size_rp = NULL;
-static Xapian::Stem *stemmer = NULL;
+static Xapian::NumberRangeProcessor* size_rp = nullptr;
+static Xapian::Stem* stemmer = nullptr;
 
 static string eval_file(const string& fmtfile, bool* p_not_found = nullptr);
 
@@ -489,7 +489,7 @@ parse_queries(const string& oldp)
 
     const char *term = oldp.c_str();
     const char *pend;
-    while ((pend = strchr(term, oldp_separator)) != NULL) {
+    while ((pend = strchr(term, oldp_separator)) != nullptr) {
         if (termset.find(string(term, pend - term)) == termset.end())
             return NEW_QUERY;
         term = pend + 1;
@@ -1245,7 +1245,7 @@ T(valuelowerbound, 1, 1, N, 0), // return value slot lower bound
 T(valueupperbound, 1, 1, N, 0), // return value slot upper bound
 T(version,         0, 0, N, 0), // omega version string
 T(weight,          0, 0, N, 0), // weight of the current hit
-{ NULL, {0,        0, 0, 0, 0}}
+{ nullptr, {0,     0, 0, 0, 0}}
 };
 
 #undef T // Leaving T defined screws up Sun's C++ compiler!
@@ -1306,7 +1306,7 @@ eval(const string& fmt, vector<string>& param)
 {
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
-        for (auto p = func_tab; p->name != NULL; ++p) {
+        for (auto p = func_tab; p->name != nullptr; ++p) {
             func_map[string(p->name)] = &(p->a);
         }
     }
@@ -1517,7 +1517,7 @@ eval(const string& fmt, vector<string>& param)
                 break;
             }
             case CMD_cgiparams: {
-                const string* prev = NULL;
+                const string* prev = nullptr;
                 for (auto&& i : cgi_params) {
                     if (prev && i.first == *prev) continue;
                     value += i.first;
@@ -1642,14 +1642,14 @@ eval(const string& fmt, vector<string>& param)
             }
             case CMD_env: {
                 char *env = getenv(args[0].c_str());
-                if (env != NULL) value = env;
+                if (env != nullptr) value = env;
                 break;
             }
             case CMD_eq:
                 if (args[0] == args[1]) value = "true";
                 break;
             case CMD_error:
-                if (error_msg.empty() && enquire == NULL && !dbname.empty()) {
+                if (error_msg.empty() && !enquire && !dbname.empty()) {
                     error_msg = "Database '" + dbname + "' couldn't be opened";
                 }
                 value = error_msg;
@@ -1672,7 +1672,7 @@ eval(const string& fmt, vector<string>& param)
                 }
                 int intpart = size;
                 int fraction = -1;
-                const char * format = 0;
+                const char* format = nullptr;
                 if (size < 0) {
                     // Negative size -> empty result.
                 } else if (size == 1) {
@@ -2316,7 +2316,7 @@ eval(const string& fmt, vector<string>& param)
                 if (args[0].empty()) value = "true";
                 break;
             case CMD_now:
-                value = str(static_cast<unsigned long>(time(NULL)));
+                value = str(static_cast<unsigned long>(time(nullptr)));
                 break;
             case CMD_opt:
                 if (args.size() == 2) {
@@ -2844,7 +2844,7 @@ eval(const string& fmt, vector<string>& param)
                 value = str(binary_string_to_int(args[0]));
                 break;
             case CMD_unprefix: {
-                size_t prefix_len = prefix_from_term(NULL, args[0]);
+                size_t prefix_len = prefix_from_term(nullptr, args[0]);
                 value.assign(args[0], prefix_len, string::npos);
                 break;
             }
@@ -3210,7 +3210,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
             }
 
             if (C_isupper(ch)) {
-                size_t prefix_len = prefix_from_term(NULL, term);
+                size_t prefix_len = prefix_from_term(nullptr, term);
                 term.erase(0, prefix_len);
             }
 

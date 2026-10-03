@@ -24,8 +24,17 @@
 #include "str.h"
 #include "tmpdir.h"
 
+#ifdef __GNUC__
+// Glib headers trigger -Wzero-as-null-pointer-constant
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
+#endif
 #include <poppler-document.h>
 #include <poppler-page.h>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+
 #include <libspectre/spectre.h>
 
 using namespace std;
@@ -38,12 +47,12 @@ initialise(string& error)
 {
     tmp_pdf_file = get_tmpfile("tmp.pdf");
     if (tmp_pdf_file.empty()) {
-	error = "Couldn't create temporary directory";
-	return false;
+        error = "Couldn't create temporary directory";
+        return false;
     }
 
     GError* e = nullptr;
-    tmp_pdf_uri = g_filename_to_uri(tmp_pdf_file.c_str(), NULL, &e);
+    tmp_pdf_uri = g_filename_to_uri(tmp_pdf_file.c_str(), nullptr, &e);
     if (!tmp_pdf_uri) {
         error = "g_filename_to_uri() failed: "s + e->message;
         g_error_free(e);
@@ -65,21 +74,21 @@ extract(const string& filename, const string&)
     spectre_document_load(ps_doc, filename.c_str());
     SpectreStatus s = spectre_document_status(ps_doc);
     if (s != SPECTRE_STATUS_SUCCESS) {
-	spectre_document_free(ps_doc);
+        spectre_document_free(ps_doc);
         send_field(FIELD_ERROR,
-		   "spectre_document_load() failed: "s +
-		   spectre_status_to_string(s));
-	return;
+                   "spectre_document_load() failed: "s +
+                   spectre_status_to_string(s));
+        return;
     }
 
     spectre_document_save_to_pdf(ps_doc, tmp_pdf_file.c_str());
     s = spectre_document_status(ps_doc);
     if (s != SPECTRE_STATUS_SUCCESS) {
-	spectre_document_free(ps_doc);
+        spectre_document_free(ps_doc);
         send_field(FIELD_ERROR,
-		   "spectre_document_save_to_pdf() failed: "s +
-		   spectre_status_to_string(s));
-	return;
+                   "spectre_document_save_to_pdf() failed: "s +
+                   spectre_status_to_string(s));
+        return;
     }
 
     // Extract metadata.
@@ -104,10 +113,10 @@ extract(const string& filename, const string&)
 
     GError* e = nullptr;
     PopplerDocument* doc =
-	poppler_document_new_from_file(tmp_pdf_uri, NULL, &e);
+        poppler_document_new_from_file(tmp_pdf_uri, nullptr, &e);
     if (!doc) {
         send_field(FIELD_ERROR,
-		   "poppler_document_new_from_file() failed: "s + e->message);
+                   "poppler_document_new_from_file() failed: "s + e->message);
         g_error_free(e);
         return;
     }

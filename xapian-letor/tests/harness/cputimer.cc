@@ -50,7 +50,7 @@ CPUTimer::get_current_cputime()
 #ifdef XAPIAN_DEBUG_LOG
     SKIP_TEST("Skipping timed test because configured with --enable-log");
 #else
-    static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
+    static bool skip = (getenv("AUTOMATED_TESTING") != nullptr);
     if (skip) {
         SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
     }

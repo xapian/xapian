@@ -31,7 +31,7 @@ static void
 throw_database_corrupt(const char* item, const char* pos)
 {
     string message;
-    if (pos != NULL) {
+    if (pos != nullptr) {
         message = "Value overflow unpacking termlist: ";
     } else {
         message = "Out of data unpacking termlist: ";
@@ -99,7 +99,7 @@ HoneyTermList::get_approx_size() const
 void
 HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 {
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
     stats.accumulate(shard_index,
                      current_wdf,
                      doclen,
@@ -110,23 +110,23 @@ HoneyTermList::accumulate_stats(Xapian::Internal::ExpandStats& stats) const
 Xapian::termcount
 HoneyTermList::get_wdf() const
 {
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
     return current_wdf;
 }
 
 Xapian::doccount
 HoneyTermList::get_termfreq() const
 {
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
     if (current_termfreq == 0)
-        db->get_freqs(current_term, &current_termfreq, NULL);
+        db->get_freqs(current_term, &current_termfreq, nullptr);
     return current_termfreq;
 }
 
 TermList*
 HoneyTermList::next()
 {
-    Assert(pos != NULL);
+    Assert(pos != nullptr);
 
     if (pos == end) {
         return this;
@@ -153,11 +153,11 @@ HoneyTermList::next()
     }
 
     if (pos == end)
-        throw_database_corrupt("term", NULL);
+        throw_database_corrupt("term", nullptr);
 
     size_t append = static_cast<unsigned char>(*pos++);
     if (size_t(end - pos) < append)
-        throw_database_corrupt("term", NULL);
+        throw_database_corrupt("term", nullptr);
 
     current_term.append(pos, append);
     pos += append;
@@ -165,7 +165,7 @@ HoneyTermList::next()
     // Indicate that termfreq hasn't been read for the current term.
     current_termfreq = 0;
 
-    return NULL;
+    return nullptr;
 }
 
 TermList*
@@ -175,7 +175,7 @@ HoneyTermList::skip_to(std::string_view term)
         if (HoneyTermList::next())
             return this;
     }
-    return NULL;
+    return nullptr;
 }
 
 Xapian::termcount
