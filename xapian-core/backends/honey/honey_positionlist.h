@@ -1,7 +1,7 @@
 /** @file
  * @brief A position list in a honey database.
  */
-/* Copyright (C) 2005-2024 Olly Betts
+/* Copyright (C) 2005-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,7 +124,7 @@ class HoneyRePositionList : public HoneyBasePositionList {
     void assign_data(std::string&& data);
 
     /** Fill list with data, and move the position to the start. */
-    void read_data(Xapian::docid did, const std::string& term);
+    void read_data(Xapian::docid did, std::string_view term);
 };
 
 class HoneyPositionTable : public HoneyLazyTable {

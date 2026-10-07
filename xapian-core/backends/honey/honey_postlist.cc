@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2017,2018,2022,2024 Olly Betts
+/* Copyright (C) 2017,2018,2022,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,8 @@ using namespace std;
 bool
 HoneyPostList::update_reader()
 {
-    Xapian::docid chunk_last = docid_from_key(term, cursor->current_key);
+    string_view kterm = all_docs ? string_view() : term;
+    Xapian::docid chunk_last = docid_from_key(kterm, cursor->current_key);
     if (!chunk_last) return false;
 
     cursor->read_tag();
@@ -53,7 +54,7 @@ HoneyPostList::update_reader()
 HoneyPostList::HoneyPostList(const HoneyDatabase* db_,
                              string_view term_,
                              HoneyCursor* cursor_)
-    : LeafPostList(term_), cursor(cursor_), db(db_)
+    : LeafPostList(term_), cursor(cursor_), db(db_), all_docs(term_.empty())
 {
     if (!cursor) {
         // Term not present in db.
@@ -163,7 +164,8 @@ HoneyPostList::at_end() const
 PositionList*
 HoneyPostList::open_position_list() const
 {
-    return db->position_table.open_position_list(get_docid(), term);
+    string_view kterm = all_docs ? string_view() : term;
+    return db->position_table.open_position_list(get_docid(), kterm);
 }
 
 PostList*
@@ -225,7 +227,8 @@ HoneyPostList::skip_to(Xapian::docid did, double)
 
     // find_entry_ge() returns true for an exact match, which isn't interesting
     // here.
-    (void)cursor->find_entry_ge(make_postingchunk_key(term, did));
+    string_view kterm = all_docs ? string_view() : term;
+    (void)cursor->find_entry_ge(make_postingchunk_key(kterm, did));
 
     if (rare(cursor->after_end()))
         throw Xapian::DatabaseCorruptError("Hit end of table looking for "
@@ -278,7 +281,8 @@ HoneyPosPostList::HoneyPosPostList(const HoneyDatabase* db_,
 PositionList*
 HoneyPosPostList::read_position_list()
 {
-    position_list.read_data(HoneyPostList::get_docid(), term);
+    string_view kterm = all_docs ? string_view() : term;
+    position_list.read_data(HoneyPostList::get_docid(), kterm);
     // FIXME: Consider returning NULL if there's no positional data - callers
     // need fixing up, but this may be a rare case and the costs of checking
     // for NULL may outweigh any gains.  Need to profile.

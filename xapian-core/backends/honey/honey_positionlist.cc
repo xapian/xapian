@@ -201,8 +201,7 @@ HoneyRePositionList::assign_data(string&& data)
 }
 
 void
-HoneyRePositionList::read_data(Xapian::docid did,
-                               const string& term)
+HoneyRePositionList::read_data(Xapian::docid did, string_view term)
 {
     LOGCALL_VOID(DB, "HoneyRePositionList::read_data", did | term);
 

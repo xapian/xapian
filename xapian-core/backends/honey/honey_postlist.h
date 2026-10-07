@@ -1,7 +1,7 @@
 /** @file
  * @brief PostList in a honey database.
  */
-/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018,2024 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015,2016,2017,2018,2024,2026 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ make_postingchunk_key(std::string_view term, Xapian::docid did)
 }
 
 inline Xapian::docid
-docid_from_key(const std::string& term, const std::string& key)
+docid_from_key(std::string_view term, std::string_view key)
 {
     if (key.size() < term.size()) {
         // A key can't be shorter than the term it contains.
@@ -182,6 +182,19 @@ class HoneyPostList : public LeafPostList {
 
     /// Update @a reader to use the chunk currently pointed to by @a cursor.
     bool update_reader();
+
+  protected:
+    /** Are we iterating all docs?
+     *
+     *  This is true for the HoneyPostList for the doc lengths.
+     *
+     *  We also use it for a term which indexes all the documents if we don't
+     *  need wdfs.  We call set_term() so can't just use the term name to
+     *  build keys, etc after construction.
+     *
+     *  (This is `protected` so that HoneyPosPostList can use it too.)
+     */
+    bool all_docs;
 
   public:
     /// Create HoneyPostList from already positioned @a cursor_.
