@@ -701,6 +701,7 @@ GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
 	  is_at_end(false),
+	  all_docs(term_.empty()),
 	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_CTOR(DB, "GlassPostList", this_db_.get() | term_ | keep_reference);
@@ -714,6 +715,7 @@ GlassPostList::GlassPostList(intrusive_ptr<const GlassDatabase> this_db_,
 	  this_db(this_db_),
 	  have_started(false),
 	  is_at_end(false),
+	  all_docs(term_.empty()),
 	  cursor(cursor_)
 {
     LOGCALL_CTOR(DB, "GlassPostList", this_db_.get() | term_ | cursor_);
@@ -821,7 +823,7 @@ GlassPostList::next_chunk()
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, all_docs ? string() : term)) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
@@ -902,13 +904,14 @@ void
 GlassPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     LOGCALL_VOID(DB, "GlassPostList::move_to_chunk_containing", desired_did);
-    (void)cursor->find_entry(GlassPostListTable::make_key(term, desired_did));
+    (void)cursor->find_entry(GlassPostListTable::make_key(
+	    all_docs ? string() : term, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, all_docs ? string() : term)) {
 	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
 	is_last_chunk = true;

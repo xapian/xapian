@@ -1809,3 +1809,26 @@ DEFINE_TESTCASE(corruptglass1, glass) {
 		       Xapian::Database::check(db_path));
     }
 }
+
+// Regression test for "alldocs" optimisation bug fixed in 2.2.0 and 1.4.33.
+DEFINE_TESTCASE(termindexingalldocs1, backend) {
+    Xapian::Database db = get_database("termindexingalldocs1",
+				  [](Xapian::WritableDatabase& wdb,
+				     const string&)
+				  {
+				      const unsigned N_DOCS = 2000;
+				      const Xapian::docid TOPID = 2000000;
+				      for (unsigned i = 0; i < N_DOCS; i++) {
+					  Xapian::Document doc;
+					  doc.add_boolean_term("Kmail");
+					  wdb.replace_document(TOPID - i, doc);
+				      }
+				  });
+
+    Xapian::Enquire enquire(db);
+    enquire.set_weighting_scheme(Xapian::BoolWeight());
+    enquire.set_query(Xapian::Query("Kmail"));
+    // This would throw DatabaseCorruptError.
+    Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+    TEST_EQUAL(mset.size(), db.get_doccount());
+}

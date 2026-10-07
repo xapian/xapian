@@ -70,6 +70,16 @@ class GlassPostList : public LeafPostList {
     /// Whether we've run off the end of the list yet.
     bool is_at_end;
 
+    /** Are we iterating all docs?
+     *
+     *  This is true for the GlassPostList for the doc lengths.
+     *
+     *  We also use it for a term which indexes all the documents if we don't
+     *  need wdfs.  We call set_term() so can't just use the term name to
+     *  build keys, etc after construction.
+     */
+    bool all_docs = false;
+
     /// Cursor pointing to current chunk of postlist.
     AutoPtr<GlassCursor> cursor;
 
