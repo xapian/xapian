@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014,2026 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -141,6 +141,16 @@ class ChertPostList : public LeafPostList {
 
 	/// Whether we've started reading the list yet.
 	bool have_started;
+
+	/** Are we iterating all docs?
+	 *
+	 *  This is true for the GlassPostList for the doc lengths.
+	 *
+	 *  We also use it for a term which indexes all the documents if we don't
+	 *  need wdfs.  We call set_term() so can't just use the term name to
+	 *  build keys, etc after construction.
+	 */
+	bool all_docs = false;
 
     private:
 	/// True if this is the last chunk.

@@ -1,7 +1,7 @@
 /* chert_postlist.cc: Postlists in a chert database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014,2015,2026 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -671,6 +671,7 @@ ChertPostList::ChertPostList(intrusive_ptr<const ChertDatabase> this_db_,
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
+	  all_docs(term_.empty()),
 	  is_at_end(false),
 	  cursor(this_db_->postlist_table.cursor_get())
 {
@@ -764,7 +765,7 @@ ChertPostList::next_chunk()
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, all_docs ? string() : term)) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
@@ -845,13 +846,14 @@ void
 ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     LOGCALL_VOID(DB, "ChertPostList::move_to_chunk_containing", desired_did);
-    (void)cursor->find_entry(ChertPostListTable::make_key(term, desired_did));
+    (void)cursor->find_entry(ChertPostListTable::make_key(
+	    all_docs ? string() : term, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
     // Check we're still in same postlist
-    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+    if (!check_tname_in_key_lite(&keypos, keyend, all_docs ? string() : term)) {
 	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
 	is_last_chunk = true;
