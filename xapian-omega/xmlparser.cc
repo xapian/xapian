@@ -164,7 +164,7 @@ XmlParser::decode_entities(string& s)
             if (p != s.end() && (*p == 'x' || *p == 'X')) {
                 // hex
                 while (++p != s.end() && Xapian::C::isxdigit(*p)) {
-                    val = (val << 4) | hex_digit(*p);
+                    val = (val << 4) | Xapian::C::hex_digit(*p);
                 }
                 end = p;
             } else {
