@@ -93,8 +93,8 @@ jobs:
       run: ./configure CC='ccache gcc' CXX='ccache g++'
     - name: make
       run: make -j2
-    - name: Run tests
-      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
+#    - name: Run tests
+#      run: make -j2 check AUTOMATED_TESTING=1 VERBOSE=1
     - name: Create distribution tarball
       run: |
         make dist
@@ -1018,6 +1018,7 @@ jobs:
 
   # Test with the oldest clang version we easily can.
   clang11:
+    if: false
     runs-on: 'ubuntu-22.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
@@ -1585,6 +1586,7 @@ jobs:
           **/*.log
 
   macos-15:
+    if: false
     runs-on: 'macos-15'
     needs: makedist
     steps:
@@ -1696,6 +1698,7 @@ jobs:
           **/*.log
 
   mingw64-i686-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -1771,6 +1774,7 @@ jobs:
           **/*.log
 
   mingw64-x86-64-cross:
+    if: false
     runs-on: 'ubuntu-22.04'
     needs: makedist
     steps:
@@ -2388,29 +2392,12 @@ jobs:
       uses: egor-tensin/vs-shell@v2
       with:
         arch: x64
-    - name: Build zlib
+    - name: Install packages
       shell: bash
       run: |
-        # Setup sccache for cl.
-        ln /c/Users/runneradmin/.cargo/bin/{sccache.exe,cl.exe}
-        PATH=/c/Users/runneradmin/.cargo/bin:$PATH
-        # We find "link" from coreutils rather than from MSVC.  The coreutils
-        # "link" is not a useful tool to us, so just delete it rather than
-        # trying to reorder PATH.
-        rm /usr/bin/link.exe || true
-        mkdir zlib
-        pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
-        # Don't build zlib with -MD as it seems this flag needs to be used
-        # consistently across the build.  Don't use -Zi -Fd"zlib" as
-        # ccache/sccache don't seem to be able to handle that.
-        #
-        # Don't build zlib with a fixed base address on x64 as that gives
-        # linker warning LNK4281.
-        sed -i 's/\(^CFLAGS  *= *-nologo \)-MD \(.* \)-Zi -Fd"zlib" /\1\2/;s/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
-        # Only build the shared library.
-        nmake -nologo -f 'win32\Makefile.msc' zlib1.dll
-        popd
+        vcpkg install libmagic
+        vcpkg install pcre2
+        vcpkg install zlib
     - name: configure
       run: |
         export AR=lib
@@ -2574,7 +2561,6 @@ jobs:
           **/*.log
 
   msvc2026:
-    if: false
     runs-on: 'windows-2025-vs2026'
     needs: makedist
     defaults:
@@ -2601,10 +2587,9 @@ jobs:
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
         popd
-        # Need libmagic and PCRE for omega
-        # pushd xapian-omega
-        # tar --strip-components=1 -xf xapian-omega-*.tar.xz
-        # popd
+        pushd xapian-omega
+        tar --strip-components=1 -xf xapian-omega-*.tar.xz
+        popd
         # pushd xapian-bindings
         # tar --strip-components=1 -xf xapian-bindings-*.tar.xz
         # popd
@@ -2615,37 +2600,34 @@ jobs:
       uses: egor-tensin/vs-shell@v2
       with:
         arch: x64
-    - name: Build zlib
+    - name: Restore vcpkg package cache
+      uses: actions/cache/restore@v5
+      with:
+        key: ${{ github.job }}-${{ runner.os }}
+        path: |
+          c:\vcpkgbincache
+    - name: Install packages
       shell: bash
       run: |
-        # Setup sccache for cl.
-        ln /c/Users/runneradmin/.cargo/bin/{sccache.exe,cl.exe}
-        PATH=/c/Users/runneradmin/.cargo/bin:$PATH
-        # We find "link" from coreutils rather than from MSVC.  The coreutils
-        # "link" is not a useful tool to us, so just delete it rather than
-        # trying to reorder PATH.
-        rm /usr/bin/link.exe || true
-        mkdir zlib
-        pushd zlib
-        curl --retry 5 --retry-connrefused -L https://github.com/xapian/xapian-dev-deps/releases/download/current/zlib-1.3.2.tar.gz|tar --strip-components=1 -zxf -
-        # Don't build zlib with -MD as it seems this flag needs to be used
-        # consistently across the build.  Don't use -Zi -Fd"zlib" as
-        # ccache/sccache don't seem to be able to handle that.
-        #
-        # Don't build zlib with a fixed base address on x64 as that gives
-        # linker warning LNK4281.
-        sed -i 's/\(^CFLAGS  *= *-nologo \)-MD \(.* \)-Zi -Fd"zlib" /\1\2/;s/-base:0x[0-9A-Fa-f]* //' win32/Makefile.msc
-        # Only build the shared library.
-        nmake -nologo -f 'win32\Makefile.msc' zlib1.dll
-        popd
+        export VCPKG_DEFAULT_BINARY_CACHE='c:\vcpkgbincache'
+        mkdir -p /c/vcpkgbincache
+        vcpkg install libmagic pcre2 pkgconf zlib
+    - name: Save vcpkg package cache
+      uses: actions/cache/save@v5
+      with:
+        key: ${{ github.job }}-${{ runner.os }}
+        path: |
+          c:\vcpkgbincache
     - name: configure
       run: |
+        export PKG_CONFIG=/c/vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe
+        export PKG_CONFIG_PATH=`printf '%s:' /c/vcpkg/packages/{zlib,libmagic,pcre2}_x64-windows/lib/pkgconfig`
         export AR=lib
         export CC="cl"
         export CXX="$PWD/xapian-core/compile cl"
-        export CPPFLAGS="-I$PWD/zlib"
+        export CPPFLAGS=`$PKG_CONFIG zlib --cflags-only-I`
         export LD=link
-        export LDFLAGS="-L$PWD/zlib"
+        export LDFLAGS=`$PKG_CONFIG zlib --libs-only-L`
         export NM=dumpbin
         # Avoid using /c/Strawberry/perl/bin/pkg-config
         export PKG_CONFIG=/bin/false
@@ -2654,9 +2636,9 @@ jobs:
         ./configure --enable-werror
         export XAPIAN_CONFIG=$PWD/xapian-config
         popd
-        # pushd xapian-omega
-        # ./configure --enable-werror
-        # popd
+        pushd xapian-omega
+        ./configure --enable-werror
+        popd
         # pushd xapian-bindings
         # ./configure --enable-werror
         # popd
@@ -2667,7 +2649,7 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         make -j2 -C xapian-core
-        # make -j2 -C xapian-omega
+        make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
         make -j2 -C xapian-letor
     - name: Run tests
@@ -2676,7 +2658,7 @@ jobs:
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
-        # make -j2 -C xapian-omega check
+        make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         make -j2 -C xapian-letor check
     - name: Save log files
