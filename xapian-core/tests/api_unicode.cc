@@ -454,7 +454,7 @@ DEFINE_TESTCASE(unicodetables, !backend) {
 [[clang::no_sanitize("implicit-integer-sign-change")]]
 # endif
 #endif
-DEFINE_TESTCASE(clocalectype1)
+DEFINE_TESTCASE(clocalectype1, !backend)
 {
     char tested[128];
     memset(tested, 0, sizeof(tested));
