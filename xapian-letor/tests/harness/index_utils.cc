@@ -103,8 +103,8 @@ FileIndexer::index_to(Xapian::WritableDatabase & db)
         const string::const_iterator para_end = para.end();
         while (word_end != para_end) {
             string::const_iterator word_start;
-            word_start = find_if_not(word_end, para_end, C::isspace);
-            word_end = find_if(word_start, para_end, C::isspace);
+            word_start = find_if_not(word_end, para_end, Xapian::C::isspace);
+            word_end = find_if(word_start, para_end, Xapian::C::isspace);
             string word = stemmer(munge_term(string(word_start, word_end)));
             if (!word.empty()) doc.add_posting(word, ++pos);
         }
@@ -120,8 +120,8 @@ munge_term(const string &term)
     string result;
     for (string::const_iterator i = term.begin(); i != term.end(); ++i) {
         char ch = *i;
-        if (C::isalnum(ch))
-            result += C::tolower(ch);
+        if (Xapian::C::isalnum(ch))
+            result += Xapian::C::tolower(ch);
         else if (ch == '\\') {
             ++i;
             if (i != term.end()) {
@@ -140,10 +140,10 @@ munge_term(const string &term)
                         string::const_iterator j = i;
                         char b = *++i;
                         char c = *++i;
-                        if (!C::isxdigit(b) || !C::isxdigit(c)) {
-                            i = j - 1;
+                        if (Xapian::C::isxdigit(b) && Xapian::C::isxdigit(c)) {
+                            ch = char(Xapian::C::hex_decode(b, c));
                         } else {
-                            ch = char(C::hex_decode(b, c));
+                            i = j - 1;
                         }
                         break;
                     }
