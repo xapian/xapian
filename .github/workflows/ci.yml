@@ -2614,7 +2614,7 @@ jobs:
     - name: Save vcpkg package cache
       uses: actions/cache/save@v5
       with:
-        key: ${{ github.job }}-${{ runner.os }}
+        key: ${{ github.job }}-${{ runner.os }}-${{ hashFiles( 'c:/cpkgbincachecpkgbincache/**' ) }}
         path: |
           c:\vcpkgbincache
     - name: configure
