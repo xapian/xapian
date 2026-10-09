@@ -93,7 +93,7 @@ static const char* unittest_assertion_failed = nullptr;
 // fileutils.cc uses opendir(), etc though not in a function we currently test.
 #include "../common/msvc_dirent.cc"
 
-// The UUID code uses C::hex_decode().
+// The UUID code uses Xapian::C::hex_decode().
 #include "../api/constinfo.cc"
 
 using namespace std;

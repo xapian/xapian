@@ -446,7 +446,7 @@ DEFINE_TESTCASE(unicodetables, !backend) {
     }
 }
 
-/// Test C::isupper() etc.
+/// Test Xapian::C::isupper() etc.
 #ifdef __clang__
 # if __clang_major__ >= 8
 // We're explicitly trying to test that both signed and unsigned char values
@@ -460,118 +460,119 @@ DEFINE_TESTCASE(clocalectype1, !backend)
     memset(tested, 0, sizeof(tested));
     for (int ch = '0'; ch != '9' + 1; ++ch) {
         tested[ch] = 1;
-        TEST(!C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(!C::isalpha(ch));
-        TEST(C::isalnum(ch));
-        TEST(C::isdigit(ch));
-        TEST(C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(!Xapian::C::isalpha(ch));
+        TEST(Xapian::C::isalnum(ch));
+        TEST(Xapian::C::isdigit(ch));
+        TEST(Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
         int v = ch - '0';
-        TEST_EQUAL(C::hex_digit(ch), v);
-        TEST_EQUAL(C::hex_decode('0', ch), char(v));
-        TEST_EQUAL(C::hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(C::hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_digit(ch), v);
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'A'; ch != 'F' + 1; ++ch) {
         tested[ch] = 1;
-        TEST(C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(C::isalpha(ch));
-        TEST(C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(Xapian::C::isalpha(ch));
+        TEST(Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
         int v = ch - 'A' + 10;
-        TEST_EQUAL(C:hex_digit(ch), v);
-        TEST_EQUAL(C:hex_decode('0', ch), char(v));
-        TEST_EQUAL(C:hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(C:hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_digit(ch), v);
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
         tested[ch] = 1;
-        TEST(C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(C::isalpha(ch));
-        TEST(C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(Xapian::C::isalpha(ch));
+        TEST(Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
     }
 
     for (int ch = 'a'; ch != 'f' + 1; ++ch) {
         tested[ch] = 1;
-        TEST(!C::isupper(ch));
-        TEST(C::islower(ch));
-        TEST(C::isalpha(ch));
-        TEST(C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(Xapian::C::islower(ch));
+        TEST(Xapian::C::isalpha(ch));
+        TEST(Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
         int v = ch - 'a' + 10;
-        TEST_EQUAL(C:hex_digit(ch), v);
-        TEST_EQUAL(C:hex_decode('0', ch), char(v)); // FIXME unsigned char, and below
-        TEST_EQUAL(C:hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(C:hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_digit(ch), v);
+        // FIXME unsigned char, and below
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
     }
 
     for (int ch = 'g'; ch != 'z' + 1; ++ch) {
         tested[ch] = 1;
-        TEST(!C::isupper(ch));
-        TEST(C::islower(ch));
-        TEST(C::isalpha(ch));
-        TEST(C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(Xapian::C::islower(ch));
+        TEST(Xapian::C::isalpha(ch));
+        TEST(Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
     }
 
     for (const char* p = "\t\n\f\r "; *p; ++p) {
         int ch = *p;
         tested[ch] = 1;
-        TEST(!C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(!C::isalpha(ch));
-        TEST(!C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(!Xapian::C::isalpha(ch));
+        TEST(!Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(Xapian::C::isspace(ch));
     }
 
     // Check remaining non-top-bit-set characters aren't anything.
     for (int ch = 0; ch != 128; ++ch) {
         if (tested[ch]) continue;
-        TEST(!C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(!C::isalpha(ch));
-        TEST(!C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(!Xapian::C::isalpha(ch));
+        TEST(!Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
     }
 
     // Non-ASCII characters aren't anything for these functions.
     for (int i = 128; i != 256; ++i) {
         unsigned char ch(i);
-        TEST(!C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(!C::isalpha(ch));
-        TEST(!C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(!Xapian::C::isalpha(ch));
+        TEST(!Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
     }
 
     // Check signed char values work the same way.
     for (signed char ch = -128; ch != 0; ++ch) {
-        TEST(!C::isupper(ch));
-        TEST(!C::islower(ch));
-        TEST(!C::isalpha(ch));
-        TEST(!C::isalnum(ch));
-        TEST(!C::isdigit(ch));
-        TEST(!C::isxdigit(ch));
-        TEST(!C::isspace(ch));
+        TEST(!Xapian::C::isupper(ch));
+        TEST(!Xapian::C::islower(ch));
+        TEST(!Xapian::C::isalpha(ch));
+        TEST(!Xapian::C::isalnum(ch));
+        TEST(!Xapian::C::isdigit(ch));
+        TEST(!Xapian::C::isxdigit(ch));
+        TEST(!Xapian::C::isspace(ch));
     }
 }
