@@ -40,7 +40,23 @@
 #include <pwd.h> // For getpwuid().
 #endif
 
-#include <magic.h>
+#ifdef ssize_t
+// The vcpkg version of magic.h includes a typedef for ssize_t (seen in
+// version 5.48):
+//
+// typedef SSIZE_T ssize_t;
+//
+// This breaks because configure puts `#define ssize_t int` in `config.h`
+// so capture the macro contents in a typedef, undefine the macro for
+// magic.h, then re-establish the macro afterwards.
+typedef ssize_t xapian_omega_ssize_t;
+# undef ssize_t
+# include <magic.h>
+# define ssize_t xapian_omega_ssize_t
+#else
+# include <magic.h>
+#endif
+
 #include <zlib.h>
 
 #include "loadfile.h"
