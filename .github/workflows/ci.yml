@@ -2624,9 +2624,7 @@ jobs:
         export AR=lib
         export CC="sccache cl"
         export CXX="$PWD/xapian-core/compile sccache cl"
-        export CPPFLAGS=`$PKG_CONFIG zlib --cflags-only-I`
         export LD=link
-        export LDFLAGS=`$PKG_CONFIG zlib --libs-only-L`
         export NM=dumpbin
         # Avoid using /c/Strawberry/perl/bin/pkg-config
         export PKG_CONFIG=/bin/false
