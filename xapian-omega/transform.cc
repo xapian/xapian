@@ -174,7 +174,7 @@ omegascript_transform(string & value, const vector<string> & args)
                 continue;
             }
 
-            int off_c = offsets[c * 2];
+            auto off_c = offsets[c * 2];
             value.append(args[2], off_c, offsets[c * 2 + 1] - off_c);
         }
         start = offsets[1];
