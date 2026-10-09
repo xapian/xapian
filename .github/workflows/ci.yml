@@ -2623,8 +2623,8 @@ jobs:
         export PKG_CONFIG=/c/vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe
         export PKG_CONFIG_PATH=`printf '%s:' /c/vcpkg/packages/{zlib,libmagic,pcre2}_x64-windows/lib/pkgconfig`
         export AR=lib
-        export CC="cl"
-        export CXX="$PWD/xapian-core/compile cl"
+        export CC="sccache cl"
+        export CXX="$PWD/xapian-core/compile sccache cl"
         export CPPFLAGS=`$PKG_CONFIG zlib --cflags-only-I`
         export LD=link
         export LDFLAGS=`$PKG_CONFIG zlib --libs-only-L`
