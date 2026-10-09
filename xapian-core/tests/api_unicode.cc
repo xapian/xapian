@@ -469,9 +469,12 @@ DEFINE_TESTCASE(clocalectype1, !backend)
         TEST(!Xapian::C::isspace(ch));
         int v = ch - '0';
         TEST_EQUAL(Xapian::C::hex_digit(ch), v);
-        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch),
+                   static_cast<unsigned char>(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'),
+                   static_cast<unsigned char>(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch),
+                   static_cast<unsigned char>((v << 4) | v));
     }
 
     for (int ch = 'A'; ch != 'F' + 1; ++ch) {
@@ -485,9 +488,12 @@ DEFINE_TESTCASE(clocalectype1, !backend)
         TEST(!Xapian::C::isspace(ch));
         int v = ch - 'A' + 10;
         TEST_EQUAL(Xapian::C::hex_digit(ch), v);
-        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch),
+                   static_cast<unsigned char>(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'),
+                   static_cast<unsigned char>(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch),
+                   static_cast<unsigned char>((v << 4) | v));
     }
 
     for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
@@ -512,10 +518,12 @@ DEFINE_TESTCASE(clocalectype1, !backend)
         TEST(!Xapian::C::isspace(ch));
         int v = ch - 'a' + 10;
         TEST_EQUAL(Xapian::C::hex_digit(ch), v);
-        // FIXME unsigned char, and below
-        TEST_EQUAL(Xapian::C::hex_decode('0', ch), char(v));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'), char(v << 4));
-        TEST_EQUAL(Xapian::C::hex_decode(ch, ch), char((v << 4) | v));
+        TEST_EQUAL(Xapian::C::hex_decode('0', ch),
+                   static_cast<unsigned char>(v));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, '0'),
+                   static_cast<unsigned char>(v << 4));
+        TEST_EQUAL(Xapian::C::hex_decode(ch, ch),
+                   static_cast<unsigned char>((v << 4) | v));
     }
 
     for (int ch = 'g'; ch != 'z' + 1; ++ch) {
