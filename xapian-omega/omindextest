@@ -44,6 +44,8 @@ case $@ in
   *) trap 'rm -rf "$TEST_DB"' 0 1 2 13 15 ;;
 esac
 
+echo "omindextest: PATH=$PATH"
+
 $OMINDEX --verbose --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
 for subdir in opendoc staroffice msxml ; do
   echo "Trying to index $subdir with omindex_libreofficekit"
