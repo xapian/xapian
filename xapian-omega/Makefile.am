@@ -262,7 +262,7 @@ AM_LDFLAGS = $(NO_UNDEFINED) @AM_LDFLAGS@
 noinst_LTLIBRARIES = libtransform.la libutf8convert.la
 
 libtransform_la_SOURCES = transform.cc
-libtransform_la_CPPFLAGS = $(PCRE2_CFLAGS)
+libtransform_la_CPPFLAGS = $(AM_CPPFLAGS) $(PCRE2_CFLAGS)
 libtransform_la_LIBADD = $(PCRE2_LIBS)
 
 libutf8convert_la_SOURCES = utf8convert.cc
