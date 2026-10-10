@@ -2621,6 +2621,7 @@ jobs:
     - name: configure
       run: |
         export PKG_CONFIG=/c/vcpkg/packages/pkgconf_x64-windows/tools/pkgconf/pkgconf.exe
+        $PKG_CONFIG --help
         export PKG_CONFIG_PATH=`printf '%s:' /c/vcpkg/packages/{zlib,libmagic,pcre2}_x64-windows/lib/pkgconfig`
         export AR=lib
         export CC="sccache cl"
@@ -2653,6 +2654,7 @@ jobs:
     - name: Run tests
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
+        PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`:$PATH
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         make -j2 -C xapian-core check
