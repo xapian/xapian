@@ -2657,7 +2657,7 @@ jobs:
     - name: make
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
-        PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`:$PATH
+        #PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`$PATH
         make -j2 -C xapian-core
         make -j2 -C xapian-omega
         # make -j2 -C xapian-bindings
@@ -2675,7 +2675,7 @@ jobs:
     - name: Run tests
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
-        PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`:$PATH
+        PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`$PATH
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         # make -j2 -C xapian-core check
