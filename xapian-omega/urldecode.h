@@ -80,7 +80,7 @@ process_ch:
                         break;
                     goto process_ch;
                 }
-                ch = Xapian::C::hex_decode(hex1, hex2);
+                ch = char(Xapian::C::hex_decode(hex1, hex2));
                 break;
             }
             case '+':
@@ -319,9 +319,10 @@ url_prettify(std::string & url)
         // We've checked there are at least two bytes after the '%' already.
         if (Xapian::C::isxdigit(in[pcent + 1]) &&
             Xapian::C::isxdigit(in[pcent + 2])) {
-            char ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
+            unsigned char ch =
+                Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
             bool safe = true;
-            switch (url_chars[static_cast<unsigned char>(ch)]) {
+            switch (url_chars[ch]) {
                 case UNSAFE:
                     safe = false;
                     break;
@@ -332,7 +333,7 @@ url_prettify(std::string & url)
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -341,15 +342,15 @@ url_prettify(std::string & url)
                     if (in.size() - (pcent + 2) < 3 * 2 ||
                         !encoded_ucont(in, pcent + 3) ||
                         !encoded_ucont(in, pcent + 6) ||
-                        (ch == '\xe0' && in[pcent + 4] <= '9')) {
+                        (ch == 0xe0 && in[pcent + 4] <= '9')) {
                         safe = false;
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -359,19 +360,19 @@ url_prettify(std::string & url)
                         !encoded_ucont(in, pcent + 3) ||
                         !encoded_ucont(in, pcent + 6) ||
                         !encoded_ucont(in, pcent + 9) ||
-                        (ch == '\xf0' && in[pcent + 4] == '8') ||
-                        (ch == '\xf4' && in[pcent + 4] >= '9')) {
+                        (ch == 0xf0 && in[pcent + 4] == '8') ||
+                        (ch == 0xf4 && in[pcent + 4] >= '9')) {
                         safe = false;
                         break;
                     }
                     url.append(in, start, pcent - start);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
-                    url += ch;
+                    url += char(ch);
                     pcent += 3;
                     ch = Xapian::C::hex_decode(in[pcent + 1], in[pcent + 2]);
                     start = pcent;
@@ -403,7 +404,7 @@ url_prettify(std::string & url)
 
             if (safe) {
                 url.append(in, start, pcent - start);
-                url += ch;
+                url += char(ch);
                 pcent += 3;
                 start = pcent;
             } else {

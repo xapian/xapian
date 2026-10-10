@@ -182,8 +182,7 @@ void
 Uuid::parse(const char* in)
 {
     for (unsigned i = 0; i != BINARY_SIZE; ++i) {
-        char ch = Xapian::C::hex_decode(in[0], in[1]);
-        uuid_data[i] = static_cast<unsigned char>(ch);
+        uuid_data[i] = Xapian::C::hex_decode(in[0], in[1]);
         in += ((UUID_GAP_MASK >> i) & 1) | 2;
     }
 }
