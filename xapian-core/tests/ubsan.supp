@@ -9,3 +9,5 @@ unsigned-integer-overflow:bits/basic_string.tcc$
 unsigned-integer-overflow:bits/string_view.tcc$
 
 unsigned-integer-overflow:bits/stl_uninitialized.h$
+
+shift-base:bits/stl_bvector.h$
