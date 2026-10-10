@@ -2624,8 +2624,18 @@ jobs:
         $PKG_CONFIG --help
         export PKG_CONFIG_PATH=`printf '%s:' /c/vcpkg/packages/{zlib,libmagic,pcre2}_x64-windows/lib/pkgconfig`
         export AR=lib
-        export CC="sccache cl"
-        export CXX="$PWD/xapian-core/compile sccache cl"
+        # sccache causes a failure (maybe due to `/` paths?)
+        # source='common/bitstream.cc' object='common/bitstream.lo' libtool=yes \
+        # DEPDIR=.deps depmode=msvc7 /bin/sh ./depcomp \
+        # /bin/sh ./libtool  --tag=CXX   --mode=compile /d/a/xapian/xapian/xapian-core/compile sccache cl -nologo -std:c++20 -DHAVE_CONFIG_H -I.  -I./common -I./include  -IC:/vcpkg/packages/zlib_x64-windows/include    -W3 -EHsc -WX    -c -o common/bitstream.lo common/bitstream.cc
+        # source='common/closefrom.cc' object='common/closefrom.lo' libtool=yes \
+        # DEPDIR=.deps depmode=msvc7 /bin/sh ./depcomp \
+        # /bin/sh ./libtool  --tag=CXX   --mode=compile /d/a/xapian/xapian/xapian-core/compile sccache cl -nologo -std:c++20 -DHAVE_CONFIG_H -I.  -I./common -I./include  -IC:/vcpkg/packages/zlib_x64-windows/include    -W3 -EHsc -WX    -c -o common/closefrom.lo common/closefrom.cc
+        # mv: cannot stat 'closefrom.obj': No such file or directory
+        #export CC="sccache cl"
+        #export CXX="$PWD/xapian-core/compile sccache cl"
+        export CC=cl
+        export CXX="$PWD/xapian-core/compile cl"
         export LD=link
         export NM=dumpbin
         # Avoid using /c/Strawberry/perl/bin/pkg-config
