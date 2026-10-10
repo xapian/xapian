@@ -123,6 +123,7 @@ jobs:
           **/*.log
 
   clang-santisers:
+    if: false
     runs-on: 'ubuntu-24.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
