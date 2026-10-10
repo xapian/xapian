@@ -1569,8 +1569,16 @@ AH_BOTTOM(
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <io.h>
-/* zlib.h uses off_t so we need to include it before we redefine off_t. */
-# include <zlib.h>
+
+# ifndef z_off_t
+/* zlib.h includes zconf.h which uses off_t to define z_off_t, unless it is
+ * already defined.  So we capture off_t as z_off_t here before we redefine
+ * off_t.  We define z_off_t as a macro so that zconf.h doesn't try to define
+ * it.
+ */
+typedef off_t z_off_t;
+#  define z_off_t z_off_t
+# endif
 
 // The default stat() and fstat() use 32-bit filesizes and time_t, so we need
 // to arrange to use 64-bit variants instead.
