@@ -2561,7 +2561,7 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
-        variant: sccache
+        variant: ccache
     - name: Fetch distribution
       uses: actions/download-artifact@v8
       with:
@@ -2616,8 +2616,8 @@ jobs:
         # DEPDIR=.deps depmode=msvc7 /bin/sh ./depcomp \
         # /bin/sh ./libtool  --tag=CXX   --mode=compile /d/a/xapian/xapian/xapian-core/compile sccache cl -nologo -std:c++20 -DHAVE_CONFIG_H -I.  -I./common -I./include  -IC:/vcpkg/packages/zlib_x64-windows/include    -W3 -EHsc -WX    -c -o common/closefrom.lo common/closefrom.cc
         # mv: cannot stat 'closefrom.obj': No such file or directory
-        #export CC="sccache cl"
-        #export CXX="$PWD/xapian-core/compile sccache cl"
+        export CC="ccache cl"
+        export CXX="$PWD/xapian-core/compile ccache cl"
         export CC=cl
         export CXX="$PWD/xapian-core/compile cl"
         export LD=link
