@@ -37,7 +37,6 @@ my $faketime = $ENV{FAKETIME} // 'faketime';
 my $srcdir = ($0 =~ m,(.*)/,)[0] // '.';
 
 print "omegatest.pl: PATH=$ENV{PATH}\n";
-exit 1;
 
 # Suppress HTTP Content-Type header.
 $ENV{SERVER_PROTOCOL} = 'INCLUDED';

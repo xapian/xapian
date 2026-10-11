@@ -2671,7 +2671,7 @@ jobs:
         make -j2 -C xapian-omega check
         # make -j2 -C xapian-bindings check
         # Letor tests fails but they seem to have portability issues more generally.
-        # make -j2 -C xapian-letor check || true
+        # make -j2 -C xapian-letor check
     - name: Save log files
       if: ${{ failure() }}
       uses: actions/upload-artifact@v7
