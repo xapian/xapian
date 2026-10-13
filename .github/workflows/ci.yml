@@ -2618,8 +2618,6 @@ jobs:
         # mv: cannot stat 'closefrom.obj': No such file or directory
         export CC="ccache cl"
         export CXX="$PWD/xapian-core/compile ccache cl"
-        export CC=cl
-        export CXX="$PWD/xapian-core/compile cl"
         export LD=link
         export NM=dumpbin
         # Avoid using /c/Strawberry/perl/bin/pkg-config
