@@ -20,7 +20,7 @@
 
 set -e
 
-: ${OMINDEX=./omindex.exe}
+: ${OMINDEX=./omindex}
 : ${XAPIAN_OMEGA_PKGLIBBINDIR=.}
 export XAPIAN_OMEGA_PKGLIBBINDIR
 
@@ -43,8 +43,6 @@ case $@ in
   *--no-clean*) ;;
   *) trap 'rm -rf "$TEST_DB"' 0 1 2 13 15 ;;
 esac
-
-echo "omindextest: PATH=$PATH"
 
 $OMINDEX --verbose --overwrite --db "$TEST_DB" --empty-docs=index --url=/ "$TEST_FILES"
 for subdir in opendoc staroffice msxml ; do

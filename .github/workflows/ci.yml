@@ -2562,10 +2562,14 @@ jobs:
       with:
         key: ${{ github.job }}
         variant: sccache
-    - name: Setup CCache
+    - name: Setup
       run: |
         # Setup sccache for cl.
         ln /c/Users/runneradmin/.cargo/bin/{sccache.exe,cl.exe}
+        # We find "link" from coreutils rather than from MSVC.  The coreutils
+        # "link" is not a useful tool to us, so just delete it rather than
+        # trying to reorder PATH.
+        rm /usr/bin/link.exe || true
     - name: Fetch distribution
       uses: actions/download-artifact@v8
       with:
