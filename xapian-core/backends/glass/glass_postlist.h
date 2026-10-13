@@ -161,7 +161,7 @@ class GlassPostList : public LeafPostList {
     void init();
 
   public:
-    /// Default constructor.
+    /// Constructor.
     GlassPostList(Xapian::Internal::intrusive_ptr<const GlassDatabase> this_db_,
                   std::string_view term,
                   bool keep_reference);
