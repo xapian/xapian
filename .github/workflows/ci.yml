@@ -2561,7 +2561,10 @@ jobs:
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
         key: ${{ github.job }}
-        variant: ccache
+        variant: sccache
+      run: |
+        # Setup sccache for cl.
+        ln /c/Users/runneradmin/.cargo/bin/{sccache.exe,cl.exe}
     - name: Fetch distribution
       uses: actions/download-artifact@v8
       with:
