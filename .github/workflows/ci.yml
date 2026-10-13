@@ -2562,6 +2562,7 @@ jobs:
       with:
         key: ${{ github.job }}
         variant: sccache
+    - name: Setup CCache
       run: |
         # Setup sccache for cl.
         ln /c/Users/runneradmin/.cargo/bin/{sccache.exe,cl.exe}
