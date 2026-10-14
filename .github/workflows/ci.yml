@@ -2557,6 +2557,8 @@ jobs:
         release: true # Use the pre-installed MSYS2
         path-type: inherit
         install: base-devel
+        pacboy: >-
+          ntldd:p
     - name: Install CCache
       uses: hendrikmuhs/ccache-action@v1.2.21
       with:
@@ -2569,6 +2571,8 @@ jobs:
         # We find "link" from coreutils rather than from MSVC.  The coreutils
         # "link" is not a useful tool to us, so just delete it rather than
         # trying to reorder PATH.
+        which link || true
+        which link.exe || true
         rm /usr/bin/link.exe || true
     - name: Fetch distribution
       uses: actions/download-artifact@v8
@@ -2657,8 +2661,16 @@ jobs:
     - name: Run tests
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
-        PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`$PATH
+        echo ...
+        ntldd --recursive omindex.exe
+        echo ...
+        cp -v /c/vcpkg/packages/{zlib,libmagic,pcre2}_x64-windows/bin/*.dll /c/Users/runneradmin/.cargo/bin
+        ntldd --recursive omindex.exe
+        echo ...
         make -C xapian-core install
+        echo ...
+        ntldd --recursive omindex.exe
+        echo ...
         echo ===
         echo "$PATH"
         echo ===
