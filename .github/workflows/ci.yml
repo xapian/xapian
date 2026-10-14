@@ -2658,19 +2658,16 @@ jobs:
       run: |
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         PATH=`printf '/c/vcpkg/packages/%s_x64-windows/bin:' zlib libmagic pcre2`$PATH
+        make -C xapian-core install
         echo ===
         echo "$PATH"
         echo ===
         cd xapian-omega
-        ./omega --help || true
+        ./omindex --help || true
         echo ===
-        ./omega.exe --help || true
+        ./omindex.exe --help || true
+        echo ===
         cd ..
-        echo ===
-        cmd.exe /c \"echo %PATH%\" || true
-        echo ===
-        cmd.exe /c \".\\omega --help\" || true
-        echo ===
         export AUTOMATED_TESTING=1
         export VERBOSE=1
         # make -j2 -C xapian-core check
