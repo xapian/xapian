@@ -82,7 +82,7 @@ For safety reasons, it is not allowed to directly add libraries to omega source 
 
      omindex_tesseract_SOURCES = assistant.cc worker_comms.cc handler_tesseract.cc
      omindex_tesseract_LDADD = $(TESSERACT_LIBS)
-     omindex_tesseract_CXXFLAGS = $(TESSERACT_CFLAGS)
+     omindex_tesseract_CXXFLAGS = $(AM_CXXFLAGS) $(TESSERACT_CFLAGS)
 
    in 'Makefile.am'.
 

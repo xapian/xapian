@@ -909,24 +909,45 @@ case $host_os in
 esac
 XAPIAN_BACKEND_ENABLE([remote], [$default_enable_backend_remote], [yes (except for MSDOS; unless --disable-gpl-libxapian)])
 
-save_LIBS=$LIBS
-LIBS=
-dnl We use zlib in stemtest for reading compressed word lists, and for
-dnl compressing tags in glass and honey.
+dnl We use zlib for compressing tags in glass and honey, and in stemtest for
+dnl reading compressed word lists.
 
-dnl Check for zlib.h.
-AC_CHECK_HEADERS([zlib.h], [], [
-  AC_MSG_ERROR([zlib.h not found - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
-  ], [ ])
+dnl Try with pkg-config if available.
+ZLIB_CFLAGS=
+ZLIB_CPPFLAGS=
+ZLIB_LIBS=
+if test -n "$PKG_CONFIG" ; then
+  AC_MSG_CHECKING([for zlib with $PKG_CONFIG])
+  zlib_config="$PKG_CONFIG zlib"
+  try_libs=`$zlib_config --libs 2>&AS_MESSAGE_LOG_FD`
+  if test $? -eq 0 ; then
+    AC_MSG_RESULT([yes])
+    ZLIB_CFLAGS=`$zlib_config --cflags-only-other`
+    ZLIB_CPPFLAGS=`$zlib_config --cflags-only-I`
+    ZLIB_LIBS=$try_libs
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+if test -z "$ZLIB_LIBS" ; then
+  dnl Check for zlib.h.
+  AC_CHECK_HEADERS([zlib.h], [], [
+    AC_MSG_ERROR([zlib.h not found - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    ], [ ])
 
-dnl Check for zlibVersion - normally it's in -lz but the mingw build needs -lzlib or -lzdll.
-AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-  AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
-  ])
-
-ZLIB_LIBS=$LIBS
+  dnl Check for zlibVersion - normally it's in -lz but the mingw build needs
+  dnl -lzlib or -lzdll.
+  save_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  ZLIB_LIBS=$LIBS
+  LIBS=$save_LIBS
+fi
+AC_SUBST([ZLIB_CFLAGS])
+AC_SUBST([ZLIB_CPPFLAGS])
 AC_SUBST([ZLIB_LIBS])
-LIBS=$save_LIBS
 
 dnl Save and empty LIBS while we probe for libraries to link libxapian against
 dnl so we can just use AC_SEARCH_LIBS then copy LIBS to XAPIAN_LIBS and restore

@@ -16,6 +16,8 @@ if VPATH_BUILD
 # include/xapian/error.h and include/xapian/errordispatch.h
 AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
+AM_CPPFLAGS += $(ZLIB_CPPFLAGS)
+AM_CXXFLAGS += $(ZLIB_CFLAGS)
 AM_CPPFLAGS += $(ICU_CPPFLAGS)
 AM_CXXFLAGS += $(ICU_CFLAGS)
 

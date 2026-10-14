@@ -261,21 +261,42 @@ AC_CHECK_HEADERS([sysexits.h sys/time.h]dnl
                  [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
                  [], [], [#include <sys/types.h>])
 
-dnl Check for zlib.h.
-AC_CHECK_HEADERS([zlib.h], [], [
-  AC_MSG_ERROR([zlib.h not found])
-  ], [ ])
+dnl Try with pkg-config if available.
+ZLIB_CFLAGS=
+ZLIB_CPPFLAGS=
+ZLIB_LIBS=
+if test -n "$PKG_CONFIG" ; then
+  AC_MSG_CHECKING([for zlib with $PKG_CONFIG])
+  zlib_config="$PKG_CONFIG zlib"
+  try_libs=`$zlib_config --libs 2>&AS_MESSAGE_LOG_FD`
+  if test $? -eq 0 ; then
+    AC_MSG_RESULT([yes])
+    ZLIB_CFLAGS=`$zlib_config --cflags-only-other`
+    ZLIB_CPPFLAGS=`$zlib_config --cflags-only-I`
+    ZLIB_LIBS=$try_libs
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+if test -z "$ZLIB_LIBS" ; then
+  dnl Check for zlib.h.
+  AC_CHECK_HEADERS([zlib.h], [], [
+    AC_MSG_ERROR([zlib.h not found (you may need to install the zlib1g-dev or zlib-devel package)])
+    ], [ ])
 
-dnl Check for zlibVersion in -lz.
-SAVE_LIBS=$LIBS
-LIBS=
-dnl mingw build needs -lzlib or -lzdll.
-AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-  AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll (you  may need to install the zlib1g-dev or zlib-devel package)])
-  ])
-ZLIB_LIBS=$LIBS
+  dnl Check for zlibVersion - normally it's in -lz but the mingw build needs
+  dnl -lzlib or -lzdll.
+  save_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  ZLIB_LIBS=$LIBS
+  LIBS=$save_LIBS
+fi
+AC_SUBST([ZLIB_CFLAGS])
+AC_SUBST([ZLIB_CPPFLAGS])
 AC_SUBST([ZLIB_LIBS])
-LIBS=$SAVE_LIBS
 
 dnl POSIX requires setenv().  The final Unix-like platform without it seems
 dnl to have been Solaris 9, which is now out of support.

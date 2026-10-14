@@ -162,6 +162,8 @@ AM_CPPFLAGS = \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(WERROR)
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS) $(MAGIC_CFLAGS)
+AM_CPPFLAGS += $(ZLIB_CPPFLAGS)
+AM_CXXFLAGS += $(ZLIB_CFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega $(OMINDEX_MODULES)
