@@ -1160,7 +1160,7 @@ jobs:
           **/*.log
 
   debian-stable:
-    runs-on: 'ubuntu-latest'
+    runs-on: 'ubuntu-26.04'
     container: debian:stable
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
