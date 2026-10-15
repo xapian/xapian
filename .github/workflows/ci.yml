@@ -1462,7 +1462,6 @@ jobs:
       run: |
         pushd xapian-core
         tar --strip-components=1 -xf xapian-core-*.tar.xz
-        export XAPIAN_CONFIG=$PWD/xapian-config
         popd
         pushd xapian-letor
         tar --strip-components=1 -xf xapian-letor-*.tar.xz
