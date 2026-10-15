@@ -30,9 +30,9 @@ sub print_to_file {
   close $fh or die $!;
 }
 
-my $omega = $ENV{OMEGA} // './omega.exe';
-my $scriptindex = $ENV{SCRIPTINDEX} // './scriptindex.exe';
-my $timecheck = $ENV{TIMECHECK} // './timecheck.exe';
+my $omega = $ENV{OMEGA} // './omega';
+my $scriptindex = $ENV{SCRIPTINDEX} // './scriptindex';
+my $timecheck = $ENV{TIMECHECK} // './timecheck';
 my $faketime = $ENV{FAKETIME} // 'faketime';
 my $srcdir = ($0 =~ m,(.*)/,)[0] // '.';
 

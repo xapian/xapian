@@ -20,7 +20,7 @@
 
 set -e
 
-: ${OMINDEX=./omindex.exe}
+: ${OMINDEX=./omindex}
 : ${XAPIAN_OMEGA_PKGLIBBINDIR=.}
 export XAPIAN_OMEGA_PKGLIBBINDIR
 
