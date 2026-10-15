@@ -123,7 +123,7 @@ jobs:
           **/*.log
 
   clang-santisers:
-    runs-on: 'ubuntu-24.04'
+    runs-on: 'ubuntu-26.04'
     env:
       LIBEXTRACTOR_PREFIX: '/usr/lib/x86_64-linux-gnu/libextractor'
     needs: makedist
@@ -154,7 +154,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install \
-            clang-20 \
+            clang-22 \
             python3-sphinx \
             libpcre2-dev \
             libmagic-dev \
@@ -185,8 +185,8 @@ jobs:
       run: |
         # We use clang here because (at least currently) it supports a few
         # extra sanitiser checks compared to GCC.
-        export CC='ccache clang-20'
-        export CXX='ccache clang++-20'
+        export CC='ccache clang-22'
+        export CXX='ccache clang++-22'
         # The following enable checks for things which aren't undefined
         # behaviour, but which we don't expect our code to typically do (and
         # we've annotated any places which intentionally do these things):
