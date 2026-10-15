@@ -2285,6 +2285,8 @@ jobs:
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
+        # Avoid using /c/Strawberry/perl/bin/pkg-config
+        export PKG_CONFIG=
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror
@@ -2394,6 +2396,8 @@ jobs:
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
+        # Avoid using /c/Strawberry/perl/bin/pkg-config
+        export PKG_CONFIG=
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror
@@ -2506,6 +2510,8 @@ jobs:
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
+        # Avoid using /c/Strawberry/perl/bin/pkg-config
+        export PKG_CONFIG=
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror
@@ -2615,6 +2621,8 @@ jobs:
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
+        # Avoid using /c/Strawberry/perl/bin/pkg-config
+        export PKG_CONFIG=
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror
@@ -2727,6 +2735,8 @@ jobs:
         export LD=link
         export LDFLAGS="-L$PWD/zlib"
         export NM=dumpbin
+        # Avoid using /c/Strawberry/perl/bin/pkg-config
+        export PKG_CONFIG=
         PATH=/c/Users/runneradmin/.cargo/bin:$PATH
         pushd xapian-core
         ./configure --enable-werror
