@@ -1047,6 +1047,22 @@ if test no != "$with_perl" ; then
     fi
     AC_SUBST(PERL_INC)
 
+    AC_ARG_VAR(PERL_CCFLAGS, [Compiler flags to compile Perl modules with])
+    if test -z "$PERL_CCFLAGS" ; then
+      dnl Perl may be built with flags which change the layout of its internal
+      dnl structures, for example -D_FILE_OFFSET_BITS=64 on 32-bit platforms
+      dnl changes the size of Stat_t in the interpreter structure.  An extension
+      dnl compiled without them accesses the wrong fields of the interpreter,
+      dnl leading to memory corruption.  Flags like -fwrapv also affect how
+      dnl Perl's inline functions compiled into the extension behave.  So use
+      dnl Perl's ccflags, as ExtUtils::MakeMaker does, filtering them like
+      dnl perl/t/symbol-test/Makefile.PL: -Wdeclaration-after-statement isn't
+      dnl meaningful for C++, and the generated code causes "variable may be
+      dnl used uninitialized" warnings with -Wall.
+      [PERL_CCFLAGS=`$PERL -MConfig -e '$_ = $Config{ccflags}; s/(?:^|\s+)-Wdeclaration-after-statement(?=\s|$)//; s/(^|\s)-Wall(?=\s|$)/$1-Wall -Wno-uninitialized/; s/^\s+//; print'`]
+    fi
+    AC_SUBST(PERL_CCFLAGS)
+
     AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
     if test -z "$PERL_ARCH" ; then
       PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch}'`

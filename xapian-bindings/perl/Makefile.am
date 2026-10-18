@@ -151,7 +151,7 @@ nobase_dist_perllib_DATA = \
 	Xapian/WritableDatabase.pm
 
 AM_CPPFLAGS = -I$(PERL_INC)
-AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
+AM_CXXFLAGS = $(PERL_CCFLAGS) @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 Xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
 Xapian_la_SOURCES = xapian_wrap.cc
 Xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
