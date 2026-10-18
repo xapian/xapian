@@ -1047,6 +1047,18 @@ if test no != "$with_perl" ; then
     fi
     AC_SUBST(PERL_INC)
 
+    AC_ARG_VAR(PERL_CPPFLAGS, [Preprocessor flags to compile Perl modules with])
+    if test -z "$PERL_CPPFLAGS" ; then
+      dnl Perl may be built with -D flags which change the layout of its
+      dnl internal structures, for example -D_FILE_OFFSET_BITS=64 on 32-bit
+      dnl platforms changes the size of Stat_t in the interpreter structure.
+      dnl An extension compiled without them accesses the wrong fields of the
+      dnl interpreter, leading to memory corruption, so use the -D flags from
+      dnl Perl's ccflags (ExtUtils::MakeMaker passes the whole of ccflags).
+      [PERL_CPPFLAGS=`$PERL -MConfig -e 'print join(" ", grep { /^-D/ } split(" ", $Config{ccflags}))'`]
+    fi
+    AC_SUBST(PERL_CPPFLAGS)
+
     AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
     if test -z "$PERL_ARCH" ; then
       PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch}'`

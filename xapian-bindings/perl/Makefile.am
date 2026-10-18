@@ -150,7 +150,7 @@ nobase_dist_perllib_DATA = \
 	Xapian/Weight.pm \
 	Xapian/WritableDatabase.pm
 
-AM_CPPFLAGS = -I$(PERL_INC)
+AM_CPPFLAGS = -I$(PERL_INC) $(PERL_CPPFLAGS)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 Xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
 Xapian_la_SOURCES = xapian_wrap.cc
