@@ -27,6 +27,7 @@
 #include "xapian/error.h"
 
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include "stringutils.h"
 
@@ -103,8 +104,8 @@ Uuid::generate()
     // * FreeBSD 3.0
     static_assert(BINARY_SIZE % 4 == 0, "UUID binary size not multiple of 4");
     for (unsigned i = 0; i < BINARY_SIZE; i += 4) {
-	uint32_t v = arc4random();
-	memcpy(uuid_data + i, v, 4);
+    uint32_t v = arc4random();
+    memcpy(uuid_data + i, &v, 4);;
     }
     filled_with_randomness = true;
 # define TRIED_RANDOMNESS
