@@ -27,6 +27,7 @@
 #include "xapian/error.h"
 
 #include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include "stringutils.h"
 
