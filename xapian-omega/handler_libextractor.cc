@@ -61,7 +61,8 @@ process_metadata(void*,
     // this is not always true, at least for extractor 1.19 and sometimes
     // data_len is actually strlen(data):
     //
-    // https://bugs.gnunet.org/view.php?id=11812
+    // Reported upstream as https://bugs.gnunet.org/view.php?id=11812 and
+    // apparently fixed in 1.20 but we haven't yet verified this.
     if (data_len && data[data_len - 1] == '\0') --data_len;
 
     switch (type) {
