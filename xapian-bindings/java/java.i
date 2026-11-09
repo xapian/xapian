@@ -132,7 +132,7 @@ namespace Xapian {
 
 %extend TermIterator {
     std::string next () {
-        std:string tmp;
+        std::string tmp;
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
@@ -145,7 +145,7 @@ namespace Xapian {
 
 %extend ValueIterator {
     std::string next () {
-        std:string tmp;
+        std::string tmp;
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
@@ -158,7 +158,7 @@ namespace Xapian {
 
 %extend ESetIterator {
     std::string next () {
-        std:string tmp;
+        std::string tmp;
         if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
