@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008,2011,2016,2017,2019,2023 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011,2016,2017,2019,2023,2026 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -114,6 +114,10 @@ public class SmokeTest {
             db.addDocument(doc);
             if (db.getDocCount() != 1) {
                 System.err.println("Unexpected db.getDocCount()");
+                System.exit(1);
+            }
+            if (!db.getUuid().equals("")) {
+                System.err.println("Unexpected db.getUUID()");
                 System.exit(1);
             }
 
