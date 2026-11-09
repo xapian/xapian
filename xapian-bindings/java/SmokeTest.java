@@ -68,6 +68,10 @@ public class SmokeTest {
                 System.exit(1);
             }
 
+            if (!Stem.getAvailableLanguages().contains("english")) {
+                System.err.println("Unexpected Stem.getAvailableLanguages()");
+                System.exit(1);
+            }
             Stem stem = new Stem("english");
             if (!stem.toString().equals("Xapian::Stem(english)")) {
                 System.err.println("Unexpected stem.toString()");
