@@ -1057,9 +1057,8 @@ if test no != "$with_perl" ; then
       dnl Perl's inline functions compiled into the extension behave.  So use
       dnl Perl's ccflags, as ExtUtils::MakeMaker does, filtering them like
       dnl perl/t/symbol-test/Makefile.PL: -Wdeclaration-after-statement isn't
-      dnl meaningful for C++, and the generated code causes "variable may be
-      dnl used uninitialized" warnings with -Wall.
-      [PERL_CCFLAGS=`$PERL -MConfig -e '$_ = $Config{ccflags}; s/(?:^|\s+)-Wdeclaration-after-statement(?=\s|$)//; s/(^|\s)-Wall(?=\s|$)/$1-Wall -Wno-uninitialized/; s/^\s+//; print'`]
+      dnl meaningful for C++.
+      [PERL_CCFLAGS=`$PERL -MConfig -e '$_ = $Config{ccflags}; s/(?:^|\s+)-Wdeclaration-after-statement(?=\s|$)//; s/^\s+//; print'`]
     fi
     AC_SUBST(PERL_CCFLAGS)
 

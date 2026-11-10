@@ -116,9 +116,6 @@ my $CCFLAGS = $Config{'ccflags'};
 # Perl is built with -Wdeclaration-after-statement on RHEL5 - this isn't
 # meaningful for C++ - it only emits a warning but it's easy to fix.
 $CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
-# The generated code causes "variable may be used uninitialized" warnings
-# if Perl was built with -Wall.
-$CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
 if (exists $var{CPPFLAGS}) {
     $CCFLAGS .= ' ' . $var{CPPFLAGS};
