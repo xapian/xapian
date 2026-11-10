@@ -1400,11 +1400,10 @@ if test yes = "$GXX"; then
       WERROR=-Werror
       ;;
     *__clang__*)
-      dnl Intel's compiler (since __clang__ not substituted):
+      dnl Intel's "classic" compiler (since __clang__ not substituted):
       dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1"
 
       WERROR=-Werror
       ;;

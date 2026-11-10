@@ -1181,14 +1181,10 @@ if test yes = "$GXX" ; then
      #endif
     ],
     [
-      dnl Intel's compiler:
+      dnl Intel's "classic" compiler:
       dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      dnl
-      dnl Swig generated code gives lots of unused and uninitialized warnings.
-      dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1 -wd177,1572"
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1"
     ],
     [
       dnl GCC or clang:
