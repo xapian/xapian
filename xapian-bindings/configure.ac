@@ -1189,9 +1189,9 @@ if test yes = "$GXX" ; then
     [
       dnl GCC or clang:
       dnl
-      dnl Swig generated code gives lots of unused and uninitialized warnings.
-      dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -Wno-unused -Wno-uninitialized"
+      dnl Enable some warnings here - modern Swig generated code shouldn't
+      dnl trigger these and they can catch bugs in our custom typemaps.
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall"
     ])
 
   if test no != "$enable_visibility"; then
