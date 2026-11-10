@@ -6,6 +6,7 @@ use Config;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CPPFLAGS} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{CXXFLAGS} = 1;
+$ExtUtils::MakeMaker::Recognized_Att_Keys{PERL_CCFLAGS} = 1;
 $ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
 
 my $builddir;
@@ -30,7 +31,7 @@ for (@ARGV) {
 	$xapian_config = $1;
     } elsif (/^CXX=(.*)/) {
 	$CC = $1;
-    } elsif (/^(C(?:XX|PP)FLAGS)=(.*)/) {
+    } elsif (/^((?:C(?:XX|PP)|PERL_CC)FLAGS)=(.*)/) {
 	$var{$1} = $2;
     }
 }
@@ -111,12 +112,12 @@ if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     );
 }
 
-# Filter out some gcc options which g++ doesn't support.
-my $CCFLAGS = $Config{'ccflags'};
-# Perl is built with -Wdeclaration-after-statement on RHEL5 - this isn't
-# meaningful for C++ - it only emits a warning but it's easy to fix.
-$CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
-
+my $CCFLAGS;
+if (exists $var{PERL_CCFLAGS}) {
+    $CCFLAGS = $var{PERL_CCFLAGS};
+} else {
+    $CCFLAGS = $Config{'ccflags'};
+}
 if (exists $var{CPPFLAGS}) {
     $CCFLAGS .= ' ' . $var{CPPFLAGS};
 } elsif (exists $ENV{CPPFLAGS}) {

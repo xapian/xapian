@@ -34,11 +34,13 @@ AM_TESTS_ENVIRONMENT = \
 	CPPFLAGS="$(CPPFLAGS)" ;\
 	CXX="$(CXX)" ;\
 	CXXFLAGS="$(CXXFLAGS)" ;\
+	PERL_CCFLAGS="$(PERL_CCFLAGS)" ;\
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" ;\
 	export srcdir ;\
 	export CPPFLAGS ;\
 	export CXX ;\
 	export CXXFLAGS ;\
+	export PERL_CCFLAGS ;\
 	export XAPIAN_CONFIG ;
 LOG_COMPILER = \
     $(LIBTOOL) -dlopen Xapian.la --mode=execute $(MACOS_SIP_HACK_ENV) $(PERL) \

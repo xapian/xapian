@@ -1056,8 +1056,8 @@ if test no != "$with_perl" ; then
       dnl leading to memory corruption.  Flags like -fwrapv also affect how
       dnl Perl's inline functions compiled into the extension behave.  So use
       dnl Perl's ccflags, as ExtUtils::MakeMaker does, filtering them like
-      dnl perl/t/symbol-test/Makefile.PL: -Wdeclaration-after-statement isn't
-      dnl meaningful for C++.
+      dnl to remove -Wdeclaration-after-statement which isn't meaningful for
+      dnl C++.
       [PERL_CCFLAGS=`$PERL -MConfig -e '$_ = $Config{ccflags}; s/(?:^|\s+)-Wdeclaration-after-statement(?=\s|$)//; s/^\s+//; print'`]
     fi
     AC_SUBST(PERL_CCFLAGS)
