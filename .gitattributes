@@ -3,5 +3,5 @@
 
 # Exceptions:
 xapian-core/tests/testdata/** binary
-xapian-core/tests/testdata/*.txt text eol=lf
+xapian-core/tests/testdata/*.txt text eol=lf diff
 xapian-omega/testfiles/** binary
