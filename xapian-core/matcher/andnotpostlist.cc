@@ -66,38 +66,41 @@ AndNotPostList::next(double w_min)
 PostList*
 AndNotPostList::skip_to(Xapian::docid did, double w_min)
 {
-    if (did > pl->get_docid()) {
-        PostList* result = pl->skip_to(did, w_min);
+    // We can't safely check if did <= pl->get_docid() because pl may not
+    // have been started yet, but it seems in practice we don't get called
+    // in this situation (I failed to trigger an instance, so it seems uncommon
+    // if not actually impossible).  It should also be safe to try to advance
+    // pl in that case so just do that unconditionally.
+    PostList* result = pl->skip_to(did, w_min);
+    if (result) {
+        delete pl;
+        pl = result;
+    }
+    if (pl->at_end()) {
+        result = pl;
+        pl = nullptr;
+        return result;
+    }
+    Xapian::docid l_did = pl->get_docid();
+    if (l_did > r_did) {
+        bool r_valid;
+        result = r->check(l_did, 0, r_valid);
         if (result) {
-            delete pl;
-            pl = result;
+            delete r;
+            r = result;
         }
-        if (pl->at_end()) {
+        if (!r_valid)
+            return nullptr;
+        if (r->at_end()) {
             result = pl;
             pl = nullptr;
             return result;
         }
-        Xapian::docid l_did = pl->get_docid();
-        if (l_did > r_did) {
-            bool r_valid;
-            result = r->check(l_did, 0, r_valid);
-            if (result) {
-                delete r;
-                r = result;
-            }
-            if (!r_valid)
-                return nullptr;
-            if (r->at_end()) {
-                result = pl;
-                pl = nullptr;
-                return result;
-            }
-            r_did = r->get_docid();
-        }
-        if (l_did == r_did) {
-            // Advance to the next match.
-            return AndNotPostList::next(w_min);
-        }
+        r_did = r->get_docid();
+    }
+    if (l_did == r_did) {
+        // Advance to the next match.
+        return AndNotPostList::next(w_min);
     }
     return nullptr;
 }

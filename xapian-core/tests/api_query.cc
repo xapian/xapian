@@ -1496,3 +1496,32 @@ DEFINE_TESTCASE(estimateopbug2, backend && !remote) {
     } catch (const Exception_estimateop2&) {
     }
 }
+
+// Regression test for bug introduced in 2.0.0 (#857).
+//
+// AndNotPostList::skip_to() could call get_docid() on its left sub-postlist
+// when the sub-postlist hadn't yet started and then get_docid() isn't valid to
+// call.  This could result in documents which shouldn't match being included
+// in the results.
+DEFINE_TESTCASE(andnotbug1, backend) {
+    Xapian::Database db = get_database("andnotbug1",
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc1;
+                                           doc1.add_term("A");
+                                           doc1.add_term("B");
+                                           doc1.add_term("D");
+                                           wdb.add_document(doc1);
+                                           Xapian::Document doc2;
+                                           doc2.add_term("C");
+                                           wdb.add_document(doc2);
+                                       });
+
+    using Xapian::Query;
+    auto q = ((Query("A") &~ Query("B")) | Query("C")) & Query("D");
+    Xapian::Enquire enq(db);
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    enq.set_query(q);
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+}
