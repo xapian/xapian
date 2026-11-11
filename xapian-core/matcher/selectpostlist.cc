@@ -94,16 +94,19 @@ SelectPostList::next(double w_min)
 PostList*
 SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
-    if (did > pl->get_docid()) {
-        PostList* result = pl->skip_to(did, w_min);
-        if (result) {
-            delete pl;
-            pl = result;
-        }
-        if (!vet(w_min)) {
-            // Advance to the next match.
-            return SelectPostList::next(w_min);
-        }
+    // We can't safely check if did <= pl->get_docid() because pl may not
+    // have been started yet, but it seems in practice we don't get called
+    // in this situation (I failed to trigger an instance, so it seems uncommon
+    // if not actually impossible).  It should also be safe to try to advance
+    // pl in that case so just do that unconditionally.
+    PostList* result = pl->skip_to(did, w_min);
+    if (result) {
+        delete pl;
+        pl = result;
+    }
+    if (!vet(w_min)) {
+        // Advance to the next match.
+        return SelectPostList::next(w_min);
     }
     return nullptr;
 }

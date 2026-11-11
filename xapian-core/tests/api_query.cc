@@ -1525,3 +1525,35 @@ DEFINE_TESTCASE(andnotbug1, backend) {
     enq.set_query(q);
     TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
 }
+
+// Regression test for bug introduced in 2.0.0.
+//
+// SelectPostList::skip_to() could call get_docid() on its sub-postlist when
+// the sub-postlist hadn't yet started and then get_docid() isn't valid to
+// call.  This could result in documents which shouldn't match being included
+// in the results.
+DEFINE_TESTCASE(selectbug1, backend) {
+    Xapian::Database db = get_database("selectbug1");
+    Xapian::Enquire enq(db);
+
+    using Xapian::Query;
+
+    auto q1 = Query(Query::OP_PHRASE, "x", "y");
+    q1 = Query(Query::OP_AND_MAYBE, "b", q1);
+    q1 |= Query("a");
+    enq.set_query(q1);
+    mset_expect_order(enq.get_mset(0, 1), 1);
+
+    auto q2 = Query(Query::OP_NEAR, "x", "y");
+    q2 = Query(Query::OP_AND_MAYBE, "b", q2);
+    q2 |= Query("a");
+    enq.set_query(q2);
+    mset_expect_order(enq.get_mset(0, 1), 1);
+
+    const char* const terms[] = {"y", "x"};
+    auto q3 = Query(Query::OP_PHRASE, std::begin(terms), std::end(terms), 10);
+    q3 = Query(Query::OP_AND_MAYBE, "b", q3);
+    q3 |= Query("a");
+    enq.set_query(q3);
+    mset_expect_order(enq.get_mset(0, 1), 1);
+}
