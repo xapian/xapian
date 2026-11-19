@@ -219,6 +219,7 @@ EXTRA_DIST +=\
 	testdata/glass_corrupt_item_too_big1 \
 	testdata/glass_corrupt_item_too_big2 \
 	testdata/phraseweightcheckbug1.txt \
+	testdata/selectbug1.txt \
 	testdata/snippet.txt
 
 remove-cached-databases:
