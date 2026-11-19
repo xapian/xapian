@@ -1,7 +1,7 @@
 /** @file
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018,2024 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017,2018,2024,2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -380,9 +380,12 @@ Query::add_subquery(bool positional, const Xapian::Query & subquery)
         switch (subquery.get_type()) {
             case LEAF_TERM:
                 break;
-            case LEAF_POSTING_SOURCE:
             case LEAF_MATCH_ALL:
             case LEAF_MATCH_NOTHING:
+            case LEAF_POSTING_SOURCE:
+            case OP_VALUE_GE:
+            case OP_VALUE_LE:
+            case OP_VALUE_RANGE:
                 // None of these have positions, so positional operators won't
                 // match.  Add MatchNothing as that is has special handling in
                 // AND-like queries to reduce the parent query to MatchNothing,

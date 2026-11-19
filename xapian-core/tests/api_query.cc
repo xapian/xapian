@@ -1,7 +1,7 @@
 /** @file
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008-2024 Olly Betts
+/* Copyright (C) 2008-2026 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1060,46 +1060,22 @@ DEFINE_TESTCASE(complexnear1, backend) {
     TEST(enq.get_mset(0, 10).empty());
 }
 
-/// Check subqueries of MatchAll, MatchNothing and PostingSource are supported.
-DEFINE_TESTCASE(complexphrase2, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enq(db);
+/// Check subqueries without positions are allowed and collapse to MatchNothing.
+DEFINE_TESTCASE(complexpositional1, !backend) {
     Xapian::ValueWeightPostingSource ps(0);
-    Xapian::Query subqs[3] = {
-        Xapian::Query(Xapian::Query::OP_PHRASE,
-            Xapian::Query("a"),
-            Xapian::Query(&ps)),
-        Xapian::Query(Xapian::Query::OP_PHRASE,
-            Xapian::Query("and"),
-            Xapian::Query::MatchAll),
-        Xapian::Query(Xapian::Query::OP_PHRASE,
-            Xapian::Query("at"),
-            Xapian::Query::MatchNothing)
-    };
-    Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
-    enq.set_query(query);
-    (void)enq.get_mset(0, 10);
-}
-
-/// Check subqueries of MatchAll, MatchNothing and PostingSource are supported.
-DEFINE_TESTCASE(complexnear2, backend) {
-    Xapian::Database db = get_database("apitest_simpledata");
-    Xapian::Enquire enq(db);
-    Xapian::ValueWeightPostingSource ps(0);
-    Xapian::Query subqs[3] = {
-        Xapian::Query(Xapian::Query::OP_NEAR,
-            Xapian::Query("a"),
-            Xapian::Query(&ps)),
-        Xapian::Query(Xapian::Query::OP_NEAR,
-            Xapian::Query("and"),
-            Xapian::Query::MatchAll),
-        Xapian::Query(Xapian::Query::OP_NEAR,
-            Xapian::Query("at"),
-            Xapian::Query::MatchNothing)
-    };
-    Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
-    enq.set_query(query);
-    (void)enq.get_mset(0, 10);
+    for (auto&& q : {
+        Xapian::Query::MatchAll,
+        Xapian::Query::MatchNothing,
+        Xapian::Query(&ps),
+        Xapian::Query(Xapian::Query::OP_VALUE_GE, 0, "a"),
+        Xapian::Query(Xapian::Query::OP_VALUE_LE, 0, "z"),
+        Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 0, "a", "z"),
+        }) {
+        for (auto op : {Xapian::Query::OP_NEAR, Xapian::Query::OP_PHRASE}) {
+            Xapian::Query query(op, "abc", q);
+            TEST(query.empty());
+        }
+    }
 }
 
 /// A zero estimated number of matches broke the code to round the estimate.
