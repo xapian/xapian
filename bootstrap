@@ -617,11 +617,11 @@ if need_to_build $args automake ; then
   AUTOMAKE=$instdir/bin/automake
   export AUTOMAKE
 fi
-args='libtool 2.5.4'
+args='libtool 2.6.2'
 if need_to_build $args libtool ; then
   lazy_build $args \
-    tar.xz f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675 \
-    tar.gz da8ebb2ce4dcf46b90098daf962cffa68f4b4f62ea60f798d0ef12929ede6adf
+    tar.xz 2ef1067c16c97db930fd740cc9bc3d3ba9a583804ae5ac42cc3e8719e49e191e \
+    tar.gz 24adb3aa9ae035c70faba344af57d73215eb89281045af6c7ccd307751f8b0bf
   LIBTOOLIZE=$instdir/bin/libtoolize
   export LIBTOOLIZE
   libtool_aclocal=$instdir/share/aclocal
