@@ -1384,10 +1384,17 @@ QueryTerm::postlist_sub_and_like(AndContext& ctx,
                                  double factor,
                                  TermFreqs* termfreqs) const
 {
-    if (term.empty() && !qopt->need_positions && factor == 0.0 && !termfreqs) {
-        // No-op MatchAll.
-        ctx.set_match_all();
-        return true;
+    // We used to check this here, but it shouldn't be possible.  Assert it to
+    // defend against the code flow changing.
+    Assert(!qopt->need_positions);
+
+    if (term.empty()) {
+        if (!termfreqs) {
+            // No-op MatchAll.
+            ctx.set_match_all();
+            return true;
+        }
+        Assert(factor == 0.0);
     }
     return ctx.add_postlist(postlist(qopt, factor, termfreqs), termfreqs);
 }
@@ -2890,8 +2897,14 @@ QueryWindowed::postlist_windowed(Query::op op,
         // MatchNothing subqueries should have been removed by done().
         Assert((*i).internal);
         auto plest = (*i).internal->postlist(qopt, factor, nullptr);
-        if (plest.pl && (*i).internal->get_type() != Query::LEAF_TERM) {
-            plest.pl = new OrPosPostList(plest.pl);
+        if (plest.pl) {
+            auto type = (*i).internal->get_type();
+            // A positional operator with a MatchAll subqueries is collapsed
+            // to MatchNothing when the Query object is constructed.
+            Assert(type != Query::LEAF_MATCH_ALL);
+            if (type != Query::LEAF_TERM) {
+                plest.pl = new OrPosPostList(plest.pl);
+            }
         }
         result = ctx.add_postlist(std::move(plest), termfreqs);
         if (!result) {

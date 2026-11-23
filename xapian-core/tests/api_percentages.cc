@@ -356,3 +356,108 @@ DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
     // Make sure the percentage score isn't 0 or 1 though.
     TEST_REL(mset[0].get_percent(), >, 1);
 }
+
+DEFINE_TESTCASE(alldocpercent1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    {
+        enquire.set_query(Xapian::Query::MatchAll);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 6);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_AND_NOT, q.MatchAll, "line");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 4);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_OR, "typo", "spoken");
+        q |= Xapian::Query(q.OP_AND_NOT, q.MatchAll, "line");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 4);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_OR, "spoken", "blank");
+        q |= Xapian::Query(q.OP_AND_NOT, q.MatchAll, "line");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 5);
+        TEST_EQUAL(mset[0].get_percent(), 50);
+    }
+    {
+        Xapian::Query q(q.OP_AND, "absolut", "rubbish");
+        q &= Xapian::Query(q.OP_AND_NOT, q.MatchAll, "line");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 1);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_NEAR, "absolut", q.MatchAll);
+        q |= Xapian::Query("line");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 2);
+        // MatchAll has no positions, so the OP_NEAR is collapsed to MatchNone
+        // and is treated as unweighted, so matching `line` gives 100%.
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_NEAR, "absolut", q.MatchAll);
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 0);
+    }
+    {
+        Xapian::Query q(q.OP_AND_NOT, "absolut", q.MatchAll);
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 0);
+    }
+    {
+        Xapian::Query q(q.OP_AND_MAYBE, "absolut", q.MatchAll);
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 1);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_AND_MAYBE, q.MatchAll, "absolut");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 6);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_SYNONYM,
+                        q.MatchAll &~ Xapian::Query("paragraph"), "absolut");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 2);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_SYNONYM,
+                        Xapian::Query(q.OP_AND_MAYBE,
+                                      q.MatchAll, Xapian::Query("paragraph")),
+                        "absolut");
+        // "paragraph" gets optimised away because it's unweighted.
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 6);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+    {
+        Xapian::Query q(q.OP_SYNONYM,
+                        q.MatchAll & Xapian::Query("this"), "absolut");
+        enquire.set_query(q);
+        Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+        TEST_EQUAL(mset.size(), 6);
+        TEST_EQUAL(mset[0].get_percent(), 100);
+    }
+}
