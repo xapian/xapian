@@ -1533,3 +1533,38 @@ DEFINE_TESTCASE(selectbug1, backend) {
     enq.set_query(q3);
     mset_expect_order(enq.get_mset(0, 1), 1);
 }
+
+// Regression test for bug fixed in Xapian 2.1.1 (specific to Xapian 2.x).
+DEFINE_TESTCASE(orcheckbug1, backend) {
+    Xapian::Database db = get_database("orcheckbug1",
+                                       [](Xapian::WritableDatabase& wdb,
+                                          const string&)
+                                       {
+                                           Xapian::Document doc1;
+                                           doc1.add_boolean_term("B1");
+                                           wdb.add_document(doc1);
+                                           Xapian::Document doc2;
+                                           doc2.add_boolean_term("B0");
+                                           doc2.add_value(0, "A");
+                                           wdb.add_document(doc2);
+                                           Xapian::Document doc3;
+                                           doc3.add_boolean_term("B1");
+                                           doc3.add_boolean_term("D1");
+                                           doc3.add_value(0, "X");
+                                           wdb.add_document(doc3);
+                                       });
+
+    using Xapian::Query;
+    auto not_d1 = Query(Query::OP_AND_NOT, Query::MatchAll, "D1");
+    auto q = Query(Query::OP_AND, "B0", not_d1) |
+             Query(Query::OP_AND, "B1", not_d1);
+    q &= Query(Query::OP_VALUE_RANGE, 0, "V", "Z");
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    // This incorrectly matched document #2 in Xapian 2.0.0 to 2.1.0.
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+
+    // Test BoolWeight too, which uses BoolOrPostList instead or OrPostList.
+    enq.set_weighting_scheme(Xapian::BoolWeight());
+    TEST_EQUAL(enq.get_mset(0, 10).size(), 0);
+}

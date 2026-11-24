@@ -379,7 +379,7 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
             PostList* result = r;
             r = nullptr;
             pltree->force_recalc();
-            valid = true;
+            valid = (l_did != 0);
             return result;
         }
     }
@@ -389,7 +389,7 @@ OrPostList::check(Xapian::docid did, double w_min, bool& valid)
             PostList* result = l;
             l = nullptr;
             pltree->force_recalc();
-            valid = true;
+            valid = (r_did != 0);
             return result;
         }
     }
