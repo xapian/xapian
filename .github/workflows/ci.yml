@@ -1934,13 +1934,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [2022, 2026]
+        version: [2022, 2027]
         arch: [x86, x64]
         include:
           - version: 2022
             runs-on: 'windows-2022'
-          - version: 2026
-            runs-on: 'windows-2025-vs2026'
+          - version: 2027
+            runs-on: 'windows-2025'
     runs-on: ${{ matrix.runs-on }}
     needs: makedist
     defaults:
@@ -2058,7 +2058,9 @@ jobs:
           **/*.log
 
   clang-cl:
-    runs-on: 'windows-2025-vs2026'
+    # 2026-11-25: Currently the windows-2025 image has a clang-cl which is too
+    # old to work with the MSVC version it has.
+    runs-on: 'windows-2022'
     needs: makedist
     defaults:
       run:
